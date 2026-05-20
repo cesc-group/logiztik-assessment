@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logiztik — Behavioral Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F7F5;--white:#FFF;--border:#E2E2DE;--border2:#C8C8C2;
+  --text:#18181B;--text2:#52525B;--text3:#A1A1AA;
+  --accent:#2D5BE3;--accent-bg:#EEF2FF;
+  --green:#15803D;--green-bg:#F0FDF4;
+  --amber:#92400E;--amber-bg:#FFFBEB;
+  --coral:#9F1239;--coral-bg:#FFF1F2;
+  --r:8px;--r-sm:5px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:840px;margin:0 auto;padding:0 1.5rem 4rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;margin-bottom:.5rem;border-bottom:.5px solid var(--border)}
+.brand{font-size:13px;font-weight:600;color:var(--text)}
+.brand span{font-weight:400;color:var(--text3)}
+.nav{display:flex;gap:1.25rem}
+.nav a{font-size:13px;color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none}
+.screen{display:none}.screen.active{display:block}
+
+/* INTRO */
+.hero{padding:2.5rem 0 1.5rem}
+.hero h1{font-size:30px;font-weight:600;line-height:1.25;margin-bottom:.6rem}
+.hero p{font-size:15px;color:var(--text2);line-height:1.7;max-width:580px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill{font-size:11px;padding:4px 10px;border-radius:99px;background:var(--white);border:1px solid var(--border);color:var(--text2)}
+.info-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin:1.25rem 0}
+.info-card h3{font-size:13px;font-weight:600;margin-bottom:.6rem}
+.info-card ul{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.info-card li{font-size:13px;color:var(--text2);padding-left:1rem;position:relative;line-height:1.5}
+.info-card li::before{content:"·";color:var(--accent);font-weight:700;position:absolute;left:0}
+.note{font-size:12px;color:var(--text3);margin-top:.75rem;line-height:1.5}
+
+/* FORM */
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin:1.25rem 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:520px){.form-grid{grid-template-columns:1fr}}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{width:100%;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--bg);font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border .12s}
+.field input:focus,.field select:focus{border-color:var(--accent);background:#fff}
+.field input::placeholder{color:var(--text3)}
+
+/* QUESTION */
+.q-hdr{padding:2rem 0 1rem;border-bottom:.5px solid var(--border);margin-bottom:1.25rem}
+.q-step{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+.q-hdr h2{font-size:19px;font-weight:600;line-height:1.35;max-width:640px}
+.q-hdr p{font-size:13px;color:var(--text2);margin-top:.35rem}
+.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:1.1rem}
+.prog-track{flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
+.prog-txt{font-size:12px;color:var(--text3);white-space:nowrap;min-width:72px;text-align:right}
+
+/* WORD GRID — 3 columns like PI */
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--white);margin-bottom:1.25rem}
+@media(max-width:520px){.wgrid{grid-template-columns:repeat(2,1fr)}}
+.wi{display:flex;align-items:center;gap:9px;padding:10px 13px;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .1s;user-select:none}
+.wi:hover{background:#F0F4FF}
+.wi.on{background:var(--accent-bg)}
+.wi.on .wbox{background:var(--accent);border-color:var(--accent)}
+.wi.on .wbox::after{opacity:1}
+.wi.on .wl{color:var(--accent);font-weight:500}
+.wbox{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;position:relative;transition:all .1s}
+.wbox::after{content:"✓";position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-size:9px;color:#fff;opacity:0;font-weight:700}
+.wl{font-size:13.5px;color:var(--text)}
+
+/* BUTTONS */
+.btn-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:.25rem}
+.btn-p{padding:11px 22px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .12s}
+.btn-p:hover{background:#1d4ed8}.btn-p:disabled{opacity:.35;cursor:not-allowed}
+.btn-g{padding:10px 18px;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;transition:all .12s}
+.btn-g:hover{border-color:var(--text2);color:var(--text)}
+.hint{font-size:12px;color:var(--text3)}
+.btn-lg{display:inline-flex;align-items:center;gap:6px;padding:12px 26px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background .12s}
+.btn-lg:hover{background:#1d4ed8}
+
+/* RESULTS */
+.r-top{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;margin:1.25rem 0}
+.p-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;margin-bottom:.75rem}
+.r-name{font-size:24px;font-weight:600;margin-bottom:.2rem}
+.r-sub{font-size:13px;color:var(--text3);margin-bottom:.9rem}
+.r-tagline{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:.65rem;line-height:1.4}
+.r-desc{font-size:14px;color:var(--text2);line-height:1.75;border-top:.5px solid var(--border);padding-top:.9rem}
+.sec{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:.9rem}
+.sec-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem}
+@media(max-width:520px){.two-col{grid-template-columns:1fr}}
+.tag-list{display:flex;flex-direction:column;gap:5px}
+.tag{font-size:13px;padding:6px 10px;border-radius:var(--r-sm);line-height:1.45}
+.tag-g{background:var(--green-bg);color:var(--green)}
+.tag-a{background:var(--amber-bg);color:var(--amber)}
+.dim-block{margin-bottom:1rem}.dim-block:last-child{margin-bottom:0}
+.dim-top-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.dim-name{font-size:13px;font-weight:500}.dim-orient{font-size:12px;color:var(--text3);font-style:italic}
+.dim-track{height:7px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:3px}
+.dim-bar{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.dim-poles{display:flex;justify-content:space-between}
+.dim-pole{font-size:10px;color:var(--text3)}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:7px}
+.role-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 7px;text-align:center}
+.role-name{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px}
+.fit-dots{display:flex;justify-content:center;gap:3px}
+.fd{width:8px;height:8px;border-radius:50%}
+.fd.full{background:var(--green)}.fd.mid{background:#FCD34D}.fd.empty{background:var(--border)}
+.role-note{font-size:10.5px;color:var(--text3);margin-top:.75rem;line-height:1.55}
+.mscroll{overflow-x:auto}
+.mtbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:460px}
+.mtbl th{padding:7px 9px;text-align:left;font-weight:600;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--bg)}
+.mtbl td{padding:8px 9px;border-bottom:.5px solid var(--border);vertical-align:top;line-height:1.5;color:var(--text2)}
+.mtbl tr:last-child td{border-bottom:none}
+.mtbl .yr{background:var(--accent-bg)}.mtbl .yr td{color:var(--accent)}
+.syn{display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700}
+.syn-hi{background:var(--green-bg);color:var(--green)}.syn-md{background:var(--amber-bg);color:var(--amber)}.syn-lo{background:var(--coral-bg);color:var(--coral)}
+.sc-note{background:var(--accent-bg);border:1px solid #C7D7F9;border-radius:var(--r);padding:.9rem 1.1rem;margin-bottom:.9rem;font-size:13px;color:#1e3a8a;line-height:1.6}
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:1.25rem;padding-top:1.1rem;border-top:.5px solid var(--border)}
+
+/* TEAM VIEW */
+.team-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.1rem}
+.fchip{padding:6px 13px;border-radius:99px;font-size:13px;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .1s}
+.fchip.on{background:var(--text);color:#fff;border-color:var(--text)}
+.team-list{display:flex;flex-direction:column;gap:7px;margin-bottom:1.25rem}
+.tc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1.1rem;display:flex;align-items:center;gap:12px}
+.tav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.ti{flex:1}.tn{font-size:14px;font-weight:500}.tm{font-size:12px;color:var(--text3);margin-top:1px}
+.tb{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
+.t-empty{text-align:center;padding:2rem;color:var(--text3);font-size:14px}
+.del-btn{background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);padding:4px;border-radius:4px;line-height:1;flex-shrink:0}
+.del-btn:hover{color:var(--coral);background:var(--coral-bg)}
+
+/* TEAM COMPOSITION GUIDE */
+.comp-intro{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:1.25rem}
+.combo-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
+.combo{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem}
+.combo-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:.4rem;flex-wrap:wrap}
+.combo-names{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.combo-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
+.combo-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.combo-watch{font-size:12px;color:var(--amber);margin-top:.35rem;font-style:italic}
+.section-divider{height:.5px;background:var(--border);margin:1.75rem 0}
+.h2-sec{font-size:16px;font-weight:600;margin-bottom:.35rem}
+.h2-sub{font-size:13px;color:var(--text2);margin-bottom:1.1rem}
+.tab-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.25rem}
+.tab{padding:7px 15px;border-radius:99px;font-size:13px;font-weight:400;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .1s}
+.tab.on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* LOADING STATE */
+.loading{text-align:center;padding:2rem;color:var(--text3);font-size:14px}
+.err{text-align:center;padding:1.5rem;color:var(--coral);font-size:13px;background:var(--coral-bg);border-radius:var(--r);margin:1rem 0}
+
+@media print{
+  .topbar .nav,.action-bar,#printBtn{display:none}
+  body{background:#fff}
+  .sec,.r-top,.two-col .sec{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">Logiztik Alliance <span>· People Assessment</span></div>
+    <nav class="nav">
+      <a onclick="go('sIntro')">Assessment</a>
+      <a onclick="go('sTeam');loadTeam('All')">Team view</a>
+      <a onclick="go('sGuide')">Team guide</a>
+    </nav>
+  </div>
+
+  <!-- ═══ INTRO ═══ -->
+  <div id="sIntro" class="screen active">
+    <div class="hero">
+      <h1>Behavioral Assessment</h1>
+      <p>A two-question exercise that reveals how you naturally behave at work — and how you think your role expects you to behave. No right or wrong answers.</p>
+      <div class="pills">
+        <span class="pill">~6 minutes</span>
+        <span class="pill">Two questions · Same word list</span>
+        <span class="pill">7 behavioral profiles</span>
+        <span class="pill">Results saved for your team</span>
+      </div>
+    </div>
+    <div class="info-card">
+      <h3>Before you begin</h3>
+      <ul>
+        <li>You will see the same list of words twice, with a different question each time.</li>
+        <li>Select the words that feel genuinely true — don't overthink it.</li>
+        <li>If you don't recognize a word, skip it.</li>
+        <li>Please complete it in one sitting.</li>
+        <li>There are no right or wrong answers.</li>
+      </ul>
+      <p class="note">Your result will be saved and visible to your manager in the Team view. Results are stored securely and accessible from any device.</p>
+    </div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="field"><label>Full name</label><input type="text" id="fName" placeholder="John Doe"/></div>
+        <div class="field"><label>Station</label>
+          <select id="fStation"><option value="">Select station</option><option>Colombia</option><option>Ecuador</option><option>Netherlands</option><option>United States</option></select>
+        </div>
+        <div class="field"><label>Function</label>
+          <select id="fRole"><option value="">Select function</option><option>Sales</option><option>Customer Experience</option><option>Capacity</option><option>Finance</option><option>Operations</option><option>Human Resources</option><option>Project Manager</option></select>
+        </div>
+        <div class="field"><label>Years in logistics</label>
+          <select id="fExp"><option value="">Select</option><option>0–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select>
+        </div>
+      </div>
+    </div>
+    <button class="btn-lg" onclick="startA()">Begin assessment →</button>
+  </div>
+
+  <!-- ═══ Q1 ═══ -->
+  <div id="sQ1" class="screen">
+    <div class="q-hdr">
+      <div class="q-step">Question 1 of 2</div>
+      <h2>Please select the words that you believe <u>really describe you as you are</u> at work.</h2>
+      <p>Choose as many or as few as feel genuinely true. Your first instinct is almost always the most accurate.</p>
+    </div>
+    <div class="prog-row"><div class="prog-track"><div class="prog-fill" id="p1f" style="width:0%"></div></div><div class="prog-txt" id="p1t">0 selected</div></div>
+    <div class="wgrid" id="g1"></div>
+    <div class="btn-row">
+      <button class="btn-p" id="bQ1" onclick="go('sQ2')" disabled>Continue →</button>
+      <span class="hint" id="h1">Select at least 5 words to continue</span>
+    </div>
+  </div>
+
+  <!-- ═══ Q2 ═══ -->
+  <div id="sQ2" class="screen">
+    <div class="q-hdr">
+      <div class="q-step">Question 2 of 2</div>
+      <h2>Please select the words that describe <u>the way you are expected to act by others</u> at work.</h2>
+      <p>Think about what your manager, team, or clients expect of you — even if it differs from who you naturally are.</p>
+    </div>
+    <div class="prog-row"><div class="prog-track"><div class="prog-fill" id="p2f" style="width:0%"></div></div><div class="prog-txt" id="p2t">0 selected</div></div>
+    <div class="wgrid" id="g2"></div>
+    <div class="btn-row">
+      <button class="btn-p" id="bQ2" onclick="finish()" disabled>See my profile →</button>
+      <button class="btn-g" onclick="go('sQ1')">← Back</button>
+      <span class="hint" id="h2">Select at least 5 words to continue</span>
+    </div>
+  </div>
+
+  <!-- ═══ RESULTS ═══ -->
+  <div id="sResults" class="screen">
+    <div id="rHTML"></div>
+    <div class="action-bar">
+      <button class="btn-p" id="printBtn" onclick="window.print()">Print / save PDF</button>
+      <button class="btn-g" onclick="cpyTxt()">Copy summary</button>
+      <button class="btn-g" onclick="retake()">Retake</button>
+      <button class="btn-g" onclick="go('sTeam');loadTeam('All')">Team view →</button>
+    </div>
+  </div>
+
+  <!-- ═══ TEAM VIEW ═══ -->
+  <div id="sTeam" class="screen">
+    <div class="hero" style="padding-bottom:.5rem">
+      <h1>Team results</h1>
+      <p>All profiles saved centrally — accessible from any device. Filter by region to see your team composition.</p>
+    </div>
+    <div class="team-filter">
+      <div class="fchip on" onclick="loadTeam('All');setF(this)">All</div>
+      <div class="fchip" onclick="loadTeam('Colombia');setF(this)">Colombia</div>
+      <div class="fchip" onclick="loadTeam('Ecuador');setF(this)">Ecuador</div>
+      <div class="fchip" onclick="loadTeam('Netherlands');setF(this)">Netherlands</div>
+      <div class="fchip" onclick="loadTeam('United States');setF(this)">United States</div>
+    </div>
+    <div id="teamList" class="team-list"></div>
+    <div class="action-bar">
+      <button class="btn-g" onclick="go('sIntro')">Take assessment</button>
+      <button class="btn-g" onclick="go('sGuide')">Team composition guide →</button>
+    </div>
+  </div>
+
+  <!-- ═══ TEAM COMPOSITION GUIDE ═══ -->
+  <div id="sGuide" class="screen">
+    <div class="hero" style="padding-bottom:.5rem">
+      <h1>Team composition guide</h1>
+      <p>Understanding how behavioral profiles interact helps you build more effective teams and have better conversations about working styles.</p>
+    </div>
+
+    <div class="info-card" style="background:var(--accent-bg);border-color:#C7D7F9">
+      <p style="font-size:13px;color:#1e3a8a;line-height:1.65"><strong>How to use this guide.</strong> No profile is better than another. A team of all Strategists will drive hard but struggle with empathy and retention. A team of all Collaborators will be beloved by clients but may avoid the hard commercial conversations. The strongest teams have intentional diversity across profiles — each person covering a natural blind spot of the others.</p>
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="h2-sec">Profile quick reference</div>
+    <div class="h2-sub">What each profile brings — and what they need from the team</div>
+
+    <div class="tab-bar" id="profileTabs"></div>
+    <div id="profileDetail"></div>
+
+    <div class="section-divider"></div>
+    <div class="h2-sec">Winning team combinations</div>
+    <div class="h2-sub">Pairings and trios that consistently produce results in commercial logistics environments</div>
+    <div class="combo-grid" id="comboGrid"></div>
+
+    <div class="section-divider"></div>
+    <div class="h2-sec">Combinations to manage carefully</div>
+    <div class="h2-sub">These pairings can work — but they require explicit role clarity and regular check-ins</div>
+    <div class="combo-grid" id="watchGrid"></div>
+
+    <div class="action-bar">
+      <button class="btn-g" onclick="go('sTeam');loadTeam('All')">← Team view</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── GOOGLE SHEETS CONFIG ────────────────────────────────────────────────────
+// Paste your Google Apps Script URL here after completing Step 1 of the setup guide
+const GS_URL = https://script.google.com/macros/s/AKfycbzJM0rYGGgrQCzuwNxzrvVKopgcJxm3JQkETuf7kpLVR5MSTzLX_qJ_i-9Lo2ooB34sQA/exec;
+
+// Write a result to the sheet
+async function storeUpsert(entry) {
+  try {
+    await fetch(GS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'upsert', entry })
+    });
+  } catch(e) { console.error('storeUpsert:', e); }
+}
+
+// Read all results (or filter by station)
+async function storeGet(station) {
+  try {
+    let url = GS_URL + '?action=get';
+    if (station && station !== 'All') url += '&station=' + encodeURIComponent(station);
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(await r.text());
+    return await r.json();
+  } catch(e) { console.error('storeGet:', e); return []; }
+}
+
+// Delete a result by name + station
+async function storeDelete(name, station) {
+  try {
+    await fetch(GS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', name, station })
+    });
+  } catch(e) { console.error('storeDelete:', e); }
+}
+
+// ─── WORD LIST (86 words, from PI assessment) ───────────────────────────────
+// A=Dominance B=Extraversion C=Patience D=Formality E=Objectivity
+const W = [
+  ["Social",{B:3,C:1}],["Neat",{D:2,C:1}],["Patient",{C:3}],["Reasonable",{B:1,C:2}],
+  ["Content",{C:2}],["Persistent",{A:1,D:2,C:1}],["Realistic",{D:2,E:2}],["Relaxed",{C:2,B:1}],
+  ["Dominant",{A:3}],["Analytical",{D:2,E:3,B:-1}],["Satisfied",{C:2}],["Exciting",{B:3,C:-1}],
+  ["Serene",{C:3}],["Unassuming",{A:-2,B:-1}],["Serious",{D:2,B:-1}],["Assertive",{A:3,B:1}],
+  ["Disciplined",{D:3,C:1}],["Charming",{B:3}],["Orderly",{D:3,C:1}],["Tolerant",{C:2,B:1}],
+  ["Principled",{D:2,E:2}],["Pleasant",{B:2,C:1}],["Observant",{D:2,E:2,B:-1}],["Consistent",{C:3,D:1}],
+  ["Calm",{C:3,B:-1}],["Tidy",{D:2,C:1}],["Judicious",{D:2,E:2}],["Meticulous",{D:3,A:1}],
+  ["Formidable",{A:3,D:1}],["Contemplative",{D:1,E:2,B:-1}],["Constant",{C:3,D:1}],
+  ["Understanding",{B:2,C:2}],["Bold",{A:3,D:-1}],["Conventional",{D:2,C:1}],
+  ["Charismatic",{B:3,A:1}],["Convincing",{B:3,A:2}],["Polished",{B:2,D:2}],
+  ["Caring",{B:2,C:2}],["Formal",{D:3}],["Loyal",{C:3,B:1}],["Alert",{A:1,D:1,E:2}],
+  ["Popular",{B:3}],["Commanding",{A:3,B:1}],["Sympathetic",{B:2,C:2}],
+  ["Precise",{D:3,E:2}],["Dutiful",{D:2,C:2}],["Accurate",{D:3,E:2}],["Powerful",{A:3}],
+  ["Eager",{B:2,A:1,C:-1}],["Courageous",{A:3,D:-1}],["Agreeable",{B:2,C:2,A:-1}],
+  ["Factual",{D:2,E:3,B:-1}],["Polite",{B:2,D:1,C:1}],["Determined",{A:3,C:-1}],
+  ["Talkative",{B:3}],["Daring",{A:3,D:-2}],["Esteemed",{A:1,B:1,D:1}],
+  ["Engaging",{B:3,A:1}],["Firm",{A:2,D:2}],["Responsive",{B:2,C:1}],
+  ["Careful",{D:3,A:-1}],["Aware",{D:1,E:2}],["Relentless",{A:3,C:-2}],
+  ["Fascinating",{B:2,A:1}],["Rational",{E:3,D:1,B:-1}],["Gentle",{B:2,C:2,A:-2}],
+  ["Competitive",{A:3,C:-1}],["Organized",{D:3,C:1}],["Lively",{B:3,C:-1}],
+  ["Logical",{E:3,D:2,B:-1}],["Proper",{D:3}],["Outstanding",{A:2,B:1}],
+  ["Resolute",{A:3,D:1}],["Harmonious",{B:2,C:2,A:-1}],["Earnest",{D:2,A:1}],
+  ["Nice",{B:2,C:2}],["Appealing",{B:2}],["Stable",{C:3,D:1}],["Influential",{A:2,B:2}],
+  ["Dignified",{D:2,B:1}],["Outgoing",{B:3}],["Respectful",{D:2,C:1,B:1}],
+  ["Unobtrusive",{A:-2,B:-1,C:2}],["Communicative",{B:3}],["Easy going",{C:2,A:-1}],
+  ["Objective",{E:3,D:1,B:-1}]
+];
+
+// ─── PROFILE DATA ───────────────────────────────────────────────────────────
+const P = {
+  Strategist:{color:"#1B4FD8",bg:"#EEF2FF",
+    tag:"Results-oriented · Analytical · Drive for change",
+    desc:"Intense, results-driven self-starter. Sense of urgency balanced by concern for accuracy and quality. Approaches everything with thorough analysis, develops deep expertise, and holds self and others to high standards. Factual, direct, and authoritative — earns respect through the soundness of decisions, not through politics.",
+    strengths:["Thinks big picture and anticipates problems","Handles pressure and multiple priorities","Drives change and challenges the status quo","Acts on own judgment confidently","Organized with thorough follow-up"],
+    cautions:["May appear tough-minded or directive","Intolerant of delays or slow environments","Reluctant to delegate; sets exacting standards","May be perceived as aloof before trust is built"],
+    brings:"Direction, accountability, and analytical rigor. The person who will drive a project to completion at high quality.",
+    needs:"Autonomy, intellectual challenge, and recognition for results — not politics.",
+    roles:{Sales:5,CustomerExperience:3,Capacity:4,Finance:4,Operations:3,HumanResources:2,ProjectManager:5},
+    works:{Strategist:"Compete for control — define lanes clearly",Promoter:"Powerful duo: Promoter opens doors, Strategist closes",Maverick:"High energy — agree on guardrails to avoid skipping process",Collaborator:"Excellent balance: Strategist drives, Collaborator holds the team",Specialist:"Natural QA pairing: Strategist sets direction, Specialist validates",Operator:"Operator grounds Strategist's pace — essential for execution",Explorer:"Useful when Strategist needs fresh perspective"}
+  },
+  Promoter:{color:"#0F766E",bg:"#F0FDFA",
+    tag:"Energetic · Persuasive · Relationship builder",
+    desc:"Creates energy and enthusiasm naturally. Clients trust quickly, colleagues want to follow. Optimistic, charming, and socially confident — at best opening new doors, generating excitement around ideas, and navigating social dynamics with ease.",
+    strengths:["Opens new relationships and accounts naturally","Creates buy-in and enthusiasm for new ideas","Energizes teams in low-motivation moments","Reads people and adapts communication style","Thrives in high-interaction, client-facing roles"],
+    cautions:["Follow-through needs structural support","Detail-heavy work drains energy","May overcommit to clients in the moment","Can avoid difficult performance conversations"],
+    brings:"Energy, optimism, and the social skills to open doors and build relationships no one else can.",
+    needs:"Variety, social interaction, recognition for influence — not for technical precision.",
+    roles:{Sales:5,CustomerExperience:5,Capacity:2,Finance:2,Operations:3,HumanResources:5,ProjectManager:3},
+    works:{Strategist:"Promoter warms the room, Strategist closes",Promoter:"High energy — clarify territories to avoid duplication",Maverick:"Powerful commercial pairing if aligned on direction",Collaborator:"Strong synergy — together they cover the full client lifecycle",Specialist:"Promoter sells; Specialist delivers — clear handoff needed",Operator:"Promoter needs Operator's discipline to fulfill promises",Explorer:"Both comfortable with change and ambiguity — good pairing"}
+  },
+  Maverick:{color:"#7C3AED",bg:"#F5F3FF",
+    tag:"Bold · Innovative · Unconventional",
+    desc:"Moves fast and challenges convention. Sees opportunities others miss and is energized by building from nothing, disrupting established patterns, and finding unconventional paths. At best with space, a challenge, and freedom to experiment.",
+    strengths:["Builds new markets from scratch","Fast, confident decisions in ambiguous situations","Disrupts competitor-held accounts creatively","Thrives in high-growth, startup-like environments","Undaunted by failure — adapts fast"],
+    cautions:["Risk of skipping process and creating errors","Can create friction with structured colleagues","Loses interest once a challenge becomes routine","Documentation and follow-up gaps are common"],
+    brings:"Disruptive thinking, commercial boldness, and the willingness to go where others won't.",
+    needs:"Space to experiment, tolerance for unconventional approaches, and a partner who handles execution.",
+    roles:{Sales:5,CustomerExperience:3,Capacity:3,Finance:2,Operations:2,HumanResources:3,ProjectManager:4},
+    works:{Strategist:"Both independent — align on direction or they'll conflict",Promoter:"High-energy duo — needs Operator or Specialist to anchor",Maverick:"Creative explosion — needs structure from others to land results",Collaborator:"Maverick sparks; Collaborator nurtures — strong complementary pairing",Specialist:"Productive tension — Specialist slows Maverick down in valuable ways",Operator:"Friction likely — rule-bending frustrates Operator's discipline",Explorer:"Natural allies — both comfortable questioning the status quo"}
+  },
+  Collaborator:{color:"#B45309",bg:"#FFFBEB",
+    tag:"Warm · Consistent · Team anchor",
+    desc:"Builds trust instinctively and holds teams together through consistency and genuine care. Clients stay because of this person. Colleagues rely on them to create a stable, psychologically safe environment. Absorbs tension quietly and delivers reliably over the long term.",
+    strengths:["Exceptional client retention and relationship depth","Creates team cohesion and psychological safety","Defuses tension in difficult client situations","Consistent delivery that builds long-term trust","Listens deeply — makes people feel genuinely heard"],
+    cautions:["Avoids necessary difficult conversations","May accommodate clients at the expense of margin","Conflict-averse in ways that delay decisions","Underestimates own value; rarely self-advocates"],
+    brings:"Warmth, consistency, and the glue that keeps clients and colleagues from leaving.",
+    needs:"Stability, genuine appreciation, and freedom from constant conflict or pressure.",
+    roles:{Sales:3,CustomerExperience:5,Capacity:4,Finance:3,Operations:4,HumanResources:5,ProjectManager:3},
+    works:{Strategist:"Collaborator humanizes Strategist's drive — high-value pairing",Promoter:"Natural warmth amplified — excellent CX and retention team",Maverick:"Provides stability Maverick needs; can clash on pace",Collaborator:"Risk of avoiding hard conversations — needs a driver nearby",Specialist:"Smooth pairing — both careful, both consistent",Operator:"Highly compatible — both value stability and reliability",Explorer:"Collaborator grounds Explorer's flexibility — strong balance"}
+  },
+  Specialist:{color:"#065F46",bg:"#ECFDF5",
+    tag:"Precise · Expert · Quality guardian",
+    desc:"Value is in depth, not breadth. The person others turn to when accuracy matters — when an error would cost a client, a claim, or a compliance issue. Protects the business through rigor others cannot sustain consistently. Methodical, principled, and thorough in everything.",
+    strengths:["Highest accuracy in documentation and process","Subject-matter authority clients and peers trust","Spots errors before they become costly","Steady under complexity that overwhelms generalists","Builds and maintains systems that protect quality"],
+    cautions:["Pace can feel slow in fast-moving situations","Resists ambiguity and unstructured environments","May over-complicate client-facing communication","Reluctant to act without complete information"],
+    brings:"Depth, accuracy, and the discipline to protect the business from costly mistakes.",
+    needs:"Clear processes, time to do things right, and recognition for precision — not just speed.",
+    roles:{Sales:2,CustomerExperience:4,Capacity:5,Finance:5,Operations:5,HumanResources:3,ProjectManager:4},
+    works:{Strategist:"Natural QA pairing — Strategist drives, Specialist validates",Promoter:"Specialist grounds Promoter's promises — needs clear handoffs",Maverick:"Productive tension — Specialist prevents Maverick's costly errors",Collaborator:"Both careful; risk of too much caution without a driver",Specialist:"Deep mutual respect; risk of over-analysis paralysis",Operator:"Highest natural compatibility — both process and accuracy-driven",Explorer:"Explorer benefits from Specialist's depth and vice versa"}
+  },
+  Operator:{color:"#1E40AF",bg:"#EFF6FF",
+    tag:"Disciplined · Reliable · Execution engine",
+    desc:"Makes commitments real. Where others see a goal, this person sees a process. Reliability and consistency make them the foundation on which commercial promises are delivered. Operates under sustained pressure without drama, follows through without being asked.",
+    strengths:["Executes consistently at high volume","Owns and improves processes with discipline","Keeps complex multi-party operations on track","High reliability — commitments are honored","Calm under pressure; protects team from chaos"],
+    cautions:["Uncomfortable with rapid, unplanned change","Needs clear direction before acting","Can become a bottleneck when speed is critical","May resist innovation that disrupts established routines"],
+    brings:"Reliability, process discipline, and the consistency that turns promises into delivered results.",
+    needs:"Clear direction, stable processes, and recognition for consistent execution.",
+    roles:{Sales:3,CustomerExperience:5,Capacity:5,Finance:4,Operations:5,HumanResources:4,ProjectManager:5},
+    works:{Strategist:"Operator grounds Strategist's pace — essential partnership",Promoter:"Operator delivers what Promoter sells — critical pairing",Maverick:"Tension: Operator frustrated by Maverick's rule-bending",Collaborator:"Very compatible — shared values of consistency and reliability",Specialist:"Highest natural synergy — both process and accuracy-driven",Operator:"Risk of over-indexing on process vs. speed; needs a driver",Explorer:"Explorer refreshes Operator's approach — good creative tension"}
+  },
+  Explorer:{color:"#4B5563",bg:"#F9FAFB",
+    tag:"Adaptable · Versatile · Context-aware",
+    desc:"Doesn't fit neatly into one box — and that's a strength. Reads context well, shifts modes when needed, and connects naturally across different people. Most valuable in roles requiring versatility, translation between behavioral types, or navigating rapidly changing environments.",
+    strengths:["Adapts quickly to new contexts and team dynamics","Bridges naturally between different behavioral types","Comfortable with ambiguity and rapid change","Can play multiple roles depending on team needs","Reads the room and adjusts in real time"],
+    cautions:["Risk of lacking a clear specialty or identity","May drift without strong direction","Can try to be all things to all people","Needs to consciously build depth in one area"],
+    brings:"Adaptability, bridging, and the flexibility to fill whatever gap the team needs.",
+    needs:"Variety, context-switching, and a clear anchor to avoid spreading too thin.",
+    roles:{Sales:4,CustomerExperience:4,Capacity:3,Finance:3,Operations:3,HumanResources:4,ProjectManager:4},
+    works:{Strategist:"Explorer softens Strategist's edges — useful bridge",Promoter:"Natural alignment — both adaptable and socially aware",Maverick:"Good creative pairing — both challenge the status quo",Collaborator:"Explorer can push Collaborator when needed — healthy balance",Specialist:"Explorer benefits from Specialist's depth; Specialist from Explorer's range",Operator:"Explorer refreshes Operator's thinking — mutual benefit",Explorer:"Highly flexible duo; needs anchor from Strategist or Specialist"}
+  }
+};
+
+const PORDER = ["Strategist","Promoter","Maverick","Collaborator","Specialist","Operator","Explorer"];
+const RLABELS = {Sales:"Sales",CustomerExperience:"Customer Exp.",Capacity:"Capacity",Finance:"Finance",Operations:"Operations",HumanResources:"HR",ProjectManager:"Project Mgr"};
+
+// ─── TEAM COMBINATIONS ───────────────────────────────────────────────────────
+const COMBOS = [
+  {profiles:["Strategist","Promoter"],label:"Commercial engine",color:"#15803D",cbg:"#F0FDF4",
+   desc:"The most effective commercial pairing. Strategist provides analytical rigor and closes deals; Promoter opens doors and keeps the energy high. Together they cover the full sales cycle.",
+   watch:"Promoter may feel micromanaged; give them room on relationship building."},
+  {profiles:["Promoter","Collaborator"],label:"Client retention duo",color:"#0F766E",cbg:"#F0FDFA",
+   desc:"Clients stay for years with this pairing. Promoter wins them over; Collaborator keeps them loyal through consistency and genuine care. Exceptional for CX-heavy accounts.",
+   watch:"Neither profile will easily have the hard pricing or performance conversation — a Strategist or Specialist needs to be nearby."},
+  {profiles:["Strategist","Operator"],label:"Promise keeper",color:"#1B4FD8",cbg:"#EEF2FF",
+   desc:"Strategist sets direction and drives results; Operator executes reliably and prevents things from falling through the cracks. One thinks, the other delivers — a classic high-performance pairing.",
+   watch:"Strategist must resist overriding Operator's process; Operator must adapt when Strategist pivots fast."},
+  {profiles:["Maverick","Specialist"],label:"Innovation with guardrails",color:"#7C3AED",cbg:"#F5F3FF",
+   desc:"Maverick generates unconventional ideas and breaks into new territory; Specialist validates, documents, and prevents costly errors. This tension is productive — the Maverick moves fast, the Specialist protects quality.",
+   watch:"Explicit role clarity is essential. Specialist must not slow Maverick past the point of momentum."},
+  {profiles:["Promoter","Operator","Specialist"],label:"Full commercial cycle",color:"#B45309",cbg:"#FFFBEB",
+   desc:"Promoter opens and wins the account. Operator executes the service reliably. Specialist handles documentation, claims, and compliance with precision. Each owns a clear lane with no overlap.",
+   watch:"Ensure regular 3-way communication — these profiles can operate in silos without it."},
+  {profiles:["Collaborator","Operator"],label:"Retention foundation",color:"#065F46",cbg:"#ECFDF5",
+   desc:"Both profiles are steady, reliable, and client-focused. This team will retain accounts at exceptional rates and deliver consistently without drama. Ideal for mature account management.",
+   watch:"Neither is naturally a driver — they need a Strategist or Promoter to push commercial growth."},
+  {profiles:["Strategist","Explorer","Collaborator"],label:"Balanced leadership trio",color:"#4B5563",cbg:"#F9FAFB",
+   desc:"Strategist sets direction and holds accountability. Explorer bridges across teams and adapts to changing context. Collaborator keeps the team cohesive and ensures no one is left behind. Strong regional leadership combination.",
+   watch:"Explorer must develop a clear specialty to avoid being spread too thin between the other two."},
+];
+
+const WATCH_COMBOS = [
+  {profiles:["Maverick","Operator"],label:"Speed vs. process",color:"#9F1239",cbg:"#FFF1F2",
+   desc:"Maverick wants to move fast and bend rules; Operator wants process and predictability. Both are needed, but they will frustrate each other without explicit agreements on when each mode applies.",
+   watch:"Define which situations call for each approach. A shared project charter can reduce friction significantly."},
+  {profiles:["Strategist","Maverick"],label:"Control clash",color:"#9F1239",cbg:"#FFF1F2",
+   desc:"Both are highly independent and confident in their own judgment. Both want to drive. Without clear lane definition, they will compete rather than complement each other.",
+   watch:"One must own strategy, the other execution or market development. Role ambiguity is the enemy."},
+  {profiles:["Collaborator","Collaborator"],label:"Avoidance loop",color:"#9F1239",cbg:"#FFF1F2",
+   desc:"Two Collaborators will create a warm, pleasant environment — and may never have the hard commercial conversations. Client satisfaction will be high; commercial growth may stall.",
+   watch:"Pair with a Strategist or Promoter who will push for growth without being seen as the 'bad guy'."},
+  {profiles:["Specialist","Specialist"],label:"Analysis paralysis",color:"#9F1239",cbg:"#FFF1F2",
+   desc:"Deep expertise and high quality standards, but decisions may take too long and innovation may stall. This pairing is excellent for compliance and accuracy — less so for commercial growth.",
+   watch:"Needs a Promoter or Maverick to inject energy and push decisions forward."},
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let s1=new Set(),s2=new Set(),uData={};
+
+// ─── WORD GRID ───────────────────────────────────────────────────────────────
+function buildGrids(){
+  ['g1','g2'].forEach((id,qi)=>{
+    const sel=qi===0?s1:s2,el=document.getElementById(id);
+    el.innerHTML='';
+    W.forEach(([lbl],i)=>{
+      const d=document.createElement('div');
+      d.className='wi'+(sel.has(i)?' on':'');
+      d.innerHTML=`<div class="wbox"></div><span class="wl">${lbl}</span>`;
+      d.onclick=()=>{
+        if(sel.has(i)){sel.delete(i);d.classList.remove('on')}else{sel.add(i);d.classList.add('on')}
+        updP(qi);
+      };
+      el.appendChild(d);
+    });
+  });
+}
+
+function updP(qi){
+  const sel=qi===0?s1:s2,n=sel.size;
+  const pct=Math.round(n/W.length*100);
+  document.getElementById(qi===0?'p1f':'p2f').style.width=pct+'%';
+  document.getElementById(qi===0?'p1t':'p2t').textContent=n+' selected';
+  const ok=n>=5;
+  document.getElementById(qi===0?'bQ1':'bQ2').disabled=!ok;
+  document.getElementById(qi===0?'h1':'h2').textContent=ok?n+' words selected — ready to continue':'Select at least 5 words to continue';
+}
+
+// ─── SCORING ─────────────────────────────────────────────────────────────────
+function scoreSet(sel){
+  const raw={A:0,B:0,C:0,D:0,E:0};
+  sel.forEach(i=>Object.entries(W[i][1]).forEach(([k,v])=>raw[k]=(raw[k]||0)+v));
+  return raw;
+}
+function norm(raw,n){
+  const max=n*3||1,r={};
+  ['A','B','C','D','E'].forEach(k=>r[k]=Math.round(((raw[k]||0)+max)/(2*max)*100));
+  return r;
+}
+function classify(n1,n2){
+  const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=(n1[k]+n2[k])/2);
+  const {A,B,C,D,E}=avg;
+  if(A>=60&&B<50&&D>=45)return"Strategist";
+  if(B>=60&&A>=50&&C<55)return"Promoter";
+  if(A>=60&&E>=50&&D<45)return"Maverick";
+  if(B>=55&&C>=55&&A<55)return"Collaborator";
+  if(D>=62&&B<50)return"Specialist";
+  if(C>=60&&D>=50&&A<50)return"Operator";
+  return"Explorer";
+}
+
+// ─── RESULTS ─────────────────────────────────────────────────────────────────
+async function finish(){
+  const r1=scoreSet(s1),n1=norm(r1,s1.size);
+  const r2=scoreSet(s2),n2=norm(r2,s2.size);
+  const key=classify(n1,n2);
+  const prof=P[key];
+  const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=Math.round((n1[k]+n2[k])/2));
+
+  const entry={
+    name:       uData.name,
+    station:    uData.station,
+    role:       uData.role,
+    exp:        uData.exp,
+    profile_key: key,
+    dim_a:      avg.A, dim_b: avg.B, dim_c: avg.C, dim_d: avg.D, dim_e: avg.E,
+    taken_at:   new Date().toISOString()
+  };
+
+  // Save to Google Sheet
+  storeUpsert(entry); // fire and forget — no-cors means no response
+
+
+  const dims=[
+    {k:'A',label:'Dominance',low:'Collaborative',high:'Independent',color:'#1B4FD8'},
+    {k:'B',label:'Extraversion',low:'Reserved',high:'Sociable',color:'#0F766E'},
+    {k:'C',label:'Patience',low:'Driving / urgent',high:'Steady / patient',color:'#B45309'},
+    {k:'D',label:'Formality',low:'Flexible',high:'Precise / structured',color:'#7C3AED'},
+    {k:'E',label:'Objectivity',low:'Subjective',high:'Data-driven / factual',color:'#065F46'},
+  ];
+
+  const deltas=dims.filter(d=>Math.abs(n1[d.k]-n2[d.k])>22);
+  const scNote=deltas.length>0
+    ?`<div class="sc-note"><strong>Alignment gap noted:</strong> There's a meaningful difference between how you naturally are and how you feel the role expects you to behave — particularly in <strong>${deltas.map(d=>d.label).join(', ')}</strong>. This is worth a conversation with your manager about aligning the role's demands with your natural strengths.</div>`:'';
+
+  const roleHTML=Object.entries(RLABELS).map(([rk,rl])=>{
+    const fit=prof.roles[rk]||1,full=Math.round(fit*3/5);
+    const dots=[1,2,3].map(d=>`<div class="fd ${d<=full?'full':d<=Math.ceil(fit*3/5+.1)?'mid':'empty'}"></div>`).join('');
+    return`<div class="role-item"><div class="role-name">${rl}</div><div class="fit-dots">${dots}</div></div>`;
+  }).join('');
+
+  const matRows=PORDER.map(op=>{
+    const txt=prof.works[op]||'—',lw=txt.toLowerCase();
+    const s=lw.includes('powerful')||lw.includes('exceptional')||lw.includes('highly compatible')||lw.includes('essential')?'hi':
+             lw.includes('tension')||lw.includes('friction')||lw.includes('conflict')||lw.includes('clash')||lw.includes('frustrat')?'lo':'md';
+    return`<tr${op===key?' class="yr"':''}>
+      <td><strong>${op}</strong>${op===key?' <em style="font-weight:400;font-size:11px">(you)</em>':''}</td>
+      <td><span class="syn syn-${s}">${s==='hi'?'Strong':s==='lo'?'Friction':'Good'}</span></td>
+      <td>${txt}</td></tr>`;
+  }).join('');
+
+  document.getElementById('rHTML').innerHTML=`
+    <div class="r-top">
+      <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${key}</div>
+      <div class="r-name">${uData.name||'Your profile'}</div>
+      <div class="r-sub">${[uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
+      <div class="r-tagline">${prof.tag}</div>
+      <div class="r-desc">${prof.desc}</div>
+    </div>
+    <div class="two-col">
+      <div class="sec"><div class="sec-lbl">Strengths</div><div class="tag-list">${prof.strengths.map(s=>`<div class="tag tag-g">${s}</div>`).join('')}</div></div>
+      <div class="sec"><div class="sec-lbl">Watch out for</div><div class="tag-list">${prof.cautions.map(c=>`<div class="tag tag-a">${c}</div>`).join('')}</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-lbl">Behavioral dimensions</div>
+      ${dims.map(d=>`
+        <div class="dim-block">
+          <div class="dim-top-row"><div class="dim-name">${d.label}</div><div class="dim-orient">${avg[d.k]<40?d.low:avg[d.k]>60?d.high:'Balanced'}</div></div>
+          <div class="dim-track"><div class="dim-bar" style="width:${avg[d.k]}%;background:${d.color}"></div></div>
+          <div class="dim-poles"><span class="dim-pole">${d.low}</span><span class="dim-pole">${d.high}</span></div>
+        </div>`).join('')}
+    </div>
+    ${scNote}
+    <div class="sec">
+      <div class="sec-lbl">Role fit</div>
+      <div class="role-grid">${roleHTML}</div>
+      <div class="role-note">● Strong fit &nbsp;◑ Moderate fit &nbsp;○ Stretch &nbsp;·&nbsp; A lower fit for your current function doesn't mean you can't excel in it — it means other functions might feel more natural. Use as a conversation starter, not a verdict.</div>
+    </div>
+    <div class="sec">
+      <div class="sec-lbl">How you interact with each profile</div>
+      <div class="mscroll"><table class="mtbl"><tr><th>Profile</th><th>Dynamic</th><th>What to expect</th></tr>${matRows}</table></div>
+    </div>`;
+
+  go('sResults');
+}
+
+// ─── TEAM VIEW ───────────────────────────────────────────────────────────────
+const AVC=[
+  ['#1B4FD8','#EEF2FF'],['#0F766E','#F0FDFA'],['#7C3AED','#F5F3FF'],
+  ['#B45309','#FFFBEB'],['#065F46','#ECFDF5'],['#1E40AF','#EFF6FF'],['#4B5563','#F9FAFB']
+];
+
+async function loadTeam(region){
+  const el=document.getElementById('teamList');
+  el.innerHTML='<div class="loading">Loading results…</div>';
+  try {
+    const all=await storeGet(region);
+    const list=all;
+    if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
+    list.sort((a,b)=>PORDER.indexOf(a.profile_key||a.profileKey)-PORDER.indexOf(b.profile_key||b.profileKey)||a.name.localeCompare(b.name));
+    el.innerHTML=list.map(r=>{
+      const pk=r.profile_key||r.profileKey,pi=PORDER.indexOf(pk),prof=P[pk]||P['Explorer'];
+      const [ac,abg]=AVC[pi]||AVC[6];
+      const init=r.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+      const id=encodeURIComponent(r.name+'|'+r.station);
+      return`<div class="tc" id="tc_${id}">
+        <div class="tav" style="background:${abg};color:${ac}">${init}</div>
+        <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.role,r.station,r.exp].filter(Boolean).join(' · ')}</div></div>
+        <div class="tb" style="background:${prof.bg};color:${prof.color}">${pk}</div>
+        <button class="del-btn" title="Remove result" onclick="deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
+      </div>`;
+    }).join('');
+  } catch(e){el.innerHTML=`<div class="err">Could not load results. ${e.message}</div>`}
+}
+
+async function deleteResult(name,station){
+  if(!confirm(`Remove ${name}'s result? This cannot be undone.`))return;
+  await storeDelete(name,station);
+  const activeChip=document.querySelector('.fchip.on');
+  const activeFilter=activeChip?activeChip.textContent.trim():'All';
+  loadTeam(activeFilter);
+}
+
+function setF(el){document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+
+// ─── GUIDE ───────────────────────────────────────────────────────────────────
+function buildGuide(){
+  // Profile tabs
+  const tabs=document.getElementById('profileTabs');
+  const detail=document.getElementById('profileDetail');
+  tabs.innerHTML=PORDER.map((k,i)=>`<div class="tab${i===0?' on':''}" onclick="showProfile('${k}',this)">${k}</div>`).join('');
+  showProfile(PORDER[0],tabs.querySelector('.tab'));
+
+  // Good combos
+  document.getElementById('comboGrid').innerHTML=COMBOS.map(c=>comboCard(c)).join('');
+  document.getElementById('watchGrid').innerHTML=WATCH_COMBOS.map(c=>comboCard(c)).join('');
+}
+
+function showProfile(key,el){
+  document.querySelectorAll('#profileTabs .tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  const prof=P[key];
+  document.getElementById('profileDetail').innerHTML=`
+    <div class="sec">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem">
+        <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${key}</div>
+        <div style="font-size:13px;color:var(--text2)">${prof.tag}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Brings to the team</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65">${prof.brings}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Needs from the team</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65">${prof.needs}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function comboCard(c){
+  const badges=c.profiles.map(p=>`<span style="font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:${P[p].bg};color:${P[p].color}">${p}</span>`).join('<span style="color:var(--text3);font-size:13px">+</span>');
+  return`<div class="combo">
+    <div class="combo-top">
+      <div class="combo-names">${badges}</div>
+      <span class="combo-tag" style="background:${c.cbg};color:${c.color}">${c.label}</span>
+    </div>
+    <div class="combo-desc">${c.desc}</div>
+    <div class="combo-watch">⚠ ${c.watch}</div>
+  </div>`;
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='sGuide')buildGuide();
+}
+
+function startA(){
+  uData={
+    name:document.getElementById('fName').value.trim()||'Anonymous',
+    station:document.getElementById('fStation').value||'',
+    role:document.getElementById('fRole').value||'',
+    exp:document.getElementById('fExp').value||''
+  };
+  go('sQ1');
+}
+
+function retake(){s1.clear();s2.clear();buildGrids();updP(0);updP(1);go('sIntro')}
+
+function cpyTxt(){
+  const e=window._entry;if(!e)return;
+  const prof=P[e.profileKey];
+  const txt=['LOGIZTIK — BEHAVIORAL ASSESSMENT',`Name: ${e.name}`,`Function: ${(e.role||'—')} · ${(e.station||'—')}`,`Profile: ${e.profileKey} — ${prof.tag}`,'',prof.desc,'','Strengths:',...prof.strengths.map(s=>'• '+s),'','Watch out for:',...prof.cautions.map(c=>'• '+c),'',`Date: ${new Date(e.ts).toLocaleDateString()}`].join('\n');
+  navigator.clipboard.writeText(txt).catch(()=>{});
+  const btn=event.target;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent='Copy summary',2000);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+buildGrids();
+</script>
+</body>
+</html>
