@@ -733,6 +733,8 @@ async function loadTeam(region){
   el.innerHTML='<div class="loading">Loading results…</div>';
   try {
     const all=await storeGet(region);
+    // Cache full dataset for compare — avoids second fetch
+    if(region==='All') allTeamData=all;
     const list=all;
     if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
     list.sort((a,b)=>PORDER.indexOf((a.profile_key||a.profileKey||'').trim())-PORDER.indexOf((b.profile_key||b.profileKey||'').trim())||a.name.localeCompare(b.name));
@@ -954,15 +956,16 @@ function switchAdminTab(n) {
   document.getElementById('adminTab1').style.fontWeight = n===1 ? '500' : '400';
   document.getElementById('adminTab2').style.fontWeight = n===2 ? '500' : '400';
   if (n===2) {
+    // Use cached data from Team view — instant if already loaded
+    buildCompareSelectors();
+    drawCompareChart();
+    // If cache is empty (direct Compare access), fetch in background
     if (!allTeamData.length) {
       storeGet('All').then(function(data) {
         allTeamData = data;
         buildCompareSelectors();
         drawCompareChart();
       });
-    } else {
-      buildCompareSelectors();
-      drawCompareChart();
     }
   }
 }
