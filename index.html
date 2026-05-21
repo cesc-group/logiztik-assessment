@@ -314,41 +314,39 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────────────────────────
-// Paste your Google Apps Script URL here after completing Step 1 of the setup guide
 const GS_URL = 'https://script.google.com/macros/s/AKfycbzJM0rYGGgrQCzuwNxzrvVKopgcJxm3JQkETuf7kpLVR5MSTzLX_qJ_i-9Lo2ooB34sQA/exec';
 
-// Write a result to the sheet
-async function storeUpsert(entry) {
+// Write result using a hidden form POST — most reliable method for Apps Script
+function storeUpsert(entry) {
   try {
-    await fetch(GS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'upsert', entry })
-    });
+    // Build form data — Apps Script reads this natively
+    const fd = new FormData();
+    fd.append('action', 'upsert');
+    fd.append('data', JSON.stringify(entry));
+    // Fire and forget — no-cors is fine for write operations
+    fetch(GS_URL, { method:'POST', mode:'no-cors', body: fd });
   } catch(e) { console.error('storeUpsert:', e); }
 }
 
-// Read all results (or filter by station)
+// Read results via GET with JSONP-style callback
 async function storeGet(station) {
   try {
     let url = GS_URL + '?action=get';
     if (station && station !== 'All') url += '&station=' + encodeURIComponent(station);
     const r = await fetch(url);
-    if (!r.ok) throw new Error(await r.text());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     return await r.json();
   } catch(e) { console.error('storeGet:', e); return []; }
 }
 
-// Delete a result by name + station
-async function storeDelete(name, station) {
+// Delete via form POST
+function storeDelete(name, station) {
   try {
-    await fetch(GS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'delete', name, station })
-    });
+    const fd = new FormData();
+    fd.append('action', 'delete');
+    fd.append('name', name);
+    fd.append('station', station || '');
+    fetch(GS_URL, { method:'POST', mode:'no-cors', body: fd });
   } catch(e) { console.error('storeDelete:', e); }
 }
 
@@ -653,16 +651,19 @@ async function loadTeam(region){
     const all=await storeGet(region);
     const list=all;
     if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
-    list.sort((a,b)=>PORDER.indexOf(a.profile_key||a.profileKey)-PORDER.indexOf(b.profile_key||b.profileKey)||a.name.localeCompare(b.name));
+    list.sort((a,b)=>PORDER.indexOf((a.profile_key||a.profileKey||'').trim())-PORDER.indexOf((b.profile_key||b.profileKey||'').trim())||a.name.localeCompare(b.name));
     el.innerHTML=list.map(r=>{
-      const pk=r.profile_key||r.profileKey,pi=PORDER.indexOf(pk),prof=P[pk]||P['Explorer'];
-      const [ac,abg]=AVC[pi]||AVC[6];
+      const pk=(r.profile_key||r.profileKey||'').trim();
+      const pi=PORDER.indexOf(pk);
+      const prof=pi>=0?P[pk]:P['Explorer'];
+      const [ac,abg]=AVC[pi>=0?pi:6];
       const init=r.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
       const id=encodeURIComponent(r.name+'|'+r.station);
+      const displayPk=pk||'Unknown';
       return`<div class="tc" id="tc_${id}">
         <div class="tav" style="background:${abg};color:${ac}">${init}</div>
         <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.level,r.role,r.station,r.exp].filter(Boolean).join(' · ')}</div></div>
-        <div class="tb" style="background:${prof.bg};color:${prof.color}">${pk}</div>
+        <div class="tb" style="background:${prof.bg};color:${prof.color}">${displayPk}</div>
         <button class="del-btn" title="Remove result" onclick="deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
       </div>`;
     }).join('');
