@@ -192,7 +192,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="brand">Logiztik Alliance <span>· People Assessment</span></div>
     <nav class="nav">
       <a onclick="go('sIntro')">Assessment</a>
-      <a onclick="go('sGuide')">Behaviour guide</a>
+      <a onclick="go('sGuide')">Profile guide</a>
       <a onclick="gateAdmin()">Admin</a>
     </nav>
   </div>
@@ -278,11 +278,43 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <button class="btn-p" id="printBtn" onclick="window.print()">Print / save PDF</button>
       <button class="btn-g" onclick="cpyTxt()">Copy summary</button>
       <button class="btn-g" onclick="retake()">Retake</button>
-      <button class="btn-g" onclick="gateTeam()">Team view →</button>
+      <button class="btn-g" onclick="gateAdmin()">← Admin</button>
     </div>
   </div>
 
-  <!-- ═══ ADMIN ═══ -->
+  <!-- ═══ PROFILE GUIDE ═══ -->
+  <div id="sGuide" class="screen">
+    <div class="hero" style="padding-bottom:.5rem">
+      <h1>Profile guide</h1>
+      <p>Understanding how each behavioral profile works — and how they fit together as a team.</p>
+    </div>
+
+    <div style="background:var(--accent-bg);border:1px solid #C7D7F9;border-radius:var(--r);padding:.9rem 1.1rem;margin-bottom:1.25rem;font-size:13px;color:#1e3a8a;line-height:1.65">
+      <strong>How to use this guide.</strong> No profile is better than another. The strongest teams have intentional diversity — each person covering the natural blind spots of the others. Use this to understand your people, not rank them.
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="h2-sec">Profile quick reference</div>
+    <div class="h2-sub">What each profile brings — and what they need from the team</div>
+    <div class="tab-bar" id="profileTabs"></div>
+    <div id="profileDetail"></div>
+
+    <div class="section-divider"></div>
+    <div class="h2-sec">Winning team combinations</div>
+    <div class="h2-sub">Pairings and trios that consistently produce results in commercial logistics</div>
+    <div class="combo-grid" id="comboGrid"></div>
+
+    <div class="section-divider"></div>
+    <div class="h2-sec">Combinations to manage carefully</div>
+    <div class="h2-sub">These pairings can work — but need explicit role clarity and regular check-ins</div>
+    <div class="combo-grid" id="watchGrid"></div>
+
+    <div class="action-bar">
+      <button class="btn-g" onclick="gateAdmin()">← Admin</button>
+    </div>
+  </div>
+
+    <!-- ═══ ADMIN ═══ -->
   <div id="sAdmin" class="screen">
     <div class="hero" style="padding-bottom:.5rem">
       <h1>Admin</h1>
@@ -307,7 +339,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div id="teamList" class="team-list"></div>
       <div class="action-bar">
         <button class="btn-g" onclick="go('sIntro')">Take assessment</button>
-        <button class="btn-g" onclick="go('sGuide')">Behaviour guide →</button>
+        <button class="btn-g" onclick="go('sGuide')">Profile guide →</button>
       </div>
     </div>
 
