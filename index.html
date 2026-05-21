@@ -618,10 +618,19 @@ async function finish(){
     <div class="sec">
       <div class="sec-lbl">Behavioral dimensions</div>
       ${dims.map(d=>`
-        <div class="dim-block">
-          <div class="dim-top-row"><div class="dim-name">${d.label}</div><div class="dim-orient">${avg[d.k]<40?d.low:avg[d.k]>60?d.high:'Balanced'}</div></div>
-          <div class="dim-track"><div class="dim-bar" style="width:${avg[d.k]}%;background:${d.color}"></div></div>
-          <div class="dim-poles"><span class="dim-pole">${d.low}</span><span class="dim-pole">${d.high}</span></div>
+        <div style="margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${d.label}</div>
+            <div style="font-size:11px;color:var(--text3);font-style:italic">${avg[d.k]<40?d.low:avg[d.k]>60?d.high:'Balanced'}</div>
+          </div>
+          <div style="position:relative;height:6px;border-radius:99px;background:var(--border)">
+            <div style="position:absolute;left:0;top:0;height:100%;border-radius:99px;opacity:.25;width:${avg[d.k]}%;background:${d.color}"></div>
+            <div style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:${d.color};border:3px solid var(--white);left:${avg[d.k]}%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:5px">
+            <span style="font-size:10px;color:var(--text3)">${d.low}</span>
+            <span style="font-size:10px;color:var(--text3)">${d.high}</span>
+          </div>
         </div>`).join('')}
     </div>
     ${scNote}
