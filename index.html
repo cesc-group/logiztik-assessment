@@ -653,16 +653,19 @@ async function loadTeam(region){
     if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
     list.sort((a,b)=>PORDER.indexOf((a.profile_key||a.profileKey||'').trim())-PORDER.indexOf((b.profile_key||b.profileKey||'').trim())||a.name.localeCompare(b.name));
     el.innerHTML=list.map(r=>{
-      const pk=(r.profile_key||r.profileKey||'').trim();
+      // Debug: log raw row to see exactly what Sheets returns
+      console.log('Row from Sheets:', JSON.stringify(r));
+      // Try all possible field name variations
+      const pk=(r.profile_key||r.profileKey||r['profile_key']||r.Profile_key||'').toString().trim();
       const pi=PORDER.indexOf(pk);
       const prof=pi>=0?P[pk]:P['Explorer'];
       const [ac,abg]=AVC[pi>=0?pi:6];
-      const init=r.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-      const id=encodeURIComponent(r.name+'|'+r.station);
-      const displayPk=pk||'Unknown';
+      const init=(r.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+      const id=encodeURIComponent((r.name||'')+'|'+(r.station||''));
+      const displayPk=pk||'Pending';
       return`<div class="tc" id="tc_${id}">
         <div class="tav" style="background:${abg};color:${ac}">${init}</div>
-        <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.level,r.role,r.station,r.exp].filter(Boolean).join(' · ')}</div></div>
+        <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.level,r.role,r.station].filter(Boolean).join(' · ')}</div></div>
         <div class="tb" style="background:${prof.bg};color:${prof.color}">${displayPk}</div>
         <button class="del-btn" title="Remove result" onclick="deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
       </div>`;
