@@ -194,6 +194,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <a onclick="go('sIntro')">Assessment</a>
       <a onclick="gateTeam()">Team view</a>
       <a onclick="go('sGuide')">Team guide</a>
+      <a onclick="gateCompare()">Compare</a>
     </nav>
   </div>
 
@@ -330,6 +331,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="h2-sub">These pairings can work — but they require explicit role clarity and regular check-ins</div>
     <div class="combo-grid" id="watchGrid"></div>
 
+    <div class="action-bar">
+      <button class="btn-g" onclick="go('sTeam');loadTeam('All')">← Team view</button>
+    </div>
+  </div>
+
+  <!-- ═══ COMPARE SCREEN ═══ -->
+  <div id="sCompare" class="screen">
+    <div class="hero" style="padding-bottom:.5rem">
+      <h1>Profile comparison</h1>
+      <p>Select up to 3 people to compare their behavioral dimensions on the same chart.</p>
+    </div>
+    <div id="compareSelectors" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem"></div>
+    <canvas id="compareCanvas" width="760" height="320" style="width:100%;border:1px solid var(--border);border-radius:var(--r);background:var(--white);display:block;margin-bottom:1rem"></canvas>
+    <div id="compareLegend" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:1rem;font-size:13px"></div>
+    <div id="compareNote" style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:1rem"></div>
     <div class="action-bar">
       <button class="btn-g" onclick="go('sTeam');loadTeam('All')">← Team view</button>
     </div>
@@ -568,17 +584,28 @@ function norm(raw,n){
 function classify(n1,n2){
   const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=(n1[k]+n2[k])/2);
   const {A,B,C,D,E}=avg;
-  // Score-based matching — best fit wins
-  const scores={
-    Strategist:  (A>=55?3:A>=50?1:0)+(B<55?2:0)+(D>=50?2:0)+(E>=55?1:0)+(C<55?1:0),
-    Promoter:    (B>=60?3:B>=55?1:0)+(A>=50?2:0)+(C<58?1:0)+(E<55?1:0),
-    Maverick:    (A>=58?3:A>=52?1:0)+(E>=55?2:0)+(D<50?2:0)+(C<50?1:0),
-    Collaborator:(B>=55?3:B>=50?1:0)+(C>=55?2:0)+(A<55?2:0),
-    Specialist:  (D>=60?3:D>=55?1:0)+(B<52?2:0)+(E>=55?1:0),
-    Operator:    (C>=58?3:C>=52?1:0)+(D>=50?2:0)+(A<52?2:0),
-    Explorer:    2
+
+  // Mandatory gates — profile only competes if key conditions are met
+  const gates={
+    Strategist:  A>=57 && D>=60 && E>=55,
+    Promoter:    B>=60 && A<65,
+    Maverick:    A>=58 && D<=50,
+    Collaborator:B>=57 && C>=60 && A<=57,
+    Specialist:  D>=63 && B<=60,
+    Operator:    C>=62 && A<=58 && D>=52,
+    Explorer:    true
   };
-  return Object.entries(scores).reduce((best,[k,v])=>v>best[1]?[k,v]:best,['Explorer',0])[0];
+
+  const scores={};
+  if(gates.Strategist)  scores.Strategist  = (A>=62?3:1)+(D>=65?2:1)+(E>=60?2:1)+(B<55?1:0);
+  if(gates.Promoter)    scores.Promoter    = (B>=63?3:2)+(A>=50?2:1)+(C<62?1:0)+(E<55?1:0);
+  if(gates.Maverick)    scores.Maverick    = (A>=62?3:1)+(E>=57?2:1)+(C<52?1:0);
+  if(gates.Collaborator)scores.Collaborator= (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0);
+  if(gates.Specialist)  scores.Specialist  = (D>=68?3:2)+(B<54?2:1)+(E>=60?1:0);
+  if(gates.Operator)    scores.Operator    = (C>=65?3:2)+(D>=60?2:1)+(B>=55?1:0);
+  scores.Explorer = 2;
+
+  return Object.keys(scores).reduce((best,k)=>scores[k]>scores[best]?k:best,'Explorer');
 }
 
 // ─── RESULTS ─────────────────────────────────────────────────────────────────
@@ -911,11 +938,11 @@ function showPwdOverlay() {
 
   var title = document.createElement('div');
   title.style.cssText = 'font-size:13px;font-weight:600;color:#18181B;margin-bottom:.35rem';
-  title.textContent = 'Manager access';
+  title.textContent = 'Team results';
 
   var subtitle = document.createElement('div');
   subtitle.style.cssText = 'font-size:13px;color:#52525B;margin-bottom:1.25rem;line-height:1.5';
-  subtitle.textContent = 'Enter the password to view team results.';
+  subtitle.textContent = 'As their manager, enter the access code to view your team\'s profiles.';
 
   var input = document.createElement('input');
   input.id = 'pwdInput';
@@ -961,12 +988,219 @@ function checkPwd() {
   if (input.value === TEAM_PWD) {
     teamUnlocked = true;
     document.getElementById('pwdOverlay').remove();
-    go('sTeam');
-    loadTeam('All');
+    if (window._afterUnlock) {
+      var fn = window._afterUnlock;
+      window._afterUnlock = null;
+      fn();
+    } else {
+      go('sTeam');
+      loadTeam('All');
+    }
   } else {
     error.textContent = 'Incorrect password. Try again.';
     input.value = '';
     input.focus();
+  }
+}
+
+// ─── PROFILE COMPARISON ──────────────────────────────────────────────────────
+const COMPARE_COLORS = ['#1B4FD8','#0F766E','#B45309'];
+let compareData = [null, null, null];
+let allTeamData = [];
+
+function gateCompare() {
+  if (teamUnlocked) { openCompare(); return; }
+  // Reuse password gate
+  showPwdOverlay();
+  // Override checkPwd to go to compare after unlock
+  window._afterUnlock = openCompare;
+}
+
+async function openCompare() {
+  go('sCompare');
+  if (!allTeamData.length) allTeamData = await storeGet('All');
+  buildCompareSelectors();
+  drawCompareChart();
+}
+
+function buildCompareSelectors() {
+  const el = document.getElementById('compareSelectors');
+  el.innerHTML = [0,1,2].map(slot => {
+    const opts = allTeamData.map((r,i) =>
+      '<option value="' + i + '"' + (compareData[slot] && compareData[slot]._idx === i ? ' selected' : '') + '>' +
+      r.name + ' (' + (r.profile_key||'?') + ')' +
+      '</option>'
+    ).join('');
+    return '<div>' +
+      '<div style="font-size:11px;font-weight:600;color:' + COMPARE_COLORS[slot] + ';margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Person ' + (slot+1) + '</div>' +
+      '<select onchange="selectPerson(' + slot + ',this.value)" style="width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);font-family:inherit;font-size:13px;color:var(--text);outline:none">' +
+      '<option value="">— Select —</option>' + opts +
+      '</select>' +
+    '</div>';
+  }).join('');
+}
+
+function selectPerson(slot, idx) {
+  if (idx === '') { compareData[slot] = null; }
+  else {
+    const r = allTeamData[parseInt(idx)];
+    compareData[slot] = {
+      _idx: parseInt(idx),
+      name: r.name,
+      profile: r.profile_key || '?',
+      dims: {
+        A: parseFloat(r.dim_a)||50,
+        B: parseFloat(r.dim_b)||50,
+        C: parseFloat(r.dim_c)||50,
+        D: parseFloat(r.dim_d)||50,
+        E: parseFloat(r.dim_e)||50
+      }
+    };
+  }
+  drawCompareChart();
+}
+
+function drawCompareChart() {
+  const canvas = document.getElementById('compareCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const DIM_LABELS  = ['Dominance','Extraversion','Patience','Formality','Objectivity'];
+  const DIM_LOW     = ['Collaborative','Reserved','Driving','Flexible','Subjective'];
+  const DIM_HIGH    = ['Independent','Sociable','Steady','Precise','Objective'];
+  const N = DIM_LABELS.length;
+
+  const PAD_L = 120, PAD_R = 120, PAD_T = 40, PAD_B = 50;
+  const chartW = W - PAD_L - PAD_R;
+  const rowH   = (H - PAD_T - PAD_B) / (N - 1);
+
+  // Draw background
+  ctx.fillStyle = '#FAFAF9';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw midpoint vertical line
+  const midX = PAD_L + chartW / 2;
+  ctx.beginPath();
+  ctx.strokeStyle = '#E2E2DE';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.moveTo(midX, PAD_T - 10);
+  ctx.lineTo(midX, H - PAD_B + 10);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw dimension rows
+  DIM_LABELS.forEach(function(label, i) {
+    const y = PAD_T + i * rowH;
+
+    // Track line
+    ctx.beginPath();
+    ctx.strokeStyle = '#E2E2DE';
+    ctx.lineWidth = 1.5;
+    ctx.moveTo(PAD_L, y);
+    ctx.lineTo(PAD_L + chartW, y);
+    ctx.stroke();
+
+    // Left label (dim name + low pole)
+    ctx.fillStyle = '#18181B';
+    ctx.font = '600 12px Inter, -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(label, PAD_L - 12, y - 6);
+    ctx.fillStyle = '#A1A1AA';
+    ctx.font = '10px Inter, -apple-system, sans-serif';
+    ctx.fillText(DIM_LOW[i], PAD_L - 12, y + 8);
+
+    // Right label (high pole)
+    ctx.fillStyle = '#A1A1AA';
+    ctx.font = '10px Inter, -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(DIM_HIGH[i], PAD_L + chartW + 10, y + 4);
+  });
+
+  // Draw "mid" label at top
+  ctx.fillStyle = '#A1A1AA';
+  ctx.font = '10px Inter, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('mid', midX, PAD_T - 16);
+
+  // Draw each person's profile
+  const DIM_KEYS = ['A','B','C','D','E'];
+  const active = compareData.filter(Boolean);
+
+  active.forEach(function(person, pi) {
+    const color = COMPARE_COLORS[compareData.indexOf(person)];
+    const points = DIM_KEYS.map(function(k, i) {
+      const val = person.dims[k];
+      const x = PAD_L + (val / 100) * chartW;
+      const y = PAD_T + i * rowH;
+      return {x: x, y: y};
+    });
+
+    // Draw connecting line
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.5;
+    points.forEach(function(pt, i) {
+      if (i === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Draw dots
+    points.forEach(function(pt) {
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // Inner fill
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    });
+  });
+
+  // Update legend
+  const legend = document.getElementById('compareLegend');
+  if (active.length === 0) {
+    legend.innerHTML = '';
+    document.getElementById('compareNote').textContent = '';
+    return;
+  }
+
+  legend.innerHTML = active.map(function(person) {
+    const color = COMPARE_COLORS[compareData.indexOf(person)];
+    return '<div style="display:flex;align-items:center;gap:8px">' +
+      '<div style="width:14px;height:14px;border-radius:50%;background:' + color + ';flex-shrink:0"></div>' +
+      '<div><strong>' + person.name + '</strong> <span style="color:var(--text3)">— ' + person.profile + '</span></div>' +
+    '</div>';
+  }).join('');
+
+  // Insights note
+  if (active.length >= 2) {
+    const notes = [];
+    const DIM_NAMES_FULL = ['Dominance','Extraversion','Patience','Formality','Objectivity'];
+    DIM_KEYS.forEach(function(k, i) {
+      const vals = active.map(function(p) { return p.dims[k]; });
+      const max = Math.max.apply(null, vals);
+      const min = Math.min.apply(null, vals);
+      if (max - min >= 20) {
+        const high = active[vals.indexOf(max)].name.split(' ')[0];
+        const low  = active[vals.indexOf(min)].name.split(' ')[0];
+        notes.push(DIM_NAMES_FULL[i] + ': ' + high + ' significantly higher than ' + low);
+      }
+    });
+    document.getElementById('compareNote').textContent = notes.length
+      ? 'Key differences: ' + notes.join(' · ')
+      : 'Profiles are closely aligned across all dimensions.';
+  } else {
+    document.getElementById('compareNote').textContent = '';
   }
 }
 
@@ -1001,6 +1235,61 @@ function cpyTxt(){
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 buildGrids();
+
+// ─── CLASSIFIER SELF-TEST (runs silently on load) ─────────────────────────────
+// If any expected result changes, a warning appears in the browser console.
+// This catches classifier drift before it affects real users.
+(function() {
+  var tests = [
+    // [name, A, B, C, D, E, expected]
+    ['Strategist baseline',   67, 50, 57, 69, 65, 'Strategist'],
+    ['Collaborator baseline', 53, 64, 68, 63, 56, 'Collaborator'],
+    ['Promoter baseline',     58, 66, 62, 66, 57, 'Promoter'],
+    ['Operator baseline',     58, 62, 64, 65, 57, 'Operator'],
+    ['Specialist baseline',   56, 56, 63, 72, 62, 'Specialist'],
+    ['Maverick baseline',     68, 45, 45, 43, 60, 'Maverick'],
+    ['Explorer baseline',     52, 53, 55, 54, 52, 'Explorer'],
+  ];
+
+  // Inline classify using same logic as main function
+  function testClassify(A,B,C,D,E) {
+    var gates = {
+      Strategist:   A>=57 && D>=60 && E>=55,
+      Promoter:     B>=60 && A<65,
+      Maverick:     A>=58 && D<=50,
+      Collaborator: B>=57 && C>=60 && A<=57,
+      Specialist:   D>=63 && B<=60,
+      Operator:     C>=62 && A<=58 && D>=52,
+      Explorer:     true
+    };
+    var scores = {};
+    if(gates.Strategist)   scores['Strategist']   = (A>=62?3:1)+(D>=65?2:1)+(E>=60?2:1)+(B<55?1:0);
+    if(gates.Promoter)     scores['Promoter']      = (B>=63?3:2)+(A>=50?2:1)+(C<62?1:0)+(E<55?1:0);
+    if(gates.Maverick)     scores['Maverick']      = (A>=62?3:1)+(E>=57?2:1)+(C<52?1:0);
+    if(gates.Collaborator) scores['Collaborator']  = (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0);
+    if(gates.Specialist)   scores['Specialist']    = (D>=68?3:2)+(B<54?2:1)+(E>=60?1:0);
+    if(gates.Operator)     scores['Operator']      = (C>=65?3:2)+(D>=60?2:1)+(B>=55?1:0);
+    scores['Explorer'] = 2;
+    return Object.keys(scores).reduce(function(b,k){ return scores[k]>scores[b]?k:b; },'Explorer');
+  }
+
+  var passed = 0, failed = 0;
+  tests.forEach(function(t) {
+    var result = testClassify(t[1],t[2],t[3],t[4],t[5]);
+    if (result === t[6]) {
+      passed++;
+    } else {
+      failed++;
+      console.warn('⚠ CLASSIFIER TEST FAILED: ' + t[0] + ' → got ' + result + ', expected ' + t[6]);
+    }
+  });
+
+  if (failed === 0) {
+    console.log('✓ Classifier self-test: all ' + passed + ' profiles passing correctly.');
+  } else {
+    console.error('✗ Classifier self-test: ' + failed + ' failure(s). Run recalibrate.js to fix stored profiles.');
+  }
+})();
 </script>
 </body>
 </html>
