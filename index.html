@@ -201,8 +201,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <div class="field"><label>Station</label>
           <select id="fStation"><option value="">Select station</option><option>Colombia</option><option>Ecuador</option><option>Netherlands</option><option>United States</option></select>
         </div>
+        <div class="field"><label>Level</label>
+          <select id="fLevel"><option value="">Select level</option><option>Individual Contributor</option><option>Team Lead</option><option>Manager / Head of</option><option>Director / VP</option><option>General Manager / C-Suite</option></select>
+        </div>
         <div class="field"><label>Function</label>
-          <select id="fRole"><option value="">Select function</option><option>Sales</option><option>Customer Experience</option><option>Capacity</option><option>Finance</option><option>Operations</option><option>Human Resources</option><option>Project Manager</option></select>
+          <select id="fRole"><option value="">Select function</option><option>Sales</option><option>Customer Experience</option><option>Capacity</option><option>Finance</option><option>Operations</option><option>Human Resources</option><option>Project Manager</option><option>Procurement</option></select>
         </div>
         <div class="field"><label>Years in logistics</label>
           <select id="fExp"><option value="">Select</option><option>0–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select>
@@ -560,13 +563,14 @@ async function finish(){
   const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=Math.round((n1[k]+n2[k])/2));
 
   const entry={
-    name:       uData.name,
-    station:    uData.station,
-    role:       uData.role,
-    exp:        uData.exp,
+    name:        uData.name,
+    station:     uData.station,
+    level:       uData.level,
+    role:        uData.role,
+    exp:         uData.exp,
     profile_key: key,
-    dim_a:      avg.A, dim_b: avg.B, dim_c: avg.C, dim_d: avg.D, dim_e: avg.E,
-    taken_at:   new Date().toISOString()
+    dim_a:       avg.A, dim_b: avg.B, dim_c: avg.C, dim_d: avg.D, dim_e: avg.E,
+    taken_at:    new Date().toISOString()
   };
 
   // Save to Google Sheet
@@ -605,7 +609,7 @@ async function finish(){
     <div class="r-top">
       <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${key}</div>
       <div class="r-name">${uData.name||'Your profile'}</div>
-      <div class="r-sub">${[uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
+      <div class="r-sub">${[uData.level,uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
       <div class="r-tagline">${prof.tag}</div>
       <div class="r-desc">${prof.desc}</div>
     </div>
@@ -657,7 +661,7 @@ async function loadTeam(region){
       const id=encodeURIComponent(r.name+'|'+r.station);
       return`<div class="tc" id="tc_${id}">
         <div class="tav" style="background:${abg};color:${ac}">${init}</div>
-        <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.role,r.station,r.exp].filter(Boolean).join(' · ')}</div></div>
+        <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.level,r.role,r.station,r.exp].filter(Boolean).join(' · ')}</div></div>
         <div class="tb" style="background:${prof.bg};color:${prof.color}">${pk}</div>
         <button class="del-btn" title="Remove result" onclick="deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
       </div>`;
@@ -733,10 +737,11 @@ function go(id){
 
 function startA(){
   uData={
-    name:document.getElementById('fName').value.trim()||'Anonymous',
-    station:document.getElementById('fStation').value||'',
-    role:document.getElementById('fRole').value||'',
-    exp:document.getElementById('fExp').value||''
+    name:    document.getElementById('fName').value.trim()||'Anonymous',
+    station: document.getElementById('fStation').value||'',
+    level:   document.getElementById('fLevel').value||'',
+    role:    document.getElementById('fRole').value||'',
+    exp:     document.getElementById('fExp').value||''
   };
   go('sQ1');
 }
@@ -746,7 +751,7 @@ function retake(){s1.clear();s2.clear();buildGrids();updP(0);updP(1);go('sIntro'
 function cpyTxt(){
   const e=window._entry;if(!e)return;
   const prof=P[e.profileKey];
-  const txt=['LOGIZTIK — BEHAVIORAL ASSESSMENT',`Name: ${e.name}`,`Function: ${(e.role||'—')} · ${(e.station||'—')}`,`Profile: ${e.profileKey} — ${prof.tag}`,'',prof.desc,'','Strengths:',...prof.strengths.map(s=>'• '+s),'','Watch out for:',...prof.cautions.map(c=>'• '+c),'',`Date: ${new Date(e.ts).toLocaleDateString()}`].join('\n');
+  const txt=['LOGIZTIK — BEHAVIORAL ASSESSMENT',`Name: ${e.name}`,`${(e.level||'—')} · ${(e.role||'—')} · ${(e.station||'—')}`,`Profile: ${e.profileKey} — ${prof.tag}`,'',prof.desc,'','Strengths:',...prof.strengths.map(s=>'• '+s),'','Watch out for:',...prof.cautions.map(c=>'• '+c),'',`Date: ${new Date(e.ts).toLocaleDateString()}`].join('\n');
   navigator.clipboard.writeText(txt).catch(()=>{});
   const btn=event.target;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent='Copy summary',2000);
 }
