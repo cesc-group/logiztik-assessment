@@ -53,7 +53,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .q-hdr h2{font-size:19px;font-weight:600;line-height:1.35;max-width:640px}
 .q-hdr p{font-size:13px;color:var(--text2);margin-top:.35rem}
 .prog-row{display:flex;align-items:center;gap:12px;margin-bottom:1.1rem}
-.prog-track{flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-track{flex:1;height:4px;background:#E2E2DE;border-radius:99px;overflow:hidden}
 .prog-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
 .prog-txt{font-size:12px;color:var(--text3);white-space:nowrap;min-width:72px;text-align:right}
 
@@ -98,7 +98,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .dim-block{margin-bottom:1rem}.dim-block:last-child{margin-bottom:0}
 .dim-top-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
 .dim-name{font-size:13px;font-weight:500}.dim-orient{font-size:12px;color:var(--text3);font-style:italic}
-.dim-track{height:7px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:3px}
+.dim-track{height:7px;background:#E2E2DE;border-radius:99px;overflow:hidden;margin-bottom:3px}
 .dim-bar{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1)}
 .dim-poles{display:flex;justify-content:space-between}
 .dim-pole{font-size:10px;color:var(--text3)}
@@ -107,7 +107,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .role-name{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px}
 .fit-dots{display:flex;justify-content:center;gap:3px}
 .fd{width:8px;height:8px;border-radius:50%}
-.fd.full{background:var(--green)}.fd.mid{background:#FCD34D}.fd.empty{background:var(--border)}
+.fd.full{background:var(--green)}.fd.mid{background:#FCD34D}.fd.empty{background:#E2E2DE}
 .role-note{font-size:10.5px;color:var(--text3);margin-top:.75rem;line-height:1.55}
 .mscroll{overflow-x:auto}
 .mtbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:460px}
@@ -130,6 +130,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .ti{flex:1}.tn{font-size:14px;font-weight:500}.tm{font-size:12px;color:var(--text3);margin-top:1px}
 .tb{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
 .t-empty{text-align:center;padding:2rem;color:var(--text3);font-size:14px}
+.dl-btn{background:none;border:none;cursor:pointer;font-size:14px;color:var(--text3);padding:4px 6px;border-radius:4px;line-height:1;flex-shrink:0;font-weight:500}
+.dl-btn:hover{color:var(--accent);background:var(--accent-bg)}
 .del-btn{background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);padding:4px;border-radius:4px;line-height:1;flex-shrink:0}
 .del-btn:hover{color:var(--coral);background:var(--coral-bg)}
 
@@ -142,7 +144,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .combo-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
 .combo-desc{font-size:13px;color:var(--text2);line-height:1.6}
 .combo-watch{font-size:12px;color:var(--amber);margin-top:.35rem;font-style:italic}
-.section-divider{height:.5px;background:var(--border);margin:1.75rem 0}
+.section-divider{height:.5px;background:#E2E2DE;margin:1.75rem 0}
 .h2-sec{font-size:16px;font-weight:600;margin-bottom:.35rem}
 .h2-sub{font-size:13px;color:var(--text2);margin-bottom:1.1rem}
 .tab-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.25rem}
@@ -154,9 +156,32 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .err{text-align:center;padding:1.5rem;color:var(--coral);font-size:13px;background:var(--coral-bg);border-radius:var(--r);margin:1rem 0}
 
 @media print{
-  .topbar .nav,.action-bar,#printBtn{display:none}
-  body{background:#fff}
-  .sec,.r-top,.two-col .sec{break-inside:avoid}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .topbar .nav,.action-bar,#printBtn{display:none!important}
+  .topbar{border-bottom:1px solid #E2E2DE}
+  body{background:#fff!important;color:#18181B!important}
+  /* Show only results screen */
+  #sIntro,#sQ1,#sQ2,#sTeam,#sGuide{display:none!important}
+  #sResults{display:block!important}
+  /* Card styles */
+  .r-top,.sec,.two-col .sec{break-inside:avoid;border:1px solid #E2E2DE!important;background:#fff!important}
+  .two-col{break-inside:avoid}
+  /* Text colors */
+  .r-name,.dim-name,.sec-lbl,.r-tagline{color:#18181B!important}
+  .r-desc,.r-sub{color:#52525B!important}
+  /* Role fit dots */
+  .fd.full{background:#15803D!important}
+  .fd.mid{background:#FCD34D!important}
+  .fd.empty{background:#E2E2DE!important}
+  /* Synergy tags */
+  .syn-hi{background:#F0FDF4!important;color:#15803D!important}
+  .syn-md{background:#FFFBEB!important;color:#92400E!important}
+  .syn-lo{background:#FFF1F2!important;color:#9F1239!important}
+  /* Matrix table */
+  .mtbl th{background:#F7F7F5!important;color:#A1A1AA!important}
+  .mtbl td{color:#52525B!important}
+  .mtbl .yr{background:#EEF2FF!important}
+  .mtbl .yr td{color:#2D5BE3!important}
 }
 </style>
 </head>
@@ -543,13 +568,17 @@ function norm(raw,n){
 function classify(n1,n2){
   const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=(n1[k]+n2[k])/2);
   const {A,B,C,D,E}=avg;
-  if(A>=60&&B<50&&D>=45)return"Strategist";
-  if(B>=60&&A>=50&&C<55)return"Promoter";
-  if(A>=60&&E>=50&&D<45)return"Maverick";
-  if(B>=55&&C>=55&&A<55)return"Collaborator";
-  if(D>=62&&B<50)return"Specialist";
-  if(C>=60&&D>=50&&A<50)return"Operator";
-  return"Explorer";
+  // Score-based matching — best fit wins
+  const scores={
+    Strategist:  (A>=55?3:A>=50?1:0)+(B<55?2:0)+(D>=50?2:0)+(E>=55?1:0)+(C<55?1:0),
+    Promoter:    (B>=60?3:B>=55?1:0)+(A>=50?2:0)+(C<58?1:0)+(E<55?1:0),
+    Maverick:    (A>=58?3:A>=52?1:0)+(E>=55?2:0)+(D<50?2:0)+(C<50?1:0),
+    Collaborator:(B>=55?3:B>=50?1:0)+(C>=55?2:0)+(A<55?2:0),
+    Specialist:  (D>=60?3:D>=55?1:0)+(B<52?2:0)+(E>=55?1:0),
+    Operator:    (C>=58?3:C>=52?1:0)+(D>=50?2:0)+(A<52?2:0),
+    Explorer:    2
+  };
+  return Object.entries(scores).reduce((best,[k,v])=>v>best[1]?[k,v]:best,['Explorer',0])[0];
 }
 
 // ─── RESULTS ─────────────────────────────────────────────────────────────────
@@ -585,7 +614,7 @@ async function finish(){
 
   const deltas=dims.filter(d=>Math.abs(n1[d.k]-n2[d.k])>22);
   const scNote=deltas.length>0
-    ?`<div class="sc-note"><strong>Alignment gap noted:</strong> There's a meaningful difference between how you naturally are and how you feel the role expects you to behave — particularly in <strong>${deltas.map(d=>d.label).join(', ')}</strong>. This is worth a conversation with your manager about aligning the role's demands with your natural strengths.</div>`:'';
+    ?`<div class="sc-note" style="background:#EEF2FF;border:1px solid #C7D7F9;color:#1e3a8a"><strong>Alignment gap noted:</strong> There's a meaningful difference between how you naturally are and how you feel the role expects you to behave — particularly in <strong>${deltas.map(d=>d.label).join(', ')}</strong>. This is worth a conversation with your manager about aligning the role's demands with your natural strengths.</div>`:'';
 
   const roleHTML=Object.entries(RLABELS).map(([rk,rl])=>{
     const fit=prof.roles[rk]||1,full=Math.round(fit*3/5);
@@ -607,40 +636,40 @@ async function finish(){
     <div class="r-top">
       <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${key}</div>
       <div class="r-name">${uData.name||'Your profile'}</div>
-      <div class="r-sub">${[uData.level,uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
+      <div class="r-sub" style="color:#A1A1AA">${[uData.level,uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
       <div class="r-tagline">${prof.tag}</div>
       <div class="r-desc">${prof.desc}</div>
     </div>
     <div class="two-col">
-      <div class="sec"><div class="sec-lbl">Strengths</div><div class="tag-list">${prof.strengths.map(s=>`<div class="tag tag-g">${s}</div>`).join('')}</div></div>
-      <div class="sec"><div class="sec-lbl">Watch out for</div><div class="tag-list">${prof.cautions.map(c=>`<div class="tag tag-a">${c}</div>`).join('')}</div></div>
+      <div class="sec"><div class="sec-lbl" style="color:#A1A1AA">Strengths</div><div class="tag-list">${prof.strengths.map(s=>`<div class="tag tag-g" style="background:#F0FDF4;color:#15803D">${s}</div>`).join('')}</div></div>
+      <div class="sec"><div class="sec-lbl" style="color:#A1A1AA">Watch out for</div><div class="tag-list">${prof.cautions.map(c=>`<div class="tag tag-a" style="background:#FFFBEB;color:#92400E">${c}</div>`).join('')}</div></div>
     </div>
     <div class="sec">
-      <div class="sec-lbl">Behavioral dimensions</div>
+      <div class="sec-lbl" style="color:#A1A1AA">Behavioral dimensions</div>
       ${dims.map(d=>`
         <div style="margin-bottom:18px">
           <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-            <div style="font-size:13px;font-weight:500;color:var(--text)">${d.label}</div>
-            <div style="font-size:11px;color:var(--text3);font-style:italic">${avg[d.k]<40?d.low:avg[d.k]>60?d.high:'Balanced'}</div>
+            <div style="font-size:13px;font-weight:500;color:#18181B">${d.label}</div>
+            <div style="font-size:11px;color:#A1A1AA;font-style:italic">${avg[d.k]<40?d.low:avg[d.k]>60?d.high:'Balanced'}</div>
           </div>
-          <div style="position:relative;height:6px;border-radius:99px;background:var(--border)">
+          <div style="position:relative;height:6px;border-radius:99px;background:#E2E2DE">
             <div style="position:absolute;left:0;top:0;height:100%;border-radius:99px;opacity:.25;width:${avg[d.k]}%;background:${d.color}"></div>
-            <div style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:${d.color};border:3px solid var(--white);left:${avg[d.k]}%"></div>
+            <div style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:${d.color};border:3px solid #ffffff;left:${avg[d.k]}%"></div>
           </div>
           <div style="display:flex;justify-content:space-between;margin-top:5px">
-            <span style="font-size:10px;color:var(--text3)">${d.low}</span>
-            <span style="font-size:10px;color:var(--text3)">${d.high}</span>
+            <span style="font-size:10px;color:#A1A1AA">${d.low}</span>
+            <span style="font-size:10px;color:#A1A1AA">${d.high}</span>
           </div>
         </div>`).join('')}
     </div>
     ${scNote}
     <div class="sec">
-      <div class="sec-lbl">Role fit</div>
+      <div class="sec-lbl" style="color:#A1A1AA">Role fit</div>
       <div class="role-grid">${roleHTML}</div>
       <div class="role-note">● Strong fit &nbsp;◑ Moderate fit &nbsp;○ Stretch &nbsp;·&nbsp; A lower fit for your current function doesn't mean you can't excel in it — it means other functions might feel more natural. Use as a conversation starter, not a verdict.</div>
     </div>
     <div class="sec">
-      <div class="sec-lbl">How you interact with each profile</div>
+      <div class="sec-lbl" style="color:#A1A1AA">How you interact with each profile</div>
       <div class="mscroll"><table class="mtbl"><tr><th>Profile</th><th>Dynamic</th><th>What to expect</th></tr>${matRows}</table></div>
     </div>`;
 
@@ -661,7 +690,8 @@ async function loadTeam(region){
     const list=all;
     if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
     list.sort((a,b)=>PORDER.indexOf((a.profile_key||a.profileKey||'').trim())-PORDER.indexOf((b.profile_key||b.profileKey||'').trim())||a.name.localeCompare(b.name));
-    el.innerHTML=list.map(r=>{
+    window._teamData = list;
+    el.innerHTML=list.map((r,rIdx)=>{
       // Read profile key from Sheets row
       const pk=(r.profile_key||r.profileKey||r['profile_key']||r.Profile_key||'').toString().trim();
       const pi=PORDER.indexOf(pk);
@@ -674,6 +704,7 @@ async function loadTeam(region){
         <div class="tav" style="background:${abg};color:${ac}">${init}</div>
         <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.level,r.role,r.station].filter(Boolean).join(' · ')}</div></div>
         <div class="tb" style="background:${prof.bg};color:${prof.color}">${displayPk}</div>
+        <button class="dl-btn" title="Download profile" onclick="downloadProfile(window._teamData[${rIdx}])">↓</button>
         <button class="del-btn" title="Remove result" onclick="deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
       </div>`;
     }).join('');
@@ -737,6 +768,116 @@ function comboCard(c){
     <div class="combo-watch">⚠ ${c.watch}</div>
   </div>`;
 }
+
+// ─── DOWNLOAD PROFILE FROM TEAM VIEW ────────────────────────────────────────
+function downloadProfile(r) {
+  const pk = (r.profile_key || r.profileKey || '').trim();
+  const prof = P[pk] || P['Explorer'];
+  const rawAvg = r.avg || {};
+  const a = typeof rawAvg === 'string' ? JSON.parse(rawAvg) : rawAvg;
+
+  const dims = [
+    {k:'A',label:'Dominance',   low:'Collaborative',    high:'Independent',          color:'#1B4FD8'},
+    {k:'B',label:'Extraversion',low:'Reserved',         high:'Sociable',              color:'#0F766E'},
+    {k:'C',label:'Patience',    low:'Driving / urgent', high:'Steady / patient',      color:'#B45309'},
+    {k:'D',label:'Formality',   low:'Flexible',         high:'Precise / structured',  color:'#7C3AED'},
+    {k:'E',label:'Objectivity', low:'Subjective',       high:'Data-driven / factual', color:'#065F46'},
+  ];
+
+  const dimHTML = dims.map(function(d) {
+    const val = Math.round(a[d.k] || 50);
+    const orient = val < 40 ? d.low : val > 60 ? d.high : 'Balanced';
+    return '<div style="margin-bottom:18px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">' +
+        '<div style="font-size:13px;font-weight:500;color:#18181B">' + d.label + '</div>' +
+        '<div style="font-size:11px;color:#A1A1AA;font-style:italic">' + orient + '</div>' +
+      '</div>' +
+      '<div style="position:relative;height:6px;border-radius:99px;background:#E2E2DE">' +
+        '<div style="position:absolute;left:0;top:0;height:100%;border-radius:99px;opacity:.25;width:' + val + '%;background:' + d.color + '"></div>' +
+        '<div style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:' + d.color + ';border:3px solid #ffffff;left:' + val + '%"></div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;margin-top:5px">' +
+        '<span style="font-size:10px;color:#A1A1AA">' + d.low + '</span>' +
+        '<span style="font-size:10px;color:#A1A1AA">' + d.high + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  const RLABELS = {Sales:'Sales',CustomerExperience:'Customer Exp.',Capacity:'Capacity',Finance:'Finance',Operations:'Operations',HumanResources:'HR',ProjectManager:'Project Mgr',Procurement:'Procurement'};
+  const roleHTML = Object.entries(RLABELS).map(function(entry) {
+    const rk = entry[0], rl = entry[1];
+    const fit = prof.roles[rk] || 1;
+    const full = Math.round(fit * 3 / 5);
+    const dots = [1,2,3].map(function(d) {
+      const bg = d <= full ? '#15803D' : d <= Math.ceil(fit*3/5+.1) ? '#FCD34D' : '#E2E2DE';
+      return '<div style="width:9px;height:9px;border-radius:50%;background:' + bg + '"></div>';
+    }).join('');
+    return '<div style="background:#F7F7F5;border:1px solid #E2E2DE;border-radius:5px;padding:9px 7px;text-align:center">' +
+      '<div style="font-size:11px;font-weight:500;color:#52525B;margin-bottom:5px">' + rl + '</div>' +
+      '<div style="display:flex;justify-content:center;gap:3px">' + dots + '</div>' +
+    '</div>';
+  }).join('');
+
+  const matRows = PORDER.map(function(op) {
+    const txt = prof.works[op] || '—';
+    const lw = txt.toLowerCase();
+    const s = (lw.includes('powerful')||lw.includes('exceptional')||lw.includes('highly compatible')||lw.includes('essential')) ? 'hi' :
+               (lw.includes('tension')||lw.includes('friction')||lw.includes('conflict')||lw.includes('clash')||lw.includes('frustrat')) ? 'lo' : 'md';
+    const sc = s==='hi' ? '#F0FDF4;color:#15803D' : s==='lo' ? '#FFF1F2;color:#9F1239' : '#FFFBEB;color:#92400E';
+    const sl = s==='hi' ? 'Strong' : s==='lo' ? 'Friction' : 'Good';
+    const isYou = op === pk;
+    const rowBg = isYou ? 'background:#EEF2FF;' : '';
+    const rowColor = isYou ? '#2D5BE3' : '#52525B';
+    return '<tr style="' + rowBg + '">' +
+      '<td style="padding:8px 9px;border-bottom:0.5px solid #E2E2DE;color:' + rowColor + '"><strong>' + op + '</strong>' + (isYou ? ' (this person)' : '') + '</td>' +
+      '<td style="padding:8px 9px;border-bottom:0.5px solid #E2E2DE"><span style="display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700;background:' + sc + '">' + sl + '</span></td>' +
+      '<td style="padding:8px 9px;border-bottom:0.5px solid #E2E2DE;color:#52525B;font-size:12px">' + txt + '</td>' +
+    '</tr>';
+  }).join('');
+
+  const meta = [r.level, r.role, r.station, r.exp].filter(Boolean).join(' · ');
+  const date = new Date().toLocaleDateString();
+
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<title>' + r.name + ' — Behavioral Profile</title>' +
+    '<style>*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#F7F7F5;color:#18181B;padding:2rem;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+    '.card{background:#fff;border:1px solid #E2E2DE;border-radius:10px;padding:1.5rem;margin-bottom:1rem}' +
+    'h3{font-size:11px;font-weight:600;color:#A1A1AA;text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}' +
+    '.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}' +
+    '.mtbl{width:100%;border-collapse:collapse;font-size:12px}' +
+    '.mtbl th{padding:7px 9px;text-align:left;font-weight:600;font-size:11px;color:#A1A1AA;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #E2E2DE;background:#F7F7F5}' +
+    '@media print{body{background:#fff}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}' +
+    '</style></head><body>' +
+    '<div class="card">' +
+      '<div style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:' + prof.bg + ';color:' + prof.color + ';margin-bottom:.75rem">' + pk + '</div>' +
+      '<div style="font-size:24px;font-weight:600;margin-bottom:.2rem">' + r.name + '</div>' +
+      '<div style="font-size:13px;color:#A1A1AA;margin-bottom:.9rem">' + meta + '</div>' +
+      '<div style="font-size:15px;font-weight:500;color:#52525B;margin-bottom:.65rem">' + prof.tag + '</div>' +
+      '<div style="font-size:14px;color:#52525B;line-height:1.75;border-top:.5px solid #E2E2DE;padding-top:.9rem">' + prof.desc + '</div>' +
+    '</div>' +
+    '<div class="two-col">' +
+      '<div class="card"><h3>Strengths</h3>' + prof.strengths.map(function(s){ return '<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#F0FDF4;color:#15803D">' + s + '</div>'; }).join('') + '</div>' +
+      '<div class="card"><h3>Watch out for</h3>' + prof.cautions.map(function(c){ return '<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#FFFBEB;color:#92400E">' + c + '</div>'; }).join('') + '</div>' +
+    '</div>' +
+    '<div class="card"><h3>Behavioral dimensions</h3>' + dimHTML + '</div>' +
+    '<div class="card"><h3>Role fit</h3>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:7px">' + roleHTML + '</div>' +
+      '<div style="font-size:10.5px;color:#A1A1AA;margin-top:.75rem;line-height:1.55">&#9679; Strong fit &#9680; Moderate fit &#9675; Stretch &nbsp;&middot;&nbsp; A lower fit does not mean they cannot excel &mdash; use as a conversation starter, not a verdict.</div>' +
+    '</div>' +
+    '<div class="card"><h3>How they interact with each profile</h3>' +
+      '<table class="mtbl"><tr><th>Profile</th><th>Dynamic</th><th>What to expect</th></tr>' + matRows + '</table>' +
+    '</div>' +
+    '<div style="font-size:11px;color:#A1A1AA;text-align:center;margin-top:1rem">Logiztik Alliance &middot; Behavioral Assessment &middot; ' + date + '</div>' +
+    '<script>window.onload=function(){window.print();}<\/script>' +
+    '</body></html>';
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 15000);
+}
+
 
 // ─── NAVIGATION ──────────────────────────────────────────────────────────────
 function go(id){
