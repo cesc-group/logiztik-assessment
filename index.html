@@ -953,7 +953,18 @@ function switchAdminTab(n) {
   document.getElementById('adminTab2').style.borderBottomColor = n===2 ? 'var(--accent)' : 'transparent';
   document.getElementById('adminTab1').style.fontWeight = n===1 ? '500' : '400';
   document.getElementById('adminTab2').style.fontWeight = n===2 ? '500' : '400';
-  if (n===2) { buildCompareSelectors(); drawCompareChart(); }
+  if (n===2) {
+    if (!allTeamData.length) {
+      storeGet('All').then(function(data) {
+        allTeamData = data;
+        buildCompareSelectors();
+        drawCompareChart();
+      });
+    } else {
+      buildCompareSelectors();
+      drawCompareChart();
+    }
+  }
 }
 
 function showPwdOverlay() {
@@ -1042,10 +1053,8 @@ let allTeamData = [];
 // gateCompare kept for backward compat — now routes to admin compare tab
 async function openCompare() {
   go('sAdmin');
-  switchAdminTab(2);
   if (!allTeamData.length) allTeamData = await storeGet('All');
-  buildCompareSelectors();
-  drawCompareChart();
+  switchAdminTab(2);
 }
 
 function buildCompareSelectors() {
@@ -1235,7 +1244,11 @@ function go(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   if(id==='sGuide')buildGuide();
-  if(id==='sAdmin')loadTeam('All');
+  if(id==='sAdmin'){
+    loadTeam('All');
+    // Pre-load compare data too
+    if(!allTeamData.length){storeGet('All').then(function(d){allTeamData=d;});}
+  }
 }
 
 function startA(){
