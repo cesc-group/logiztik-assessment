@@ -156,6 +156,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .err{text-align:center;padding:1.5rem;color:var(--coral);font-size:13px;background:var(--coral-bg);border-radius:var(--r);margin:1rem 0}
 
 @media print{
+  .print-only{display:block!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   .topbar .nav,.action-bar,#printBtn{display:none!important}
   .topbar{border-bottom:1px solid #E2E2DE}
@@ -237,7 +238,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
       </div>
     </div>
-    <button class="btn-lg" onclick="startA()">Begin assessment →</button>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;margin:1.25rem 0">
+    <div style="font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:.9rem">
+      This assessment is an internal behavioral awareness tool designed to support team development and communication. It is not a clinical or psychological evaluation, and results are not used as a basis for hiring, promotion, compensation, or any employment decision. Participation is voluntary. Your responses and profile are stored securely and accessible only to you and your manager. Results reflect behavioral tendencies, not capabilities or performance.
+      <br><br>
+      Your data is processed for internal team development purposes only and will not be shared outside Logiztik Alliance Group.
+    </div>
+    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--text2)">
+      <input type="checkbox" id="disclaimerCheck" onchange="toggleBeginBtn()" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;cursor:pointer">
+      <span>I have read and understood the above.</span>
+    </label>
+  </div>
+  <button class="btn-lg" id="beginBtn" onclick="startA()" disabled style="opacity:.35;cursor:not-allowed">Begin assessment →</button>
   </div>
 
   <!-- ═══ Q1 ═══ -->
@@ -274,6 +286,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <!-- ═══ RESULTS ═══ -->
   <div id="sResults" class="screen">
     <div id="rHTML"></div>
+    <div style="display:none" class="print-only" style="font-size:10px;color:#A1A1AA;line-height:1.6;margin-top:1rem;padding-top:.75rem;border-top:.5px solid #E2E2DE;text-align:center">
+      Internal use only · Not a clinical evaluation · Results are not used for hiring, promotion, or any employment decision · Data processed for team development purposes only and not shared outside Logiztik Alliance Group · Logiztik Alliance Group © 2026
+    </div>
     <div class="action-bar">
       <button class="btn-p" id="printBtn" onclick="window.print()">Print / save PDF</button>
       <button class="btn-g" onclick="cpyTxt()">Copy summary</button>
@@ -905,7 +920,7 @@ function downloadProfile(r) {
     '<div class="card"><h3>How they interact with each profile</h3>' +
       '<table class="mtbl"><tr><th>Profile</th><th>Dynamic</th><th>What to expect</th></tr>' + matRows + '</table>' +
     '</div>' +
-    '<div style="font-size:11px;color:#A1A1AA;text-align:center;margin-top:1rem">Logiztik Alliance &middot; Behavioral Assessment &middot; ' + date + '</div>' +
+    '<div style="font-size:11px;color:#A1A1AA;text-align:center;margin-top:1rem;line-height:1.6">' +'Logiztik Alliance &middot; Behavioral Assessment &middot; ' + date + '<br>' +'<span style="font-size:10px">Internal use only. Not a clinical evaluation. Results are not used for hiring, promotion, or any employment decision. Data processed for team development purposes only and not shared outside Logiztik Alliance Group.</span>' +'</div>' +
     '<script>window.onload=function(){window.print();}<\/script>' +
     '</body></html>';
 
@@ -1234,7 +1249,22 @@ function startA(){
   go('sQ1');
 }
 
-function retake(){s1.clear();s2.clear();buildGrids();updP(0);updP(1);go('sIntro')}
+function retake(){s1.clear();s2.clear();function toggleBeginBtn() {
+  var cb  = document.getElementById('disclaimerCheck');
+  var btn = document.getElementById('beginBtn');
+  if (!btn) return;
+  if (cb && cb.checked) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor  = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.opacity = '.35';
+    btn.style.cursor  = 'not-allowed';
+  }
+}
+
+buildGrids();updP(0);updP(1);go('sIntro')}
 
 function cpyTxt(){
   const e=window._entry;if(!e)return;
@@ -1245,6 +1275,21 @@ function cpyTxt(){
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
+function toggleBeginBtn() {
+  var cb  = document.getElementById('disclaimerCheck');
+  var btn = document.getElementById('beginBtn');
+  if (!btn) return;
+  if (cb && cb.checked) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor  = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.opacity = '.35';
+    btn.style.cursor  = 'not-allowed';
+  }
+}
+
 buildGrids();
 
 // ─── CLASSIFIER SELF-TEST (runs silently on load) ─────────────────────────────
