@@ -161,7 +161,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   .topbar{border-bottom:1px solid #E2E2DE}
   body{background:#fff!important;color:#18181B!important}
   /* Show only results screen */
-  #sIntro,#sQ1,#sQ2,#sTeam,#sGuide{display:none!important}
+  #sIntro,#sQ1,#sQ2,#sAdmin,#sGuide{display:none!important}
   #sResults{display:block!important}
   /* Card styles */
   .r-top,.sec,.two-col .sec{break-inside:avoid;border:1px solid #E2E2DE!important;background:#fff!important}
@@ -192,9 +192,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="brand">Logiztik Alliance <span>· People Assessment</span></div>
     <nav class="nav">
       <a onclick="go('sIntro')">Assessment</a>
-      <a onclick="gateTeam()">Team view</a>
-      <a onclick="go('sGuide')">Team guide</a>
-      <a onclick="gateCompare()">Compare</a>
+      <a onclick="go('sGuide')">Behaviour guide</a>
+      <a onclick="gateAdmin()">Admin</a>
     </nav>
   </div>
 
@@ -283,73 +282,46 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
   </div>
 
-  <!-- ═══ TEAM VIEW ═══ -->
-  <div id="sTeam" class="screen">
+  <!-- ═══ ADMIN ═══ -->
+  <div id="sAdmin" class="screen">
     <div class="hero" style="padding-bottom:.5rem">
-      <h1>Team results</h1>
-      <p>All profiles saved centrally — accessible from any device. Filter by region to see your team composition.</p>
+      <h1>Admin</h1>
+      <p>Team profiles and behavioral comparison. Accessible to managers only.</p>
     </div>
-    <div class="team-filter">
-      <div class="fchip on" onclick="loadTeam('All');setF(this)">All</div>
-      <div class="fchip" onclick="loadTeam('Colombia');setF(this)">Colombia</div>
-      <div class="fchip" onclick="loadTeam('Ecuador');setF(this)">Ecuador</div>
-      <div class="fchip" onclick="loadTeam('Netherlands');setF(this)">Netherlands</div>
-      <div class="fchip" onclick="loadTeam('United States');setF(this)">United States</div>
+
+    <!-- Sub-tab bar -->
+    <div style="display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:0">
+      <button id="adminTab1" onclick="switchAdminTab(1)" style="padding:8px 18px;border:none;border-bottom:2px solid var(--accent);background:transparent;font-family:inherit;font-size:13px;font-weight:500;color:var(--accent);cursor:pointer">Team view</button>
+      <button id="adminTab2" onclick="switchAdminTab(2)" style="padding:8px 18px;border:none;border-bottom:2px solid transparent;background:transparent;font-family:inherit;font-size:13px;font-weight:400;color:var(--text2);cursor:pointer">Compare</button>
     </div>
-    <div id="teamList" class="team-list"></div>
-    <div class="action-bar">
-      <button class="btn-g" onclick="go('sIntro')">Take assessment</button>
-      <button class="btn-g" onclick="go('sGuide')">Team composition guide →</button>
+
+    <!-- TEAM VIEW panel -->
+    <div id="adminPanel1">
+      <div class="team-filter">
+        <div class="fchip on" onclick="loadTeam('All');setF(this)">All</div>
+        <div class="fchip" onclick="loadTeam('Colombia');setF(this)">Colombia</div>
+        <div class="fchip" onclick="loadTeam('Ecuador');setF(this)">Ecuador</div>
+        <div class="fchip" onclick="loadTeam('Netherlands');setF(this)">Netherlands</div>
+        <div class="fchip" onclick="loadTeam('United States');setF(this)">United States</div>
+      </div>
+      <div id="teamList" class="team-list"></div>
+      <div class="action-bar">
+        <button class="btn-g" onclick="go('sIntro')">Take assessment</button>
+        <button class="btn-g" onclick="go('sGuide')">Behaviour guide →</button>
+      </div>
+    </div>
+
+    <!-- COMPARE panel -->
+    <div id="adminPanel2" style="display:none">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:1.25rem">Select up to 3 people to compare their behavioral dimensions side by side.</p>
+      <div id="compareSelectors" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem"></div>
+      <canvas id="compareCanvas" width="760" height="320" style="width:100%;border:1px solid var(--border);border-radius:var(--r);background:var(--white);display:block;margin-bottom:1rem"></canvas>
+      <div id="compareLegend" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:1rem;font-size:13px"></div>
+      <div id="compareNote" style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:1rem"></div>
     </div>
   </div>
 
-  <!-- ═══ TEAM COMPOSITION GUIDE ═══ -->
-  <div id="sGuide" class="screen">
-    <div class="hero" style="padding-bottom:.5rem">
-      <h1>Team composition guide</h1>
-      <p>Understanding how behavioral profiles interact helps you build more effective teams and have better conversations about working styles.</p>
-    </div>
-
-    <div class="info-card" style="background:var(--accent-bg);border-color:#C7D7F9">
-      <p style="font-size:13px;color:#1e3a8a;line-height:1.65"><strong>How to use this guide.</strong> No profile is better than another. A team of all Strategists will drive hard but struggle with empathy and retention. A team of all Collaborators will be beloved by clients but may avoid the hard commercial conversations. The strongest teams have intentional diversity across profiles — each person covering a natural blind spot of the others.</p>
-    </div>
-
-    <div class="section-divider"></div>
-    <div class="h2-sec">Profile quick reference</div>
-    <div class="h2-sub">What each profile brings — and what they need from the team</div>
-
-    <div class="tab-bar" id="profileTabs"></div>
-    <div id="profileDetail"></div>
-
-    <div class="section-divider"></div>
-    <div class="h2-sec">Winning team combinations</div>
-    <div class="h2-sub">Pairings and trios that consistently produce results in commercial logistics environments</div>
-    <div class="combo-grid" id="comboGrid"></div>
-
-    <div class="section-divider"></div>
-    <div class="h2-sec">Combinations to manage carefully</div>
-    <div class="h2-sub">These pairings can work — but they require explicit role clarity and regular check-ins</div>
-    <div class="combo-grid" id="watchGrid"></div>
-
-    <div class="action-bar">
-      <button class="btn-g" onclick="go('sTeam');loadTeam('All')">← Team view</button>
-    </div>
-  </div>
-
-  <!-- ═══ COMPARE SCREEN ═══ -->
-  <div id="sCompare" class="screen">
-    <div class="hero" style="padding-bottom:.5rem">
-      <h1>Profile comparison</h1>
-      <p>Select up to 3 people to compare their behavioral dimensions on the same chart.</p>
-    </div>
-    <div id="compareSelectors" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem"></div>
-    <canvas id="compareCanvas" width="760" height="320" style="width:100%;border:1px solid var(--border);border-radius:var(--r);background:var(--white);display:block;margin-bottom:1rem"></canvas>
-    <div id="compareLegend" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:1rem;font-size:13px"></div>
-    <div id="compareNote" style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:1rem"></div>
-    <div class="action-bar">
-      <button class="btn-g" onclick="go('sTeam');loadTeam('All')">← Team view</button>
-    </div>
-  </div>
+</div>
 
 </div>
 
@@ -916,13 +888,25 @@ function downloadProfile(r) {
 const TEAM_PWD = '1800';
 let teamUnlocked = false;
 
-function gateTeam() {
+function gateAdmin() {
   if (teamUnlocked) {
-    go('sTeam');
+    go('sAdmin');
     loadTeam('All');
     return;
   }
   showPwdOverlay();
+}
+
+function switchAdminTab(n) {
+  document.getElementById('adminPanel1').style.display = n===1 ? '' : 'none';
+  document.getElementById('adminPanel2').style.display = n===2 ? '' : 'none';
+  document.getElementById('adminTab1').style.color     = n===1 ? 'var(--accent)' : 'var(--text2)';
+  document.getElementById('adminTab2').style.color     = n===2 ? 'var(--accent)' : 'var(--text2)';
+  document.getElementById('adminTab1').style.borderBottomColor = n===1 ? 'var(--accent)' : 'transparent';
+  document.getElementById('adminTab2').style.borderBottomColor = n===2 ? 'var(--accent)' : 'transparent';
+  document.getElementById('adminTab1').style.fontWeight = n===1 ? '500' : '400';
+  document.getElementById('adminTab2').style.fontWeight = n===2 ? '500' : '400';
+  if (n===2) { buildCompareSelectors(); drawCompareChart(); }
 }
 
 function showPwdOverlay() {
@@ -993,7 +977,7 @@ function checkPwd() {
       window._afterUnlock = null;
       fn();
     } else {
-      go('sTeam');
+      go('sAdmin');
       loadTeam('All');
     }
   } else {
@@ -1008,16 +992,10 @@ const COMPARE_COLORS = ['#1B4FD8','#0F766E','#B45309'];
 let compareData = [null, null, null];
 let allTeamData = [];
 
-function gateCompare() {
-  if (teamUnlocked) { openCompare(); return; }
-  // Reuse password gate
-  showPwdOverlay();
-  // Override checkPwd to go to compare after unlock
-  window._afterUnlock = openCompare;
-}
-
+// gateCompare kept for backward compat — now routes to admin compare tab
 async function openCompare() {
-  go('sCompare');
+  go('sAdmin');
+  switchAdminTab(2);
   if (!allTeamData.length) allTeamData = await storeGet('All');
   buildCompareSelectors();
   drawCompareChart();
@@ -1210,6 +1188,7 @@ function go(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   if(id==='sGuide')buildGuide();
+  if(id==='sAdmin')loadTeam('All');
 }
 
 function startA(){
