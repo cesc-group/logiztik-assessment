@@ -314,7 +314,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────────────────────────
-const GS_URL = 'https://script.google.com/macros/s/AKfycbzJM0rYGGgrQCzuwNxzrvVKopgcJxm3JQkETuf7kpLVR5MSTzLX_qJ_i-9Lo2ooB34sQA/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbyhqgUwBk4rO-WMAs5VQTjMIjaY3kHktFTSF5lvu4DrzSdjVut_OUafE_cLwl5taYAgaQ/exec';
 
 // Write result using a hidden form POST — most reliable method for Apps Script
 function storeUpsert(entry) {
@@ -653,9 +653,7 @@ async function loadTeam(region){
     if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
     list.sort((a,b)=>PORDER.indexOf((a.profile_key||a.profileKey||'').trim())-PORDER.indexOf((b.profile_key||b.profileKey||'').trim())||a.name.localeCompare(b.name));
     el.innerHTML=list.map(r=>{
-      // Debug: log raw row to see exactly what Sheets returns
-      console.log('Row from Sheets:', JSON.stringify(r));
-      // Try all possible field name variations
+      // Read profile key from Sheets row
       const pk=(r.profile_key||r.profileKey||r['profile_key']||r.Profile_key||'').toString().trim();
       const pi=PORDER.indexOf(pk);
       const prof=pi>=0?P[pk]:P['Explorer'];
