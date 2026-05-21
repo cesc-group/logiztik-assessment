@@ -773,8 +773,14 @@ function comboCard(c){
 function downloadProfile(r) {
   const pk = (r.profile_key || r.profileKey || '').trim();
   const prof = P[pk] || P['Explorer'];
-  const rawAvg = r.avg || {};
-  const a = typeof rawAvg === 'string' ? JSON.parse(rawAvg) : rawAvg;
+  // Scores stored as flat columns in Google Sheets: dim_a, dim_b, etc.
+  const a = {
+    A: parseFloat(r.dim_a) || 50,
+    B: parseFloat(r.dim_b) || 50,
+    C: parseFloat(r.dim_c) || 50,
+    D: parseFloat(r.dim_d) || 50,
+    E: parseFloat(r.dim_e) || 50
+  };
 
   const dims = [
     {k:'A',label:'Dominance',   low:'Collaborative',    high:'Independent',          color:'#1B4FD8'},
