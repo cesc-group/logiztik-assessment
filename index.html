@@ -192,7 +192,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="brand">Logiztik Alliance <span>· People Assessment</span></div>
     <nav class="nav">
       <a onclick="go('sIntro')">Assessment</a>
-      <a onclick="go('sTeam');loadTeam('All')">Team view</a>
+      <a onclick="gateTeam()">Team view</a>
       <a onclick="go('sGuide')">Team guide</a>
     </nav>
   </div>
@@ -278,7 +278,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <button class="btn-p" id="printBtn" onclick="window.print()">Print / save PDF</button>
       <button class="btn-g" onclick="cpyTxt()">Copy summary</button>
       <button class="btn-g" onclick="retake()">Retake</button>
-      <button class="btn-g" onclick="go('sTeam');loadTeam('All')">Team view →</button>
+      <button class="btn-g" onclick="gateTeam()">Team view →</button>
     </div>
   </div>
 
@@ -884,6 +884,91 @@ function downloadProfile(r) {
   setTimeout(function(){ URL.revokeObjectURL(url); }, 15000);
 }
 
+
+// ─── PASSWORD GATE FOR TEAM VIEW ─────────────────────────────────────────────
+const TEAM_PWD = '1800';
+let teamUnlocked = false;
+
+function gateTeam() {
+  if (teamUnlocked) {
+    go('sTeam');
+    loadTeam('All');
+    return;
+  }
+  showPwdOverlay();
+}
+
+function showPwdOverlay() {
+  var existing = document.getElementById('pwdOverlay');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'pwdOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:center;justify-content:center';
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:10px;padding:2rem 2.5rem;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);text-align:center';
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:13px;font-weight:600;color:#18181B;margin-bottom:.35rem';
+  title.textContent = 'Manager access';
+
+  var subtitle = document.createElement('div');
+  subtitle.style.cssText = 'font-size:13px;color:#52525B;margin-bottom:1.25rem;line-height:1.5';
+  subtitle.textContent = 'Enter the password to view team results.';
+
+  var input = document.createElement('input');
+  input.id = 'pwdInput';
+  input.type = 'password';
+  input.placeholder = 'Password';
+  input.style.cssText = 'width:100%;padding:10px 14px;border-radius:6px;border:1px solid #C8C8C2;font-family:inherit;font-size:15px;text-align:center;outline:none;letter-spacing:.2em;margin-bottom:.75rem';
+  input.addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPwd(); });
+
+  var error = document.createElement('div');
+  error.id = 'pwdError';
+  error.style.cssText = 'font-size:12px;color:#9F1239;margin-bottom:.75rem;min-height:18px';
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center';
+
+  var btnEnter = document.createElement('button');
+  btnEnter.style.cssText = 'padding:10px 24px;background:#18181B;color:#fff;border:none;border-radius:6px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer';
+  btnEnter.textContent = 'Enter';
+  btnEnter.onclick = checkPwd;
+
+  var btnCancel = document.createElement('button');
+  btnCancel.style.cssText = 'padding:10px 20px;background:transparent;color:#52525B;border:1px solid #C8C8C2;border-radius:6px;font-family:inherit;font-size:14px;cursor:pointer';
+  btnCancel.textContent = 'Cancel';
+  btnCancel.onclick = function() { overlay.remove(); };
+
+  btnRow.appendChild(btnEnter);
+  btnRow.appendChild(btnCancel);
+  box.appendChild(title);
+  box.appendChild(subtitle);
+  box.appendChild(input);
+  box.appendChild(error);
+  box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  setTimeout(function() { input.focus(); }, 50);
+}
+
+function checkPwd() {
+  var input = document.getElementById('pwdInput');
+  var error = document.getElementById('pwdError');
+  if (!input) return;
+  if (input.value === TEAM_PWD) {
+    teamUnlocked = true;
+    document.getElementById('pwdOverlay').remove();
+    go('sTeam');
+    loadTeam('All');
+  } else {
+    error.textContent = 'Incorrect password. Try again.';
+    input.value = '';
+    input.focus();
+  }
+}
 
 // ─── NAVIGATION ──────────────────────────────────────────────────────────────
 function go(id){
