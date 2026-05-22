@@ -369,9 +369,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div id="adminPanel2" style="display:none">
       <p style="font-size:14px;color:var(--text2);margin-bottom:1.25rem">Select up to 3 people to compare their behavioral dimensions side by side.</p>
       <div style="margin-bottom:1rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="font-size:12px;color:var(--text2);font-weight:500">Filter by team:</span>
-        <input id="compareTeamFilter" type="text" placeholder="e.g. Miami CX" oninput="filterCompareByTeam(this.value)" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border2);font-family:inherit;font-size:13px;width:200px;outline:none" />
-        <button onclick="filterCompareByTeam('');document.getElementById('compareTeamFilter').value=''" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-family:inherit;font-size:13px;cursor:pointer;color:var(--text2)">Clear</button>
+        <span style="font-size:12px;color:var(--text2);font-weight:500">Filter by station:</span>
+        <select id="compareStationFilter" onchange="filterCompareByStation(this.value)" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border2);font-family:inherit;font-size:13px;outline:none;background:var(--bg)">
+          <option value="">All stations</option>
+          <option>Colombia</option>
+          <option>Ecuador</option>
+          <option>Netherlands</option>
+          <option>United States</option>
+        </select>
+        <button onclick="document.getElementById('compareStationFilter').value='';filterCompareByStation('')" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-family:inherit;font-size:13px;cursor:pointer;color:var(--text2)">Show all</button>
       </div>
       <div id="compareSelectors" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem"></div>
       <canvas id="compareCanvas" width="760" height="320" style="width:100%;border:1px solid var(--border);border-radius:var(--r);background:var(--white);display:block;margin-bottom:1rem"></canvas>
@@ -1153,20 +1159,7 @@ async function openCompare() {
 }
 
 function buildCompareSelectors() {
-  const el = document.getElementById('compareSelectors');
-  el.innerHTML = [0,1,2].map(slot => {
-    const opts = allTeamData.map((r,i) =>
-      '<option value="' + i + '"' + (compareData[slot] && compareData[slot]._idx === i ? ' selected' : '') + '>' +
-      r.name + ' (' + (r.profile_key||'?') + ')' +
-      '</option>'
-    ).join('');
-    return '<div>' +
-      '<div style="font-size:11px;font-weight:600;color:' + COMPARE_COLORS[slot] + ';margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Person ' + (slot+1) + '</div>' +
-      '<select onchange="selectPerson(' + slot + ',this.value)" style="width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);font-family:inherit;font-size:13px;color:var(--text);outline:none">' +
-      '<option value="">— Select —</option>' + opts +
-      '</select>' +
-    '</div>';
-  }).join('');
+  rebuildCompareSelectors(allTeamData);
 }
 
 function selectPerson(slot, idx) {
@@ -1447,20 +1440,24 @@ function buildPairingNudges() {
   el.innerHTML = html;
 }
 
-// ─── COMPARE TEAM FILTER ─────────────────────────────────────────────────────
-function filterCompareByTeam(teamName) {
-  var filtered = teamName
-    ? allTeamData.filter(function(r){ return (r.team||'').toLowerCase().includes(teamName.toLowerCase()); })
+// ─── COMPARE STATION FILTER ──────────────────────────────────────────────────
+function filterCompareByStation(station) {
+  var filtered = station
+    ? allTeamData.filter(function(r){ return (r.station||'') === station; })
     : allTeamData;
-  // Rebuild selectors with filtered data
+  rebuildCompareSelectors(filtered);
+}
+
+function rebuildCompareSelectors(filtered) {
   var el = document.getElementById('compareSelectors');
   if (!el) return;
+  var data = filtered || allTeamData;
   el.innerHTML = [0,1,2].map(function(slot) {
-    var opts = filtered.map(function(r, i) {
+    var opts = data.map(function(r) {
       var realIdx = allTeamData.indexOf(r);
       return '<option value="' + realIdx + '"' +
         (compareData[slot] && compareData[slot]._idx === realIdx ? ' selected' : '') + '>' +
-        r.name + ' (' + (r.profile_key||'?') + ')' +
+        r.name + ' — ' + (r.profile_key||'?') +
         '</option>';
     }).join('');
     return '<div>' +
