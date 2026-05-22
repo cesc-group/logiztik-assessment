@@ -677,7 +677,7 @@ function classifyWithSecondary(n1,n2){
   if(gates.Strategist)   scores.Strategist   = (A>=62?3:1)+(D>=65?2:1)+(E>=60?2:1)+(B<55?1:0);
   if(gates.Promoter)     scores.Promoter     = (B>=63?3:2)+(A>=50?2:1)+(C<62?1:0)+(E<55?1:0);
   if(gates.Maverick)     scores.Maverick     = (A>=62?3:1)+(E>=57?2:1)+(C<52?1:0);
-  if(gates.Collaborator) scores.Collaborator = (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0);
+  if(gates.Collaborator) scores.Collaborator = (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0)+(A<55?1:0);
   if(gates.Specialist)   scores.Specialist   = (D>=68?3:2)+(B<54?2:1)+(E>=60?1:0);
   if(gates.Operator)     scores.Operator     = (C>=65?3:2)+(D>=60?2:1)+(B>=55?1:0);
   scores.Explorer = 2;
@@ -1591,7 +1591,7 @@ buildGrids();
     if(gates.Strategist)   scores['Strategist']   = (A>=62?3:1)+(D>=65?2:1)+(E>=60?2:1)+(B<55?1:0);
     if(gates.Promoter)     scores['Promoter']      = (B>=63?3:2)+(A>=50?2:1)+(C<62?1:0)+(E<55?1:0);
     if(gates.Maverick)     scores['Maverick']      = (A>=62?3:1)+(E>=57?2:1)+(C<52?1:0);
-    if(gates.Collaborator) scores['Collaborator']  = (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0);
+    if(gates.Collaborator) scores['Collaborator']  = (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0)+(A<55?1:0);
     if(gates.Specialist)   scores['Specialist']    = (D>=68?3:2)+(B<54?2:1)+(E>=60?1:0);
     if(gates.Operator)     scores['Operator']      = (C>=65?3:2)+(D>=60?2:1)+(B>=55?1:0);
     scores['Explorer'] = 2;
