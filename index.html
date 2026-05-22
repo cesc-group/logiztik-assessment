@@ -124,8 +124,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .team-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.1rem}
 .fchip{padding:6px 13px;border-radius:99px;font-size:13px;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .1s}
 .fchip.on{background:var(--text);color:#fff;border-color:var(--text)}
-.team-list{display:flex;flex-direction:column;gap:7px;margin-bottom:1.25rem}
-.tc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1.1rem;display:flex;align-items:center;gap:12px}
+.team-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.tc-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:0;overflow:hidden}
+.tc{padding:.9rem 1.1rem;display:flex;align-items:center;gap:12px;transition:background .1s}
+.tc:hover{background:var(--surface2)}
 .tav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
 .ti{flex:1}.tn{font-size:14px;font-weight:500}.tm{font-size:12px;color:var(--text3);margin-top:1px}
 .tb{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
@@ -202,11 +204,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div id="sIntro" class="screen active">
     <div class="hero">
       <h1>Behavioral Assessment</h1>
-      <p>A two-question exercise that reveals how you naturally behave at work — and how you think your role expects you to behave. No right or wrong answers.</p>
+      <p>A practical team operating tool — not just a test. Understand how you naturally work, how you fit with your teammates, and how your manager can get the best from you. No right or wrong answers.</p>
       <div class="pills">
         <span class="pill">~6 minutes</span>
         <span class="pill">Two questions · Same word list</span>
         <span class="pill">7 behavioral profiles</span>
+        <span class="pill">Manager playbook included</span>
         <span class="pill">Results saved for your team</span>
       </div>
     </div>
@@ -235,6 +238,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
         <div class="field"><label>Years in logistics</label>
           <select id="fExp"><option value="">Select</option><option>0–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select>
+        </div>
+        <div class="field" style="grid-column:1/-1"><label>Team <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — ask your manager)</span></label>
+          <input type="text" id="fTeam" placeholder="e.g. Miami CX, EC Floral, US Sales" />
         </div>
       </div>
     </div>
@@ -344,6 +350,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
     <!-- TEAM VIEW panel -->
     <div id="adminPanel1">
+      <div id="densityWarnings" style="margin-bottom:1rem"></div>
       <div class="team-filter">
         <div class="fchip on" onclick="loadTeam('All');setF(this)">All</div>
         <div class="fchip" onclick="loadTeam('Colombia');setF(this)">Colombia</div>
@@ -361,10 +368,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <!-- COMPARE panel -->
     <div id="adminPanel2" style="display:none">
       <p style="font-size:14px;color:var(--text2);margin-bottom:1.25rem">Select up to 3 people to compare their behavioral dimensions side by side.</p>
+      <div style="margin-bottom:1rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--text2);font-weight:500">Filter by team:</span>
+        <input id="compareTeamFilter" type="text" placeholder="e.g. Miami CX" oninput="filterCompareByTeam(this.value)" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border2);font-family:inherit;font-size:13px;width:200px;outline:none" />
+        <button onclick="filterCompareByTeam('');document.getElementById('compareTeamFilter').value=''" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;font-family:inherit;font-size:13px;cursor:pointer;color:var(--text2)">Clear</button>
+      </div>
       <div id="compareSelectors" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem"></div>
       <canvas id="compareCanvas" width="760" height="320" style="width:100%;border:1px solid var(--border);border-radius:var(--r);background:var(--white);display:block;margin-bottom:1rem"></canvas>
       <div id="compareLegend" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:1rem;font-size:13px"></div>
       <div id="compareNote" style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:1rem"></div>
+    <div id="pairingNudges"></div>
     </div>
   </div>
 
@@ -374,7 +387,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────────────────────────
-const GS_URL = 'https://script.google.com/macros/s/AKfycbyhqgUwBk4rO-WMAs5VQTjMIjaY3kHktFTSF5lvu4DrzSdjVut_OUafE_cLwl5taYAgaQ/exec';
+const GS_URL = 'https://script.google.com/macros/s/AKfycbw-Iuo_eqASiN-QZtnVyutbarSLzwbPPrFaKAvGZXtXkerZm3xOcX7UH4dajuiUY_fhQw/exec';
 
 // Write result using a hidden form POST — most reliable method for Apps Script
 function storeUpsert(entry) {
@@ -393,10 +406,24 @@ async function storeGet(station) {
   try {
     let url = GS_URL + '?action=get';
     if (station && station !== 'All') url += '&station=' + encodeURIComponent(station);
-    const r = await fetch(url);
+    // Add cache-busting to avoid stale responses
+    url += '&t=' + Date.now();
+    const r = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow'
+    });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return await r.json();
-  } catch(e) { console.error('storeGet:', e); return []; }
+    const text = await r.text();
+    try { return JSON.parse(text); }
+    catch(pe) { console.error('storeGet parse error:', text.substring(0,200)); return []; }
+  } catch(e) {
+    console.error('storeGet:', e);
+    // If fetch fails, try via no-cors image trick won't work for data
+    // Show user-friendly message
+    var warn = document.getElementById('densityWarnings');
+    if (warn) warn.innerHTML = '<div style="font-size:12px;color:#9F1239;padding:8px 12px;background:#FFF1F2;border:1px solid #FECACA;border-radius:6px">⚠ Could not load team data. Check your internet connection or try refreshing.</div>';
+    return [];
+  }
 }
 
 // Delete via form POST
@@ -451,7 +478,8 @@ const P = {
     brings:"Direction, accountability, and analytical rigor. The person who will drive a project to completion at high quality.",
     needs:"Autonomy, intellectual challenge, and recognition for results — not politics.",
     roles:{Sales:5,CustomerExperience:3,Capacity:4,Finance:4,Operations:3,HumanResources:2,ProjectManager:5},
-    works:{Strategist:"Compete for control — define lanes clearly",Promoter:"Powerful duo: Promoter opens doors, Strategist closes",Maverick:"High energy — agree on guardrails to avoid skipping process",Collaborator:"Excellent balance: Strategist drives, Collaborator holds the team",Specialist:"Natural QA pairing: Strategist sets direction, Specialist validates",Operator:"Operator grounds Strategist's pace — essential for execution",Explorer:"Useful when Strategist needs fresh perspective"}
+    works:{Strategist:"Compete for control — define lanes clearly",Promoter:"Powerful duo: Promoter opens doors, Strategist closes",Maverick:"High energy — agree on guardrails to avoid skipping process",Collaborator:"Excellent balance: Strategist drives, Collaborator holds the team",Specialist:"Natural QA pairing: Strategist sets direction, Specialist validates",Operator:"Operator grounds Strategist's pace — essential for execution",Explorer:"Useful when Strategist needs fresh perspective"},
+    playbook:{needs:["Autonomy to set priorities and act","Outcome-based recognition — results, not effort","Intellectual challenge and complex problems","Freedom from repetitive or administrative tasks"],avoid:["Micromanaging or second-guessing decisions","Consensus theater — meetings without decisions","Vague goals or moving goalposts","Praise without substance"],best:["Direction setting and deal closing","Escalation handling and complex problem-solving","Launching new initiatives that need analytical rigor","Holding the team to high standards"]}
   },
   Promoter:{color:"#0F766E",bg:"#F0FDFA",
     tag:"Energetic · Persuasive · Relationship builder",
@@ -461,7 +489,8 @@ const P = {
     brings:"Energy, optimism, and the social skills to open doors and build relationships no one else can.",
     needs:"Variety, social interaction, recognition for influence — not for technical precision.",
     roles:{Sales:5,CustomerExperience:5,Capacity:2,Finance:2,Operations:3,HumanResources:5,ProjectManager:3},
-    works:{Strategist:"Promoter warms the room, Strategist closes",Promoter:"High energy — clarify territories to avoid duplication",Maverick:"Powerful commercial pairing if aligned on direction",Collaborator:"Strong synergy — together they cover the full client lifecycle",Specialist:"Promoter sells; Specialist delivers — clear handoff needed",Operator:"Promoter needs Operator's discipline to fulfill promises",Explorer:"Both comfortable with change and ambiguity — good pairing"}
+    works:{Strategist:"Promoter warms the room, Strategist closes",Promoter:"High energy — clarify territories to avoid duplication",Maverick:"Powerful commercial pairing if aligned on direction",Collaborator:"Strong synergy — together they cover the full client lifecycle",Specialist:"Promoter sells; Specialist delivers — clear handoff needed",Operator:"Promoter needs Operator's discipline to fulfill promises",Explorer:"Both comfortable with change and ambiguity — good pairing"},
+    playbook:{needs:["Variety and social interaction","Recognition for influence and relationships built","Freedom to experiment with how they engage clients","Regular visibility — they wilt in isolation"],avoid:["Isolating them in administrative work","Expecting rigorous process discipline without support","Skipping recognition — they need to know it landed","Assigning them to pure analysis tasks"],best:["Opening new accounts and warming cold relationships","Energizing the team in low-motivation periods","Presenting ideas and winning internal buy-in","Client-facing and high-interaction commercial roles"]}
   },
   Maverick:{color:"#7C3AED",bg:"#F5F3FF",
     tag:"Bold · Innovative · Unconventional",
@@ -471,7 +500,8 @@ const P = {
     brings:"Disruptive thinking, commercial boldness, and the willingness to go where others won't.",
     needs:"Space to experiment, tolerance for unconventional approaches, and a partner who handles execution.",
     roles:{Sales:5,CustomerExperience:3,Capacity:3,Finance:2,Operations:2,HumanResources:3,ProjectManager:4},
-    works:{Strategist:"Both independent — align on direction or they'll conflict",Promoter:"High-energy duo — needs Operator or Specialist to anchor",Maverick:"Creative explosion — needs structure from others to land results",Collaborator:"Maverick sparks; Collaborator nurtures — strong complementary pairing",Specialist:"Productive tension — Specialist slows Maverick down in valuable ways",Operator:"Friction likely — rule-bending frustrates Operator's discipline",Explorer:"Natural allies — both comfortable questioning the status quo"}
+    works:{Strategist:"Both independent — align on direction or they'll conflict",Promoter:"High-energy duo — needs Operator or Specialist to anchor",Maverick:"Creative explosion — needs structure from others to land results",Collaborator:"Maverick sparks; Collaborator nurtures — strong complementary pairing",Specialist:"Productive tension — Specialist slows Maverick down in valuable ways",Operator:"Friction likely — rule-bending frustrates Operator's discipline",Explorer:"Natural allies — both comfortable questioning the status quo"},
+    playbook:{needs:["Space to experiment and try unconventional approaches","A challenge — they disengage when things become routine","Tolerance for imperfect-but-fast over perfect-but-slow","A partner who handles execution so they can keep moving"],avoid:["Locking them into rigid process","Expecting detailed documentation without support","Assigning long steady-state execution roles","Over-supervising — they interpret it as distrust"],best:["Breaking into new markets or competitor-held accounts","Building something from scratch","Generating unconventional commercial ideas","Short-cycle, high-impact projects"]}
   },
   Collaborator:{color:"#B45309",bg:"#FFFBEB",
     tag:"Warm · Consistent · Team anchor",
@@ -481,7 +511,8 @@ const P = {
     brings:"Warmth, consistency, and the glue that keeps clients and colleagues from leaving.",
     needs:"Stability, genuine appreciation, and freedom from constant conflict or pressure.",
     roles:{Sales:3,CustomerExperience:5,Capacity:4,Finance:3,Operations:4,HumanResources:5,ProjectManager:3},
-    works:{Strategist:"Collaborator humanizes Strategist's drive — high-value pairing",Promoter:"Natural warmth amplified — excellent CX and retention team",Maverick:"Provides stability Maverick needs; can clash on pace",Collaborator:"Risk of avoiding hard conversations — needs a driver nearby",Specialist:"Smooth pairing — both careful, both consistent",Operator:"Highly compatible — both value stability and reliability",Explorer:"Collaborator grounds Explorer's flexibility — strong balance"}
+    works:{Strategist:"Collaborator humanizes Strategist's drive — high-value pairing",Promoter:"Natural warmth amplified — excellent CX and retention team",Maverick:"Provides stability Maverick needs; can clash on pace",Collaborator:"Risk of avoiding hard conversations — needs a driver nearby",Specialist:"Smooth pairing — both careful, both consistent",Operator:"Highly compatible — both value stability and reliability",Explorer:"Collaborator grounds Explorer's flexibility — strong balance"},
+    playbook:{needs:["Genuine appreciation — not just performance metrics","Stability and psychological safety","Time to build trust before being pushed","Clear signals that their consistency is valued"],avoid:["Constant conflict or high-pressure environments","Expecting them to self-advocate — check in proactively","Overlooking their contributions because they are quiet","Putting them in pure hunting or confrontational roles"],best:["Long-term account retention and relationship depth","Creating team cohesion and onboarding new members","Defusing tense client situations","CX roles requiring empathy and consistency"]}
   },
   Specialist:{color:"#065F46",bg:"#ECFDF5",
     tag:"Precise · Expert · Quality guardian",
@@ -491,7 +522,8 @@ const P = {
     brings:"Depth, accuracy, and the discipline to protect the business from costly mistakes.",
     needs:"Clear processes, time to do things right, and recognition for precision — not just speed.",
     roles:{Sales:2,CustomerExperience:4,Capacity:5,Finance:5,Operations:5,HumanResources:3,ProjectManager:4},
-    works:{Strategist:"Natural QA pairing — Strategist drives, Specialist validates",Promoter:"Specialist grounds Promoter's promises — needs clear handoffs",Maverick:"Productive tension — Specialist prevents Maverick's costly errors",Collaborator:"Both careful; risk of too much caution without a driver",Specialist:"Deep mutual respect; risk of over-analysis paralysis",Operator:"Highest natural compatibility — both process and accuracy-driven",Explorer:"Explorer benefits from Specialist's depth and vice versa"}
+    works:{Strategist:"Natural QA pairing — Strategist drives, Specialist validates",Promoter:"Specialist grounds Promoter's promises — needs clear handoffs",Maverick:"Productive tension — Specialist prevents Maverick's costly errors",Collaborator:"Both careful; risk of too much caution without a driver",Specialist:"Deep mutual respect; risk of over-analysis paralysis",Operator:"Highest natural compatibility — both process and accuracy-driven",Explorer:"Explorer benefits from Specialist's depth and vice versa"},
+    playbook:{needs:["Time to do things right — not just fast","Recognition for accuracy and depth","Clear processes and defined expectations","A subject matter domain they can own"],avoid:["Rushing them into decisions without full information","Changing priorities without explanation","Expecting social energy or high extraversion","Assigning them to generalist or ambiguous roles"],best:["Documentation, compliance, and quality control","Subject matter authority clients and peers trust","Claims, customs, and precision-critical processes","Building and owning systems that protect quality"]}
   },
   Operator:{color:"#1E40AF",bg:"#EFF6FF",
     tag:"Disciplined · Reliable · Execution engine",
@@ -501,7 +533,8 @@ const P = {
     brings:"Reliability, process discipline, and the consistency that turns promises into delivered results.",
     needs:"Clear direction, stable processes, and recognition for consistent execution.",
     roles:{Sales:3,CustomerExperience:5,Capacity:5,Finance:4,Operations:5,HumanResources:4,ProjectManager:5},
-    works:{Strategist:"Operator grounds Strategist's pace — essential partnership",Promoter:"Operator delivers what Promoter sells — critical pairing",Maverick:"Tension: Operator frustrated by Maverick's rule-bending",Collaborator:"Very compatible — shared values of consistency and reliability",Specialist:"Highest natural synergy — both process and accuracy-driven",Operator:"Risk of over-indexing on process vs. speed; needs a driver",Explorer:"Explorer refreshes Operator's approach — good creative tension"}
+    works:{Strategist:"Operator grounds Strategist's pace — essential partnership",Promoter:"Operator delivers what Promoter sells — critical pairing",Maverick:"Tension: Operator frustrated by Maverick's rule-bending",Collaborator:"Very compatible — shared values of consistency and reliability",Specialist:"Highest natural synergy — both process and accuracy-driven",Operator:"Risk of over-indexing on process vs. speed; needs a driver",Explorer:"Explorer refreshes Operator's approach — good creative tension"},
+    playbook:{needs:["Clear direction before acting","Stable processes and predictable environments","Recognition for consistent delivery","Advance notice of changes — they plan ahead"],avoid:["Last-minute pivots without explanation","Ambiguous goals or undefined success criteria","Expecting them to generate new ideas without structure","Overloading them beyond sustainable capacity"],best:["Owning and improving operational processes","Keeping complex multi-party operations on track","High-volume consistent execution","Project management and delivery discipline"]}
   },
   Explorer:{color:"#4B5563",bg:"#F9FAFB",
     tag:"Adaptable · Versatile · Context-aware",
@@ -511,7 +544,8 @@ const P = {
     brings:"Adaptability, bridging, and the flexibility to fill whatever gap the team needs.",
     needs:"Variety, context-switching, and a clear anchor to avoid spreading too thin.",
     roles:{Sales:4,CustomerExperience:4,Capacity:3,Finance:3,Operations:3,HumanResources:4,ProjectManager:4},
-    works:{Strategist:"Explorer softens Strategist's edges — useful bridge",Promoter:"Natural alignment — both adaptable and socially aware",Maverick:"Good creative pairing — both challenge the status quo",Collaborator:"Explorer can push Collaborator when needed — healthy balance",Specialist:"Explorer benefits from Specialist's depth; Specialist from Explorer's range",Operator:"Explorer refreshes Operator's thinking — mutual benefit",Explorer:"Highly flexible duo; needs anchor from Strategist or Specialist"}
+    works:{Strategist:"Explorer softens Strategist's edges — useful bridge",Promoter:"Natural alignment — both adaptable and socially aware",Maverick:"Good creative pairing — both challenge the status quo",Collaborator:"Explorer can push Collaborator when needed — healthy balance",Specialist:"Explorer benefits from Specialist's depth; Specialist from Explorer's range",Operator:"Explorer refreshes Operator's thinking — mutual benefit",Explorer:"Highly flexible duo; needs anchor from Strategist or Specialist"},
+    playbook:{needs:["Variety and context-switching","Clear anchor — what is their primary responsibility?","Recognition for adaptability, not just one domain","Permission to play different roles as the team needs"],avoid:["Forcing them into a rigid single-function box","Leaving them without direction — they can drift","Expecting deep specialist output without time to develop it","Underutilizing their bridging ability"],best:["Bridging across functions or profile types","Roles requiring rapid adaptation to change","Supporting different team members in different ways","Navigating ambiguous or evolving situations"]}
   }
 };
 
@@ -627,11 +661,41 @@ function classify(n1,n2){
   return Object.keys(scores).reduce((best,k)=>scores[k]>scores[best]?k:best,'Explorer');
 }
 
+function classifyWithSecondary(n1,n2){
+  const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=(n1[k]+n2[k])/2);
+  const {A,B,C,D,E}=avg;
+  const gates={
+    Strategist:   A>=57&&D>=60&&E>=55,
+    Promoter:     B>=60&&A<65,
+    Maverick:     A>=58&&D<=50,
+    Collaborator: B>=57&&C>=60&&A<=57,
+    Specialist:   D>=63&&B<=60,
+    Operator:     C>=62&&A<=58&&D>=52,
+    Explorer:     true
+  };
+  const scores={};
+  if(gates.Strategist)   scores.Strategist   = (A>=62?3:1)+(D>=65?2:1)+(E>=60?2:1)+(B<55?1:0);
+  if(gates.Promoter)     scores.Promoter     = (B>=63?3:2)+(A>=50?2:1)+(C<62?1:0)+(E<55?1:0);
+  if(gates.Maverick)     scores.Maverick     = (A>=62?3:1)+(E>=57?2:1)+(C<52?1:0);
+  if(gates.Collaborator) scores.Collaborator = (B>=62?3:2)+(C>=65?3:2)+(A<52?1:0);
+  if(gates.Specialist)   scores.Specialist   = (D>=68?3:2)+(B<54?2:1)+(E>=60?1:0);
+  if(gates.Operator)     scores.Operator     = (C>=65?3:2)+(D>=60?2:1)+(B>=55?1:0);
+  scores.Explorer = 2;
+  const sorted = Object.keys(scores).sort((a,b)=>scores[b]-scores[a]);
+  const primary = sorted[0];
+  const secondary = sorted[1] !== primary ? sorted[1] : sorted[2];
+  // Only show secondary if score is within 2 points of primary (meaningful lean)
+  const showSecondary = secondary && Math.abs(scores[primary]-scores[secondary]) <= 2;
+  return {primary, secondary: showSecondary ? secondary : null};
+}
+
 // ─── RESULTS ─────────────────────────────────────────────────────────────────
 async function finish(){
   const r1=scoreSet(s1),n1=norm(r1,s1.size);
   const r2=scoreSet(s2),n2=norm(r2,s2.size);
-  const key=classify(n1,n2);
+  const classified=classifyWithSecondary(n1,n2);
+  const key=classified.primary;
+  const secondaryKey=classified.secondary;
   const prof=P[key];
   const avg={};['A','B','C','D','E'].forEach(k=>avg[k]=Math.round((n1[k]+n2[k])/2));
 
@@ -641,7 +705,9 @@ async function finish(){
     level:       uData.level,
     role:        uData.role,
     exp:         uData.exp,
+    team:        uData.team,
     profile_key: key,
+    secondary_profile: secondaryKey||'',
     dim_a:       avg.A, dim_b: avg.B, dim_c: avg.C, dim_d: avg.D, dim_e: avg.E,
     taken_at:    new Date().toISOString()
   };
@@ -680,7 +746,10 @@ async function finish(){
 
   document.getElementById('rHTML').innerHTML=`
     <div class="r-top">
-      <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${key}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap">
+        <div class="p-badge" style="background:${prof.bg};color:${prof.color};margin-bottom:0">${key}</div>
+        ${secondaryKey?'<div style="font-size:11px;color:var(--text3);padding:3px 9px;border-radius:99px;border:1px solid var(--border)">'+secondaryKey+'-leaning</div>':''}
+      </div>
       <div class="r-name">${uData.name||'Your profile'}</div>
       <div class="r-sub" style="color:#A1A1AA">${[uData.level,uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
       <div class="r-tagline">${prof.tag}</div>
@@ -739,21 +808,44 @@ async function loadTeam(region){
     if(!list.length){el.innerHTML=`<div class="t-empty">No results yet${region!=='All'?' for '+region:''}. Share the link and ask team members to take the assessment.</div>`;return}
     list.sort((a,b)=>PORDER.indexOf((a.profile_key||a.profileKey||'').trim())-PORDER.indexOf((b.profile_key||b.profileKey||'').trim())||a.name.localeCompare(b.name));
     window._teamData = list;
+    runDensityWarnings(list);
     el.innerHTML=list.map((r,rIdx)=>{
       // Read profile key from Sheets row
       const pk=(r.profile_key||r.profileKey||r['profile_key']||r.Profile_key||'').toString().trim();
+      const secondaryKey=(r.secondary_profile||'').toString().trim()||null;
       const pi=PORDER.indexOf(pk);
       const prof=pi>=0?P[pk]:P['Explorer'];
       const [ac,abg]=AVC[pi>=0?pi:6];
       const init=(r.name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
       const id=encodeURIComponent((r.name||'')+'|'+(r.station||''));
       const displayPk=pk||'Pending';
-      return`<div class="tc" id="tc_${id}">
-        <div class="tav" style="background:${abg};color:${ac}">${init}</div>
-        <div class="ti"><div class="tn">${r.name}</div><div class="tm">${[r.level,r.role,r.station].filter(Boolean).join(' · ')}</div></div>
-        <div class="tb" style="background:${prof.bg};color:${prof.color}">${displayPk}</div>
-        <button class="dl-btn" title="Download profile" onclick="downloadProfile(window._teamData[${rIdx}])">↓</button>
-        <button class="del-btn" title="Remove result" onclick="deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
+      return`<div class="tc-wrap" id="tcw_${id}">
+        <div class="tc" onclick="togglePlaybook('${id}')" style="cursor:pointer">
+          <div class="tav" style="background:${abg};color:${ac}">${init}</div>
+          <div class="ti">
+            <div class="tn">${r.name}</div>
+            <div class="tm">${[r.level,r.role,r.station,r.team?'Team: '+r.team:''].filter(Boolean).join(' · ')}</div>
+          </div>
+          <div class="tb" style="background:${prof.bg};color:${prof.color}">${displayPk}</div>
+          <button class="dl-btn" title="Download profile" onclick="event.stopPropagation();downloadProfile(window._teamData[${rIdx}])">↓</button>
+          <button class="del-btn" title="Remove result" onclick="event.stopPropagation();deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
+        </div>
+        <div class="playbook-drawer" id="pb_${id}" style="display:none;padding:.9rem 1.1rem;border-top:.5px solid var(--border);background:var(--bg)">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">✅ What they need</div>
+              ${prof.playbook.needs.map(n=>'<div style="font-size:12px;color:var(--text2);padding:3px 0;border-bottom:.5px solid var(--border)">'+n+'</div>').join('')}
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#9F1239;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">⚠ What to avoid</div>
+              ${prof.playbook.avoid.map(a=>'<div style="font-size:12px;color:var(--text2);padding:3px 0;border-bottom:.5px solid var(--border)">'+a+'</div>').join('')}
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#1B4FD8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">🔧 Best use</div>
+              ${prof.playbook.best.map(b=>'<div style="font-size:12px;color:var(--text2);padding:3px 0;border-bottom:.5px solid var(--border)">'+b+'</div>').join('')}
+            </div>
+          </div>
+        </div>
       </div>`;
     }).join('');
   } catch(e){el.innerHTML=`<div class="err">Could not load results. ${e.message}</div>`}
@@ -1239,6 +1331,158 @@ function drawCompareChart() {
   } else {
     document.getElementById('compareNote').textContent = '';
   }
+  buildPairingNudges();
+}
+
+// ─── MANAGER PLAYBOOK TOGGLE ─────────────────────────────────────────────────
+function togglePlaybook(id) {
+  var drawer = document.getElementById('pb_' + id);
+  if (!drawer) return;
+  var isOpen = drawer.style.display !== 'none';
+  // Close all others
+  document.querySelectorAll('.playbook-drawer').forEach(function(d) { d.style.display = 'none'; });
+  // Toggle this one
+  drawer.style.display = isOpen ? 'none' : 'block';
+}
+
+// ─── DENSITY WARNINGS ────────────────────────────────────────────────────────
+function runDensityWarnings(list) {
+  var el = document.getElementById('densityWarnings');
+  if (!el) return;
+
+  if (!list || list.length < 2) { el.innerHTML = ''; return; }
+
+  var warnings = [];
+  var profiles = list.map(function(r){ return (r.profile_key||'').trim(); });
+  var total = profiles.length;
+
+  // Count profiles
+  var counts = {};
+  PORDER.forEach(function(p){ counts[p] = 0; });
+  profiles.forEach(function(p){ if(counts[p]!==undefined) counts[p]++; });
+
+  // Rule 1: High single-profile density (>50% of team)
+  PORDER.forEach(function(p){
+    if(counts[p] / total > 0.5 && total >= 3){
+      var lacking = p==='Strategist'?'Collaborator / Promoter':
+                    p==='Promoter'?'Operator / Specialist':
+                    p==='Collaborator'?'Strategist / Maverick':
+                    p==='Operator'?'Maverick / Promoter':'balance';
+      warnings.push('⚠ High ' + p + ' density (' + counts[p] + '/' + total + ') — ensure ' + lacking + ' coverage');
+    }
+  });
+
+  // Rule 2: No natural driver (no Strategist or Maverick)
+  if(counts.Strategist === 0 && counts.Maverick === 0 && total >= 3){
+    warnings.push('⚠ No natural driver present — growth and direction-setting may stall');
+  }
+
+  // Rule 3: Two or more Strategists
+  if(counts.Strategist >= 2){
+    warnings.push('⚠ ' + counts.Strategist + ' Strategists in the same team — define ownership lanes explicitly to avoid control tension');
+  }
+
+  // Rule 4: No Operator or Specialist in ops-heavy group
+  if(counts.Operator === 0 && counts.Specialist === 0 && total >= 3){
+    warnings.push('⚠ No Operator or Specialist present — execution discipline and quality control may need reinforcement');
+  }
+
+  // Rule 5: No Collaborator or Promoter (relationship gap)
+  if(counts.Collaborator === 0 && counts.Promoter === 0 && total >= 3){
+    warnings.push('⚠ No natural relationship builder — client retention and team cohesion may be at risk');
+  }
+
+  if(warnings.length === 0){
+    el.innerHTML = '<div style="font-size:12px;color:#15803D;padding:8px 12px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px">✅ Team profile mix looks balanced — good coverage across behavioral dimensions.</div>';
+  } else {
+    el.innerHTML = warnings.map(function(w){
+      return '<div style="font-size:12px;color:#92400E;padding:8px 12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:6px;margin-bottom:6px">' + w + '</div>';
+    }).join('');
+  }
+}
+
+// ─── PAIRING NUDGES IN COMPARE ────────────────────────────────────────────────
+function buildPairingNudges() {
+  var active = compareData.filter(Boolean);
+  var el = document.getElementById('pairingNudges');
+  if (!el) return;
+  if (active.length < 2) { el.innerHTML = ''; return; }
+
+  var html = '<div style="margin-top:1rem"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Pairing analysis</div>';
+
+  for (var i = 0; i < active.length; i++) {
+    for (var j = i+1; j < active.length; j++) {
+      var pA = active[i].profile, pB = active[j].profile;
+      var profA = P[pA], profB = P[pB];
+      if (!profA || !profB) continue;
+
+      var worksTxt = profA.works[pB] || profB.works[pA] || '—';
+      var lw = worksTxt.toLowerCase();
+      var synergy = lw.includes('powerful')||lw.includes('exceptional')||lw.includes('highest')||lw.includes('essential') ? 'strong' :
+                    lw.includes('tension')||lw.includes('friction')||lw.includes('conflict')||lw.includes('clash') ? 'friction' : 'good';
+
+      var synColor = synergy==='strong'?'#15803D':synergy==='friction'?'#9F1239':'#92400E';
+      var synBg    = synergy==='strong'?'#F0FDF4':synergy==='friction'?'#FFF1F2':'#FFFBEB';
+      var synLabel = synergy==='strong'?'Strong pairing':synergy==='friction'?'Manage carefully':'Good pairing';
+
+      // What to clarify
+      var clarify = synergy==='friction'
+        ? 'Define lanes and decision rights explicitly before they work together.'
+        : synergy==='strong'
+        ? 'Leverage this pairing — assign them to high-stakes joint work.'
+        : 'Aligned overall — monitor for blind spots they share.';
+
+      html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.6rem;flex-wrap:wrap">' +
+          '<strong style="font-size:13px">' + active[i].name.split(' ')[0] + ' + ' + active[j].name.split(' ')[0] + '</strong>' +
+          '<span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px;background:' + synBg + ';color:' + synColor + '">' + synLabel + '</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">' + worksTxt + '</div>' +
+        '<div style="font-size:12px;color:var(--text3);font-style:italic">🧭 ' + clarify + '</div>' +
+      '</div>';
+    }
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ─── COMPARE TEAM FILTER ─────────────────────────────────────────────────────
+function filterCompareByTeam(teamName) {
+  var filtered = teamName
+    ? allTeamData.filter(function(r){ return (r.team||'').toLowerCase().includes(teamName.toLowerCase()); })
+    : allTeamData;
+  // Rebuild selectors with filtered data
+  var el = document.getElementById('compareSelectors');
+  if (!el) return;
+  el.innerHTML = [0,1,2].map(function(slot) {
+    var opts = filtered.map(function(r, i) {
+      var realIdx = allTeamData.indexOf(r);
+      return '<option value="' + realIdx + '"' +
+        (compareData[slot] && compareData[slot]._idx === realIdx ? ' selected' : '') + '>' +
+        r.name + ' (' + (r.profile_key||'?') + ')' +
+        '</option>';
+    }).join('');
+    return '<div>' +
+      '<div style="font-size:11px;font-weight:600;color:' + COMPARE_COLORS[slot] + ';margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Person ' + (slot+1) + '</div>' +
+      '<select onchange="selectPerson(' + slot + ',this.value)" style="width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);font-family:inherit;font-size:13px;color:var(--text);outline:none">' +
+      '<option value="">— Select —</option>' + opts +
+      '</select>' +
+    '</div>';
+  }).join('');
+}
+
+// ─── FETCH ERROR HELPER ──────────────────────────────────────────────────────
+function showFetchError() {
+  var el = document.getElementById('teamList');
+  if (el) el.innerHTML = '<div style="text-align:center;padding:2rem;font-size:13px;color:#9F1239;background:#FFF1F2;border-radius:8px;border:1px solid #FECACA">' +
+    '<strong>Cannot reach the database.</strong><br><br>' +
+    'Most likely cause: the Google Apps Script deployment needs to be updated.<br><br>' +
+    'Go to Apps Script → Deploy → Manage deployments → edit the active deployment → create a new version → Deploy.<br><br>' +
+    'Make sure "Who has access" is set to <strong>Anyone</strong>.' +
+  '</div>';
+  var dw = document.getElementById('densityWarnings');
+  if (dw) dw.innerHTML = '';
 }
 
 // ─── NAVIGATION ──────────────────────────────────────────────────────────────
@@ -1248,9 +1492,17 @@ function go(id){
   window.scrollTo(0,0);
   if(id==='sGuide')buildGuide();
   if(id==='sAdmin'){
-    loadTeam('All');
-    // Pre-load compare data too
-    if(!allTeamData.length){storeGet('All').then(function(d){allTeamData=d;});}
+    // Test connectivity first
+    fetch(GS_URL + '?action=ping&t=' + Date.now(), {method:'GET', redirect:'follow'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.status === 'ok') { loadTeam('All'); }
+        else { showFetchError(); }
+      })
+      .catch(function(e){
+        console.error('Connectivity test failed:', e);
+        showFetchError();
+      });
   }
 }
 
@@ -1260,7 +1512,8 @@ function startA(){
     station: document.getElementById('fStation').value||'',
     level:   document.getElementById('fLevel').value||'',
     role:    document.getElementById('fRole').value||'',
-    exp:     document.getElementById('fExp').value||''
+    exp:     document.getElementById('fExp').value||'',
+    team:    document.getElementById('fTeam').value.trim()||''
   };
   go('sQ1');
 }
