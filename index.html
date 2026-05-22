@@ -194,58 +194,59 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="topbar">
     <div class="brand">Logiztik Alliance <span>· People Assessment</span></div>
     <nav class="nav">
-      <a onclick="go('sIntro')">Assessment</a>
-      <a onclick="go('sGuide')">Profile guide</a>
-      <a onclick="gateAdmin()">Admin</a>
+      <a onclick="go('sIntro')" id="navAssessment">Assessment</a>
+      <a onclick="go('sGuide')" id="navGuide">Profile guide</a>
+      <a onclick="gateAdmin()" id="navAdmin">Admin</a>
+      <button id="langBtn" onclick="toggleLang()" style="padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2)">ES</button>
     </nav>
   </div>
 
   <!-- ═══ INTRO ═══ -->
   <div id="sIntro" class="screen active">
     <div class="hero">
-      <h1>Behavioral Assessment</h1>
-      <p>A practical team operating tool — not just a test. Understand how you naturally work, how you fit with your teammates, and how your manager can get the best from you. No right or wrong answers.</p>
+      <h1 id="heroTitle">Behavioral Assessment</h1>
+      <p id="heroSubtitle">A practical team operating tool — not just a test. Understand how you naturally work, how you fit with your teammates, and how your manager can get the best from you. No right or wrong answers.</p>
       <div class="pills">
         <span class="pill">~6 minutes</span>
         <span class="pill">Two questions · Same word list</span>
         <span class="pill">7 behavioral profiles</span>
         <span class="pill">Manager playbook included</span>
-        <span class="pill">Results saved for your team</span>
+        <span class="pill" id="pillResults">Results saved for your team</span>
       </div>
     </div>
-    <div class="info-card">
-      <h3>Before you begin</h3>
-      <ul>
+    <div class="info-card" id="infoCard">
+      <h3 id="infoTitle">Before you begin</h3>
+      <ul id="infoList">
         <li>You will see the same list of words twice, with a different question each time.</li>
         <li>Select the words that feel genuinely true — don't overthink it.</li>
         <li>If you don't recognize a word, skip it.</li>
         <li>Please complete it in one sitting.</li>
         <li>There are no right or wrong answers.</li>
       </ul>
-      <p class="note">Your result will be saved and visible to your manager in the Team view. Results are stored securely and accessible from any device.</p>
+      <p class="note" id="infoNote">Your result will be saved and visible to your manager in the Team view. Results are stored securely and accessible from any device.</p>
     </div>
     <div class="form-card">
       <div class="form-grid">
-        <div class="field"><label>Full name</label><input type="text" id="fName" placeholder="John Doe"/></div>
-        <div class="field"><label>Station</label>
+        <div class="field"><label id="labelName">Full name</label><input type="text" id="fName" placeholder="John Doe"/></div>
+        <div class="field"><label id="labelStation">Station</label>
           <select id="fStation"><option value="">Select station</option><option>Colombia</option><option>Ecuador</option><option>Netherlands</option><option>United States</option></select>
         </div>
-        <div class="field"><label>Level</label>
+        <div class="field"><label id="labelLevel">Level</label>
           <select id="fLevel"><option value="">Select level</option><option>Individual Contributor</option><option>Team Lead</option><option>Manager / Head of</option><option>Director / VP</option><option>General Manager / C-Suite</option></select>
         </div>
-        <div class="field"><label>Function</label>
+        <div class="field"><label id="labelRole">Function</label>
           <select id="fRole"><option value="">Select function</option><option>Sales</option><option>Customer Experience</option><option>Capacity</option><option>Finance</option><option>Operations</option><option>Human Resources</option><option>Project Manager</option><option>Procurement</option></select>
         </div>
-        <div class="field"><label>Years in logistics</label>
+        <div class="field"><label id="labelExp">Years in logistics</label>
           <select id="fExp"><option value="">Select</option><option>0–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select>
         </div>
-        <div class="field" style="grid-column:1/-1"><label>Team <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — ask your manager)</span></label>
+        <div class="field" style="grid-column:1/-1"><label id="labelTeam">Team <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — ask your manager)</span></label>
           <input type="text" id="fTeam" placeholder="e.g. Miami CX, EC Floral, US Sales" />
         </div>
       </div>
     </div>
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;margin:1.25rem 0">
-    <div style="font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:.9rem">
+    <div id="disclaimerText" style="font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:.9rem">
       This assessment is an internal behavioral awareness tool designed to support team development and communication. It is not a clinical or psychological evaluation, and results are not used as a basis for hiring, promotion, compensation, or any employment decision. Participation is voluntary. Your responses and profile are stored securely and accessible only to you and your manager. Results reflect behavioral tendencies, not capabilities or performance.
       <br><br>
       Your data is processed for internal team development purposes only and will not be shared outside Logiztik Alliance Group.
@@ -261,14 +262,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <!-- ═══ Q1 ═══ -->
   <div id="sQ1" class="screen">
     <div class="q-hdr">
-      <div class="q-step">Question 1 of 2</div>
-      <h2>Please select the words that you believe <u>really describe you as you are</u> at work.</h2>
-      <p>Choose as many or as few as feel genuinely true. Your first instinct is almost always the most accurate.</p>
+      <div class="q-step" id="q1step">Question 1 of 2</div>
+      <h2 id="q1title">Please select the words that you believe <u>really describe you as you are</u> at work.</h2>
+      <p id="q1sub">Choose as many or as few as feel genuinely true. Your first instinct is almost always the most accurate.</p>
     </div>
     <div class="prog-row"><div class="prog-track"><div class="prog-fill" id="p1f" style="width:0%"></div></div><div class="prog-txt" id="p1t">0 selected</div></div>
     <div class="wgrid" id="g1"></div>
     <div class="btn-row">
-      <button class="btn-p" id="bQ1" onclick="go('sQ2')" disabled>Continue →</button>
+      <button class="btn-p" id="bQ1" onclick="go('sQ2')" disabled><span id="btnQ1txt">Continue →</span></button>
       <span class="hint" id="h1">Select at least 5 words to continue</span>
     </div>
   </div>
@@ -276,15 +277,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <!-- ═══ Q2 ═══ -->
   <div id="sQ2" class="screen">
     <div class="q-hdr">
-      <div class="q-step">Question 2 of 2</div>
-      <h2>Please select the words that describe <u>the way you are expected to act by others</u> at work.</h2>
-      <p>Think about what your manager, team, or clients expect of you — even if it differs from who you naturally are.</p>
+      <div class="q-step" id="q2step">Question 2 of 2</div>
+      <h2 id="q2title">Please select the words that describe <u>the way you are expected to act by others</u> at work.</h2>
+      <p id="q2sub">Think about what your manager, team, or clients expect of you — even if it differs from who you naturally are.</p>
     </div>
     <div class="prog-row"><div class="prog-track"><div class="prog-fill" id="p2f" style="width:0%"></div></div><div class="prog-txt" id="p2t">0 selected</div></div>
     <div class="wgrid" id="g2"></div>
     <div class="btn-row">
-      <button class="btn-p" id="bQ2" onclick="finish()" disabled>See my profile →</button>
-      <button class="btn-g" onclick="go('sQ1')">← Back</button>
+      <button class="btn-p" id="bQ2" onclick="finish()" disabled><span id="btnQ2txt">See my profile →</span></button>
+      <button class="btn-g" id="btnQ2back" onclick="go('sQ1')">← Back</button>
       <span class="hint" id="h2">Select at least 5 words to continue</span>
     </div>
   </div>
@@ -306,28 +307,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <!-- ═══ PROFILE GUIDE ═══ -->
   <div id="sGuide" class="screen">
     <div class="hero" style="padding-bottom:.5rem">
-      <h1>Profile guide</h1>
-      <p>Understanding how each behavioral profile works — and how they fit together as a team.</p>
+      <h1 id="guideTitle">Profile guide</h1>
+      <p id="guideSubtitle">Understanding how each behavioral profile works — and how they fit together as a team.</p>
     </div>
 
     <div style="background:var(--accent-bg);border:1px solid #C7D7F9;border-radius:var(--r);padding:.9rem 1.1rem;margin-bottom:1.25rem;font-size:13px;color:#1e3a8a;line-height:1.65">
-      <strong>How to use this guide.</strong> No profile is better than another. The strongest teams have intentional diversity — each person covering the natural blind spots of the others. Use this to understand your people, not rank them.
+      <strong id="guideIntroTitle">How to use this guide.</strong> <span id="guideIntroText">No profile is better than another. The strongest teams have intentional diversity — each person covering the natural blind spots of the others. Use this to understand your people, not rank them.</span>
     </div>
 
     <div class="section-divider"></div>
-    <div class="h2-sec">Profile quick reference</div>
-    <div class="h2-sub">What each profile brings — and what they need from the team</div>
+    <div class="h2-sec" id="guideRef">Profile quick reference</div>
+    <div class="h2-sub" id="guideRefSub">What each profile brings — and what they need from the team</div>
     <div class="tab-bar" id="profileTabs"></div>
     <div id="profileDetail"></div>
 
     <div class="section-divider"></div>
-    <div class="h2-sec">Winning team combinations</div>
-    <div class="h2-sub">Pairings and trios that consistently produce results in commercial logistics</div>
+    <div class="h2-sec" id="guideCombos">Winning team combinations</div>
+    <div class="h2-sub" id="guideCombosSub">Pairings and trios that consistently produce results in commercial logistics</div>
     <div class="combo-grid" id="comboGrid"></div>
 
     <div class="section-divider"></div>
-    <div class="h2-sec">Combinations to manage carefully</div>
-    <div class="h2-sub">These pairings can work — but need explicit role clarity and regular check-ins</div>
+    <div class="h2-sec" id="guideWatch">Combinations to manage carefully</div>
+    <div class="h2-sub" id="guideWatchSub">These pairings can work — but need explicit role clarity and regular check-ins</div>
     <div class="combo-grid" id="watchGrid"></div>
 
     <div class="action-bar">
@@ -393,6 +394,133 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────────────────────────
+// ─── LANGUAGE ────────────────────────────────────────────────────────────────
+let LANG = 'en'; // 'en' or 'es'
+
+function toggleLang() {
+  LANG = LANG === 'en' ? 'es' : 'en';
+  document.getElementById('langBtn').textContent = LANG === 'en' ? 'ES' : 'EN';
+  applyLang();
+}
+
+function t(en, es) { return LANG === 'es' ? es : en; }
+
+function applyLang() {
+  // Rebuild word grids with correct language
+  buildGrids();
+  // Update all static text
+  updateStaticText();
+  // Rebuild guide if currently visible
+  if(document.getElementById('sGuide') && document.getElementById('sGuide').classList.contains('active')) {
+    buildGuide();
+  }
+}
+
+function updateStaticText() {
+  var el;
+  // Hero
+  el = document.getElementById('heroTitle');
+  if(el) el.textContent = t('Behavioral Assessment','Evaluación de Comportamiento');
+  el = document.getElementById('heroSubtitle');
+  if(el) el.textContent = t(
+    'A practical team operating tool — not just a test. Understand how you naturally work, how you fit with your teammates, and how your manager can get the best from you. No right or wrong answers.',
+    'Una herramienta práctica para el equipo — no solo una prueba. Entiende cómo trabajas naturalmente, cómo encajas con tus compañeros y cómo tu líder puede sacar lo mejor de ti. No hay respuestas correctas o incorrectas.'
+  );
+  // Pill labels
+  var pills = document.querySelectorAll('.pill');
+  var pillTexts = [
+    [t('~6 minutes','~6 minutos')],
+    [t('Two questions · Same word list','Dos preguntas · Misma lista de palabras')],
+    [t('7 behavioral profiles','7 perfiles de comportamiento')],
+    [t('Manager playbook included','Guía de gestión incluida')]
+  ];
+  pills.forEach(function(p,i){ if(pillTexts[i]) p.textContent = pillTexts[i][0]; });
+  // Form labels
+  el = document.getElementById('labelName');    if(el) el.textContent = t('Full name','Nombre completo');
+  el = document.getElementById('labelStation'); if(el) el.textContent = t('Station','Estación');
+  el = document.getElementById('labelLevel');   if(el) el.textContent = t('Level','Nivel');
+  el = document.getElementById('labelRole');    if(el) el.textContent = t('Function','Función');
+  el = document.getElementById('labelExp');     if(el) el.textContent = t('Years in logistics','Años en logística');
+  el = document.getElementById('labelTeam');    if(el) el.textContent = t('Team','Equipo');
+  // Disclaimer
+  el = document.getElementById('disclaimerText');
+  if(el) el.innerHTML = t(
+    'This assessment is an internal behavioral awareness tool designed to support team development and communication. It is not a clinical or psychological evaluation, and results are not used as a basis for hiring, promotion, compensation, or any employment decision. Participation is voluntary. Your responses and profile are stored securely and accessible only to you and your manager. Results reflect behavioral tendencies, not capabilities or performance.<br><br>Your data is processed for internal team development purposes only and will not be shared outside Logiztik Alliance Group.',
+    'Esta evaluación es una herramienta interna de comportamiento diseñada para apoyar el desarrollo del equipo y la comunicación. No es una evaluación clínica o psicológica, y los resultados no se utilizan como base para decisiones de contratación, promoción, compensación o cualquier decisión laboral. La participación es voluntaria. Tus respuestas y perfil se almacenan de forma segura y son accesibles solo para ti y tu líder. Los resultados reflejan tendencias de comportamiento, no capacidades ni desempeño.<br><br>Tus datos se procesan únicamente para fines de desarrollo interno del equipo y no se compartirán fuera de Logiztik Alliance Group.'
+  );
+  el = document.getElementById('disclaimerCheck');
+  if(el) el.nextElementSibling.textContent = t('I have read and understood the above.','He leído y entendido lo anterior.');
+  // Buttons
+  el = document.getElementById('beginBtn');
+  if(el && !el.disabled) el.textContent = t('Begin assessment →','Comenzar evaluación →');
+  else if(el) el.textContent = t('Begin assessment →','Comenzar evaluación →');
+  // Q1
+  el = document.getElementById('q1step');   if(el) el.textContent = t('Question 1 of 2','Pregunta 1 de 2');
+  el = document.getElementById('q1title');  if(el) el.textContent = t(
+    'Please select the words that you believe really describe you as you are at work.',
+    'Por favor selecciona las palabras que crees que te describen realmente tal como eres en el trabajo.');
+  el = document.getElementById('q1sub');    if(el) el.textContent = t(
+    'Choose as many or as few as feel genuinely true. Your first instinct is almost always the most accurate.',
+    'Elige las que sientas genuinamente ciertas. Tu primer instinto casi siempre es el más preciso.');
+  el = document.getElementById('btnQ1txt'); if(el) el.textContent = t('Continue →','Continuar →');
+  // Q2
+  el = document.getElementById('q2step');   if(el) el.textContent = t('Question 2 of 2','Pregunta 2 de 2');
+  el = document.getElementById('q2title');  if(el) el.textContent = t(
+    'Please select the words that describe the way you are expected to act by others at work.',
+    'Por favor selecciona las palabras que describen cómo se espera que actúes en el trabajo.');
+  el = document.getElementById('q2sub');    if(el) el.textContent = t(
+    'Think about what your manager, team, or clients expect of you — even if it differs from who you naturally are.',
+    'Piensa en lo que tu líder, equipo o clientes esperan de ti — incluso si difiere de quien eres naturalmente.');
+  el = document.getElementById('btnQ2txt'); if(el) el.textContent = t('See my profile →','Ver mi perfil →');
+  el = document.getElementById('btnQ2back'); if(el) el.textContent = t('← Back','← Volver');
+  // Profile guide
+  el = document.getElementById('pillResults'); if(el) el.textContent = t('Results saved for your team','Resultados guardados para tu equipo');
+  el = document.getElementById('guideSubtitle'); if(el) el.textContent = t('Understanding how each behavioral profile works — and how they fit together as a team.','Entiende cómo funciona cada perfil de comportamiento — y cómo encajan juntos en un equipo.');
+  el = document.getElementById('guideTitle'); if(el) el.textContent = t('Profile guide','Guía de perfiles');
+  // Nav tabs
+  el = document.getElementById('navAssessment'); if(el) el.textContent = t('Assessment','Evaluación');
+  el = document.getElementById('navGuide'); if(el) el.textContent = t('Profile guide','Guía de perfiles');
+  el = document.getElementById('navAdmin'); if(el) el.textContent = 'Admin';
+  // Info card
+  el = document.getElementById('infoTitle'); if(el) el.textContent = t('Before you begin','Antes de comenzar');
+  el = document.getElementById('infoNote'); if(el) el.textContent = t(
+    'Your result will be saved and visible to your manager in the Team view. Results are stored securely and accessible from any device.',
+    'Tu resultado se guardará y será visible para tu líder. Los resultados se almacenan de forma segura y son accesibles desde cualquier dispositivo.'
+  );
+  var infoList = document.getElementById('infoList');
+  if(infoList){
+    var items = infoList.querySelectorAll('li');
+    var liEN = [
+      'You will see the same list of words twice, with a different question each time.',
+      'Select the words that feel genuinely true — don\'t overthink it.',
+      'If you don\'t recognize a word, skip it.',
+      'Please complete it in one sitting.',
+      'There are no right or wrong answers.'
+    ];
+    var liES = [
+      'Verás la misma lista de palabras dos veces, con una pregunta diferente cada vez.',
+      'Selecciona las palabras que sientas genuinamente ciertas — no lo pienses demasiado.',
+      'Si no reconoces una palabra, omítela.',
+      'Por favor complétalo en una sola sesión.',
+      'No hay respuestas correctas ni incorrectas.'
+    ];
+    items.forEach(function(li,i){ li.textContent = LANG==='es' ? liES[i] : liEN[i]; });
+  }
+  // Guide section headers
+  el = document.getElementById('guideIntroTitle'); if(el) el.textContent = t('How to use this guide.','Cómo usar esta guía.');
+  el = document.getElementById('guideIntroText'); if(el) el.textContent = t(
+    'No profile is better than another. The strongest teams have intentional diversity — each person covering the natural blind spots of the others. Use this to understand your people, not rank them.',
+    'Ningún perfil es mejor que otro. Los equipos más fuertes tienen diversidad intencional — cada persona cubriendo los puntos ciegos naturales de los demás. Usa esto para entender a tu gente, no para clasificarla.'
+  );
+  el = document.getElementById('guideRef'); if(el) el.textContent = t('Profile quick reference','Referencia rápida de perfiles');
+  el = document.getElementById('guideRefSub'); if(el) el.textContent = t('What each profile brings — and what they need from the team','Lo que aporta cada perfil — y lo que necesita del equipo');
+  el = document.getElementById('guideCombos'); if(el) el.textContent = t('Winning team combinations','Combinaciones ganadoras de equipo');
+  el = document.getElementById('guideCombosSub'); if(el) el.textContent = t('Pairings and trios that consistently produce results in commercial logistics','Dúos y tríos que producen resultados consistentes en logística comercial');
+  el = document.getElementById('guideWatch'); if(el) el.textContent = t('Combinations to manage carefully','Combinaciones a gestionar con cuidado');
+  el = document.getElementById('guideWatchSub'); if(el) el.textContent = t('These pairings can work — but need explicit role clarity and regular check-ins','Estas combinaciones pueden funcionar — pero requieren claridad de roles y seguimiento regular');
+
+}
+
 const GS_URL = 'https://script.google.com/macros/s/AKfycbw-Iuo_eqASiN-QZtnVyutbarSLzwbPPrFaKAvGZXtXkerZm3xOcX7UH4dajuiUY_fhQw/exec';
 
 // Write result using a hidden form POST — most reliable method for Apps Script
@@ -446,32 +574,92 @@ function storeDelete(name, station) {
 // ─── WORD LIST (86 words, from PI assessment) ───────────────────────────────
 // A=Dominance B=Extraversion C=Patience D=Formality E=Objectivity
 const W = [
-  ["Social",{B:3,C:1}],["Neat",{D:2,C:1}],["Patient",{C:3}],["Reasonable",{B:1,C:2}],
-  ["Content",{C:2}],["Persistent",{A:1,D:2,C:1}],["Realistic",{D:2,E:2}],["Relaxed",{C:2,B:1}],
-  ["Dominant",{A:3}],["Analytical",{D:2,E:3,B:-1}],["Satisfied",{C:2}],["Exciting",{B:3,C:-1}],
-  ["Serene",{C:3}],["Unassuming",{A:-2,B:-1}],["Serious",{D:2,B:-1}],["Assertive",{A:3,B:1}],
-  ["Disciplined",{D:3,C:1}],["Charming",{B:3}],["Orderly",{D:3,C:1}],["Tolerant",{C:2,B:1}],
-  ["Principled",{D:2,E:2}],["Pleasant",{B:2,C:1}],["Observant",{D:2,E:2,B:-1}],["Consistent",{C:3,D:1}],
-  ["Calm",{C:3,B:-1}],["Tidy",{D:2,C:1}],["Judicious",{D:2,E:2}],["Meticulous",{D:3,A:1}],
-  ["Formidable",{A:3,D:1}],["Contemplative",{D:1,E:2,B:-1}],["Constant",{C:3,D:1}],
-  ["Understanding",{B:2,C:2}],["Bold",{A:3,D:-1}],["Conventional",{D:2,C:1}],
-  ["Charismatic",{B:3,A:1}],["Convincing",{B:3,A:2}],["Polished",{B:2,D:2}],
-  ["Caring",{B:2,C:2}],["Formal",{D:3}],["Loyal",{C:3,B:1}],["Alert",{A:1,D:1,E:2}],
-  ["Popular",{B:3}],["Commanding",{A:3,B:1}],["Sympathetic",{B:2,C:2}],
-  ["Precise",{D:3,E:2}],["Dutiful",{D:2,C:2}],["Accurate",{D:3,E:2}],["Powerful",{A:3}],
-  ["Eager",{B:2,A:1,C:-1}],["Courageous",{A:3,D:-1}],["Agreeable",{B:2,C:2,A:-1}],
-  ["Factual",{D:2,E:3,B:-1}],["Polite",{B:2,D:1,C:1}],["Determined",{A:3,C:-1}],
-  ["Talkative",{B:3}],["Daring",{A:3,D:-2}],["Esteemed",{A:1,B:1,D:1}],
-  ["Engaging",{B:3,A:1}],["Firm",{A:2,D:2}],["Responsive",{B:2,C:1}],
-  ["Careful",{D:3,A:-1}],["Aware",{D:1,E:2}],["Relentless",{A:3,C:-2}],
-  ["Fascinating",{B:2,A:1}],["Rational",{E:3,D:1,B:-1}],["Gentle",{B:2,C:2,A:-2}],
-  ["Competitive",{A:3,C:-1}],["Organized",{D:3,C:1}],["Lively",{B:3,C:-1}],
-  ["Logical",{E:3,D:2,B:-1}],["Proper",{D:3}],["Outstanding",{A:2,B:1}],
-  ["Resolute",{A:3,D:1}],["Harmonious",{B:2,C:2,A:-1}],["Earnest",{D:2,A:1}],
-  ["Nice",{B:2,C:2}],["Appealing",{B:2}],["Stable",{C:3,D:1}],["Influential",{A:2,B:2}],
-  ["Dignified",{D:2,B:1}],["Outgoing",{B:3}],["Respectful",{D:2,C:1,B:1}],
-  ["Unobtrusive",{A:-2,B:-1,C:2}],["Communicative",{B:3}],["Easy going",{C:2,A:-1}],
-  ["Objective",{E:3,D:1,B:-1}]
+  ["Social","Social",{B:3,C:1}],
+  ["Neat","Ordenado/a",{D:2,C:1}],
+  ["Patient","Paciente",{C:3}],
+  ["Reasonable","Razonable",{B:1,C:2}],
+  ["Content","Satisfecho/a",{C:2}],
+  ["Persistent","Persistente",{A:1,D:2,C:1}],
+  ["Realistic","Realista",{D:2,E:2}],
+  ["Relaxed","Tranquilo/a",{C:2,B:1}],
+  ["Dominant","Dominante",{A:3}],
+  ["Analytical","Analítico/a",{D:2,E:3,B:-1}],
+  ["Satisfied","Conforme",{C:2}],
+  ["Exciting","Entusiasta",{B:3,C:-1}],
+  ["Serene","Sereno/a",{C:3}],
+  ["Unassuming","Modesto/a",{A:-2,B:-1}],
+  ["Serious","Serio/a",{D:2,B:-1}],
+  ["Assertive","Asertivo/a",{A:3,B:1}],
+  ["Disciplined","Disciplinado/a",{D:3,C:1}],
+  ["Charming","Encantador/a",{B:3}],
+  ["Orderly","Metódico/a",{D:3,C:1}],
+  ["Tolerant","Tolerante",{C:2,B:1}],
+  ["Principled","Íntegro/a",{D:2,E:2}],
+  ["Pleasant","Agradable",{B:2,C:1}],
+  ["Observant","Observador/a",{D:2,E:2,B:-1}],
+  ["Consistent","Consistente",{C:3,D:1}],
+  ["Calm","Calmado/a",{C:3,B:-1}],
+  ["Tidy","Pulcro/a",{D:2,C:1}],
+  ["Judicious","Juicioso/a",{D:2,E:2}],
+  ["Meticulous","Meticuloso/a",{D:3,A:1}],
+  ["Formidable","Formidable",{A:3,D:1}],
+  ["Contemplative","Reflexivo/a",{D:1,E:2,B:-1}],
+  ["Constant","Constante",{C:3,D:1}],
+  ["Understanding","Comprensivo/a",{B:2,C:2}],
+  ["Bold","Audaz",{A:3,D:-1}],
+  ["Conventional","Convencional",{D:2,C:1}],
+  ["Charismatic","Carismático/a",{B:3,A:1}],
+  ["Convincing","Convincente",{B:3,A:2}],
+  ["Polished","Refinado/a",{B:2,D:2}],
+  ["Caring","Atento/a",{B:2,C:2}],
+  ["Formal","Formal",{D:3}],
+  ["Loyal","Leal",{C:3,B:1}],
+  ["Alert","Alerta",{A:1,D:1,E:2}],
+  ["Popular","Popular",{B:3}],
+  ["Commanding","Imponente",{A:3,B:1}],
+  ["Sympathetic","Empático/a",{B:2,C:2}],
+  ["Precise","Preciso/a",{D:3,E:2}],
+  ["Dutiful","Responsable",{D:2,C:2}],
+  ["Accurate","Exacto/a",{D:3,E:2}],
+  ["Powerful","Poderoso/a",{A:3}],
+  ["Eager","Ávido/a",{B:2,A:1,C:-1}],
+  ["Courageous","Valiente",{A:3,D:-1}],
+  ["Agreeable","Afable",{B:2,C:2,A:-1}],
+  ["Factual","Basado/a en hechos",{D:2,E:3,B:-1}],
+  ["Polite","Cortés",{B:2,D:1,C:1}],
+  ["Determined","Determinado/a",{A:3,C:-1}],
+  ["Talkative","Comunicativo/a",{B:3}],
+  ["Daring","Atrevido/a",{A:3,D:-2}],
+  ["Esteemed","Respetado/a",{A:1,B:1,D:1}],
+  ["Engaging","Cautivador/a",{B:3,A:1}],
+  ["Firm","Firme",{A:2,D:2}],
+  ["Responsive","Receptivo/a",{B:2,C:1}],
+  ["Careful","Cuidadoso/a",{D:3,A:-1}],
+  ["Aware","Consciente",{D:1,E:2}],
+  ["Relentless","Incansable",{A:3,C:-2}],
+  ["Fascinating","Fascinante",{B:2,A:1}],
+  ["Rational","Racional",{E:3,D:1,B:-1}],
+  ["Gentle","Amable",{B:2,C:2,A:-2}],
+  ["Competitive","Competitivo/a",{A:3,C:-1}],
+  ["Organized","Organizado/a",{D:3,C:1}],
+  ["Lively","Dinámico/a",{B:3,C:-1}],
+  ["Logical","Lógico/a",{E:3,D:2,B:-1}],
+  ["Proper","Correcto/a",{D:3}],
+  ["Outstanding","Destacado/a",{A:2,B:1}],
+  ["Resolute","Resuelto/a",{A:3,D:1}],
+  ["Harmonious","Armonioso/a",{B:2,C:2,A:-1}],
+  ["Earnest","Sincero/a",{D:2,A:1}],
+  ["Nice","Simpático/a",{B:2,C:2}],
+  ["Appealing","Atractivo/a",{B:2}],
+  ["Stable","Estable",{C:3,D:1}],
+  ["Influential","Influyente",{A:2,B:2}],
+  ["Dignified","Digno/a",{D:2,B:1}],
+  ["Outgoing","Extrovertido/a",{B:3}],
+  ["Respectful","Respetuoso/a",{D:2,C:1,B:1}],
+  ["Unobtrusive","Discreto/a",{A:-2,B:-1,C:2}],
+  ["Communicative","Expresivo/a",{B:3}],
+  ["Easy going","Descomplicado/a",{C:2,A:-1}],
+  ["Objective","Imparcial",{E:3,D:1,B:-1}]
 ];
 
 // ─── PROFILE DATA ───────────────────────────────────────────────────────────
@@ -485,7 +673,11 @@ const P = {
     needs:"Autonomy, intellectual challenge, and recognition for results — not politics.",
     roles:{Sales:5,CustomerExperience:3,Capacity:4,Finance:4,Operations:3,HumanResources:2,ProjectManager:5},
     works:{Strategist:"Compete for control — define lanes clearly",Promoter:"Powerful duo: Promoter opens doors, Strategist closes",Maverick:"High energy — agree on guardrails to avoid skipping process",Collaborator:"Excellent balance: Strategist drives, Collaborator holds the team",Specialist:"Natural QA pairing: Strategist sets direction, Specialist validates",Operator:"Operator grounds Strategist's pace — essential for execution",Explorer:"Useful when Strategist needs fresh perspective"},
-    playbook:{needs:["Autonomy to set priorities and act","Outcome-based recognition — results, not effort","Intellectual challenge and complex problems","Freedom from repetitive or administrative tasks"],avoid:["Micromanaging or second-guessing decisions","Consensus theater — meetings without decisions","Vague goals or moving goalposts","Praise without substance"],best:["Direction setting and deal closing","Escalation handling and complex problem-solving","Launching new initiatives that need analytical rigor","Holding the team to high standards"]}
+    playbook:{needs:["Autonomy to set priorities and act","Outcome-based recognition — results, not effort","Intellectual challenge and complex problems","Freedom from repetitive or administrative tasks"],avoid:["Micromanaging or second-guessing decisions","Consensus theater — meetings without decisions","Vague goals or moving goalposts","Praise without substance"],best:["Direction setting and deal closing","Escalation handling and complex problem-solving","Launching new initiatives that need analytical rigor","Holding the team to high standards"]},es_needs:"Autonomía para establecer prioridades, desafíos intelectuales y reconocimiento por resultados — no por política.",
+    es_tag:"Orientado a resultados · Analítico · Impulsa el cambio",
+    es_desc:"Emprendedor intenso y orientado a resultados. Su sentido de urgencia está equilibrado por una preocupación por la precisión y la calidad. Aborda todo con análisis exhaustivo, desarrolla experiencia profunda y mantiene estándares altos para sí mismo y para los demás. Factual, directo y autoritativo — gana respeto a través de la solidez de sus decisiones, no de la política.",
+    es_strengths:["Ve el panorama general y anticipa problemas","Maneja la presión y múltiples prioridades","Impulsa el cambio y desafía el statu quo","Actúa con confianza en su propio criterio","Organizado con seguimiento exhaustivo"],
+    es_cautions:["Puede parecer exigente o directivo","Intolerante con demoras o entornos lentos","Reluctante a delegar; establece estándares exigentes","Puede ser percibido como distante antes de generar confianza"]
   },
   Promoter:{color:"#0F766E",bg:"#F0FDFA",
     tag:"Energetic · Persuasive · Relationship builder",
@@ -496,7 +688,11 @@ const P = {
     needs:"Variety, social interaction, recognition for influence — not for technical precision.",
     roles:{Sales:5,CustomerExperience:5,Capacity:2,Finance:2,Operations:3,HumanResources:5,ProjectManager:3},
     works:{Strategist:"Promoter warms the room, Strategist closes",Promoter:"High energy — clarify territories to avoid duplication",Maverick:"Powerful commercial pairing if aligned on direction",Collaborator:"Strong synergy — together they cover the full client lifecycle",Specialist:"Promoter sells; Specialist delivers — clear handoff needed",Operator:"Promoter needs Operator's discipline to fulfill promises",Explorer:"Both comfortable with change and ambiguity — good pairing"},
-    playbook:{needs:["Variety and social interaction","Recognition for influence and relationships built","Freedom to experiment with how they engage clients","Regular visibility — they wilt in isolation"],avoid:["Isolating them in administrative work","Expecting rigorous process discipline without support","Skipping recognition — they need to know it landed","Assigning them to pure analysis tasks"],best:["Opening new accounts and warming cold relationships","Energizing the team in low-motivation periods","Presenting ideas and winning internal buy-in","Client-facing and high-interaction commercial roles"]}
+    playbook:{needs:["Variety and social interaction","Recognition for influence and relationships built","Freedom to experiment with how they engage clients","Regular visibility — they wilt in isolation"],avoid:["Isolating them in administrative work","Expecting rigorous process discipline without support","Skipping recognition — they need to know it landed","Assigning them to pure analysis tasks"],best:["Opening new accounts and warming cold relationships","Energizing the team in low-motivation periods","Presenting ideas and winning internal buy-in","Client-facing and high-interaction commercial roles"]},es_needs:"Variedad, interacción social, reconocimiento por su influencia y libertad para experimentar cómo conecta con los clientes.",
+    es_tag:"Energético · Persuasivo · Constructor de relaciones",
+    es_desc:"Genera energía y entusiasmo naturalmente. Los clientes confían rápidamente en él y los colegas quieren seguir su liderazgo. Optimista, encantador y socialmente seguro — en su mejor momento abriendo nuevas puertas, generando emoción en torno a ideas y navegando dinámicas sociales con facilidad.",
+    es_strengths:["Abre relaciones y cuentas nuevas naturalmente","Genera entusiasmo para nuevas ideas","Energiza al equipo en momentos de baja motivación","Lee a las personas y adapta su comunicación","Prospera en roles de alta interacción con clientes"],
+    es_cautions:["El seguimiento necesita apoyo estructural","El trabajo detallado drena su energía","Puede sobrecomprometerse con clientes en el momento","Puede evitar conversaciones difíciles de desempeño"]
   },
   Maverick:{color:"#7C3AED",bg:"#F5F3FF",
     tag:"Bold · Innovative · Unconventional",
@@ -507,7 +703,11 @@ const P = {
     needs:"Space to experiment, tolerance for unconventional approaches, and a partner who handles execution.",
     roles:{Sales:5,CustomerExperience:3,Capacity:3,Finance:2,Operations:2,HumanResources:3,ProjectManager:4},
     works:{Strategist:"Both independent — align on direction or they'll conflict",Promoter:"High-energy duo — needs Operator or Specialist to anchor",Maverick:"Creative explosion — needs structure from others to land results",Collaborator:"Maverick sparks; Collaborator nurtures — strong complementary pairing",Specialist:"Productive tension — Specialist slows Maverick down in valuable ways",Operator:"Friction likely — rule-bending frustrates Operator's discipline",Explorer:"Natural allies — both comfortable questioning the status quo"},
-    playbook:{needs:["Space to experiment and try unconventional approaches","A challenge — they disengage when things become routine","Tolerance for imperfect-but-fast over perfect-but-slow","A partner who handles execution so they can keep moving"],avoid:["Locking them into rigid process","Expecting detailed documentation without support","Assigning long steady-state execution roles","Over-supervising — they interpret it as distrust"],best:["Breaking into new markets or competitor-held accounts","Building something from scratch","Generating unconventional commercial ideas","Short-cycle, high-impact projects"]}
+    playbook:{needs:["Space to experiment and try unconventional approaches","A challenge — they disengage when things become routine","Tolerance for imperfect-but-fast over perfect-but-slow","A partner who handles execution so they can keep moving"],avoid:["Locking them into rigid process","Expecting detailed documentation without support","Assigning long steady-state execution roles","Over-supervising — they interpret it as distrust"],best:["Breaking into new markets or competitor-held accounts","Building something from scratch","Generating unconventional commercial ideas","Short-cycle, high-impact projects"]},es_needs:"Espacio para experimentar, tolerancia a enfoques no convencionales y un compañero que maneje la ejecución.",
+    es_tag:"Audaz · Innovador · No convencional",
+    es_desc:"Se mueve rápido y desafía la convención. Ve oportunidades que otros no ven y se energiza construyendo desde cero, rompiendo patrones establecidos y encontrando caminos no convencionales. Está en su mejor momento con espacio, un desafío y libertad para experimentar.",
+    es_strengths:["Construye nuevos mercados desde cero","Toma decisiones rápidas y seguras en situaciones ambiguas","Irrumpe en cuentas dominadas por competidores","Prospera en entornos de alto crecimiento","No se amedrenta ante el fracaso — aprende y se adapta rápido"],
+    es_cautions:["Riesgo de saltarse procesos y cometer errores","Puede crear fricción con colegas más estructurados","Pierde interés cuando el desafío se vuelve rutinario","Brechas comunes en documentación y seguimiento"]
   },
   Collaborator:{color:"#B45309",bg:"#FFFBEB",
     tag:"Warm · Consistent · Team anchor",
@@ -518,7 +718,11 @@ const P = {
     needs:"Stability, genuine appreciation, and freedom from constant conflict or pressure.",
     roles:{Sales:3,CustomerExperience:5,Capacity:4,Finance:3,Operations:4,HumanResources:5,ProjectManager:3},
     works:{Strategist:"Collaborator humanizes Strategist's drive — high-value pairing",Promoter:"Natural warmth amplified — excellent CX and retention team",Maverick:"Provides stability Maverick needs; can clash on pace",Collaborator:"Risk of avoiding hard conversations — needs a driver nearby",Specialist:"Smooth pairing — both careful, both consistent",Operator:"Highly compatible — both value stability and reliability",Explorer:"Collaborator grounds Explorer's flexibility — strong balance"},
-    playbook:{needs:["Genuine appreciation — not just performance metrics","Stability and psychological safety","Time to build trust before being pushed","Clear signals that their consistency is valued"],avoid:["Constant conflict or high-pressure environments","Expecting them to self-advocate — check in proactively","Overlooking their contributions because they are quiet","Putting them in pure hunting or confrontational roles"],best:["Long-term account retention and relationship depth","Creating team cohesion and onboarding new members","Defusing tense client situations","CX roles requiring empathy and consistency"]}
+    playbook:{needs:["Genuine appreciation — not just performance metrics","Stability and psychological safety","Time to build trust before being pushed","Clear signals that their consistency is valued"],avoid:["Constant conflict or high-pressure environments","Expecting them to self-advocate — check in proactively","Overlooking their contributions because they are quiet","Putting them in pure hunting or confrontational roles"],best:["Long-term account retention and relationship depth","Creating team cohesion and onboarding new members","Defusing tense client situations","CX roles requiring empathy and consistency"]},es_needs:"Apreciación genuina, estabilidad y tiempo para construir confianza antes de ser presionado.",
+    es_tag:"Cálido · Consistente · Ancla del equipo",
+    es_desc:"Genera confianza instintivamente y mantiene unidos a los equipos a través de la consistencia y el cuidado genuino. Los clientes se quedan por esta persona. Los colegas dependen de ella para crear un entorno estable y psicológicamente seguro. Absorbe la tensión silenciosamente y entrega resultados confiables a largo plazo.",
+    es_strengths:["Retención excepcional de clientes y profundidad de relaciones","Crea cohesión del equipo y seguridad psicológica","Desactiva la tensión en situaciones difíciles con clientes","Entrega consistente que genera confianza a largo plazo","Escucha profundamente — hace que las personas se sientan genuinamente escuchadas"],
+    es_cautions:["Evita conversaciones difíciles necesarias","Puede acomodar a los clientes a expensas del margen","Le cuesta el conflicto, lo que puede retrasar decisiones","Subestima su propio valor; rara vez se autoadvoca"]
   },
   Specialist:{color:"#065F46",bg:"#ECFDF5",
     tag:"Precise · Expert · Quality guardian",
@@ -529,7 +733,11 @@ const P = {
     needs:"Clear processes, time to do things right, and recognition for precision — not just speed.",
     roles:{Sales:2,CustomerExperience:4,Capacity:5,Finance:5,Operations:5,HumanResources:3,ProjectManager:4},
     works:{Strategist:"Natural QA pairing — Strategist drives, Specialist validates",Promoter:"Specialist grounds Promoter's promises — needs clear handoffs",Maverick:"Productive tension — Specialist prevents Maverick's costly errors",Collaborator:"Both careful; risk of too much caution without a driver",Specialist:"Deep mutual respect; risk of over-analysis paralysis",Operator:"Highest natural compatibility — both process and accuracy-driven",Explorer:"Explorer benefits from Specialist's depth and vice versa"},
-    playbook:{needs:["Time to do things right — not just fast","Recognition for accuracy and depth","Clear processes and defined expectations","A subject matter domain they can own"],avoid:["Rushing them into decisions without full information","Changing priorities without explanation","Expecting social energy or high extraversion","Assigning them to generalist or ambiguous roles"],best:["Documentation, compliance, and quality control","Subject matter authority clients and peers trust","Claims, customs, and precision-critical processes","Building and owning systems that protect quality"]}
+    playbook:{needs:["Time to do things right — not just fast","Recognition for accuracy and depth","Clear processes and defined expectations","A subject matter domain they can own"],avoid:["Rushing them into decisions without full information","Changing priorities without explanation","Expecting social energy or high extraversion","Assigning them to generalist or ambiguous roles"],best:["Documentation, compliance, and quality control","Subject matter authority clients and peers trust","Claims, customs, and precision-critical processes","Building and owning systems that protect quality"]},es_needs:"Tiempo para hacer las cosas bien, reconocimiento por su precisión y procesos claros con expectativas definidas.",
+    es_tag:"Preciso · Experto · Guardián de la calidad",
+    es_desc:"Su valor está en la profundidad, no en la amplitud. Es la persona a la que otros acuden cuando la precisión importa — cuando un error costaría un cliente, un reclamo o un problema de cumplimiento. Protege al negocio a través del rigor que otros no pueden sostener consistentemente. Metódico, íntegro y exhaustivo en todo lo que hace.",
+    es_strengths:["Mayor precisión en documentación y procesos","Autoridad de materia que clientes y pares confían","Detecta errores antes de que se vuelvan costosos","Estable bajo complejidad que abruma a los generalistas","Construye y mantiene sistemas que protegen la calidad"],
+    es_cautions:["El ritmo puede sentirse lento en situaciones comerciales aceleradas","Resiste la ambigüedad y los entornos no estructurados","Puede complicar demasiado la comunicación con clientes","Reluctante a actuar sin información completa"]
   },
   Operator:{color:"#1E40AF",bg:"#EFF6FF",
     tag:"Disciplined · Reliable · Execution engine",
@@ -540,7 +748,11 @@ const P = {
     needs:"Clear direction, stable processes, and recognition for consistent execution.",
     roles:{Sales:3,CustomerExperience:5,Capacity:5,Finance:4,Operations:5,HumanResources:4,ProjectManager:5},
     works:{Strategist:"Operator grounds Strategist's pace — essential partnership",Promoter:"Operator delivers what Promoter sells — critical pairing",Maverick:"Tension: Operator frustrated by Maverick's rule-bending",Collaborator:"Very compatible — shared values of consistency and reliability",Specialist:"Highest natural synergy — both process and accuracy-driven",Operator:"Risk of over-indexing on process vs. speed; needs a driver",Explorer:"Explorer refreshes Operator's approach — good creative tension"},
-    playbook:{needs:["Clear direction before acting","Stable processes and predictable environments","Recognition for consistent delivery","Advance notice of changes — they plan ahead"],avoid:["Last-minute pivots without explanation","Ambiguous goals or undefined success criteria","Expecting them to generate new ideas without structure","Overloading them beyond sustainable capacity"],best:["Owning and improving operational processes","Keeping complex multi-party operations on track","High-volume consistent execution","Project management and delivery discipline"]}
+    playbook:{needs:["Clear direction before acting","Stable processes and predictable environments","Recognition for consistent delivery","Advance notice of changes — they plan ahead"],avoid:["Last-minute pivots without explanation","Ambiguous goals or undefined success criteria","Expecting them to generate new ideas without structure","Overloading them beyond sustainable capacity"],best:["Owning and improving operational processes","Keeping complex multi-party operations on track","High-volume consistent execution","Project management and delivery discipline"]},es_needs:"Dirección clara antes de actuar, procesos estables y reconocimiento por su entrega consistente.",
+    es_tag:"Disciplinado · Confiable · Motor de ejecución",
+    es_desc:"Hace realidad los compromisos. Donde otros ven un objetivo, esta persona ve un proceso. Su confiabilidad y consistencia la convierten en el cimiento sobre el que se entregan las promesas comerciales. Opera eficazmente bajo presión sostenida sin drama, hace seguimiento sin que se lo pidan.",
+    es_strengths:["Ejecuta consistentemente a alto volumen","Es dueño y mejora procesos con disciplina","Mantiene operaciones complejas de múltiples partes en curso","Alta confiabilidad — los compromisos se cumplen","Calmado bajo presión; protege al equipo del caos"],
+    es_cautions:["Incómodo con cambios rápidos e inesperados","Necesita dirección clara antes de actuar","Puede convertirse en un cuello de botella cuando la velocidad es crítica","Puede resistir la innovación que interrumpe rutinas establecidas"]
   },
   Explorer:{color:"#4B5563",bg:"#F9FAFB",
     tag:"Adaptable · Versatile · Context-aware",
@@ -551,51 +763,90 @@ const P = {
     needs:"Variety, context-switching, and a clear anchor to avoid spreading too thin.",
     roles:{Sales:4,CustomerExperience:4,Capacity:3,Finance:3,Operations:3,HumanResources:4,ProjectManager:4},
     works:{Strategist:"Explorer softens Strategist's edges — useful bridge",Promoter:"Natural alignment — both adaptable and socially aware",Maverick:"Good creative pairing — both challenge the status quo",Collaborator:"Explorer can push Collaborator when needed — healthy balance",Specialist:"Explorer benefits from Specialist's depth; Specialist from Explorer's range",Operator:"Explorer refreshes Operator's thinking — mutual benefit",Explorer:"Highly flexible duo; needs anchor from Strategist or Specialist"},
-    playbook:{needs:["Variety and context-switching","Clear anchor — what is their primary responsibility?","Recognition for adaptability, not just one domain","Permission to play different roles as the team needs"],avoid:["Forcing them into a rigid single-function box","Leaving them without direction — they can drift","Expecting deep specialist output without time to develop it","Underutilizing their bridging ability"],best:["Bridging across functions or profile types","Roles requiring rapid adaptation to change","Supporting different team members in different ways","Navigating ambiguous or evolving situations"]}
+    playbook:{needs:["Variety and context-switching","Clear anchor — what is their primary responsibility?","Recognition for adaptability, not just one domain","Permission to play different roles as the team needs"],avoid:["Forcing them into a rigid single-function box","Leaving them without direction — they can drift","Expecting deep specialist output without time to develop it","Underutilizing their bridging ability"],best:["Bridging across functions or profile types","Roles requiring rapid adaptation to change","Supporting different team members in different ways","Navigating ambiguous or evolving situations"]},es_needs:"Variedad, un ancla clara de responsabilidad principal y permiso para jugar diferentes roles según las necesidades del equipo.",
+    es_tag:"Adaptable · Versátil · Consciente del contexto",
+    es_desc:"No encaja perfectamente en una sola categoría — y eso es una fortaleza. Lee el contexto bien, cambia de modo cuando es necesario y conecta naturalmente con personas muy diferentes. Es más valioso en roles que requieren versatilidad, traducción entre tipos de comportamiento o navegar entornos que cambian rápidamente.",
+    es_strengths:["Se adapta rápidamente a nuevos contextos y dinámicas de equipo","Conecta naturalmente entre diferentes tipos de comportamiento","Cómodo con la ambigüedad y el cambio rápido","Puede jugar múltiples roles según las necesidades del equipo","Lee el ambiente y ajusta en tiempo real"],
+    es_cautions:["Riesgo de carecer de una especialidad o identidad clara","Puede derivar sin una dirección sólida desde arriba","Puede extenderse demasiado tratando de ser todo para todos","Necesita desarrollar profundidad conscientemente en al menos un área"]
   }
 };
 
 const PORDER = ["Strategist","Promoter","Maverick","Collaborator","Specialist","Operator","Explorer"];
+const PROFILE_NAMES_ES = {Strategist:"Estratega",Promoter:"Promotor",Maverick:"Innovador",Collaborator:"Colaborador",Specialist:"Especialista",Operator:"Operador",Explorer:"Explorador"};
+function pname(key){ return LANG==='es' ? (PROFILE_NAMES_ES[key]||key) : key; }
 const RLABELS = {Sales:"Sales",CustomerExperience:"Customer Exp.",Capacity:"Capacity",Finance:"Finance",Operations:"Operations",HumanResources:"HR",ProjectManager:"Project Mgr"};
 
 // ─── TEAM COMBINATIONS ───────────────────────────────────────────────────────
 const COMBOS = [
   {profiles:["Strategist","Promoter"],label:"Commercial engine",color:"#15803D",cbg:"#F0FDF4",
    desc:"The most effective commercial pairing. Strategist provides analytical rigor and closes deals; Promoter opens doors and keeps the energy high. Together they cover the full sales cycle.",
-   watch:"Promoter may feel micromanaged; give them room on relationship building."},
+   watch:"Promoter may feel micromanaged; give them room on relationship building.",
+    label_es:'Motor comercial',
+    desc_es:'La combinación comercial más efectiva. El Estratega aporta rigor analítico y cierra tratos; el Promotor abre puertas y mantiene la energía alta. Juntos cubren todo el ciclo de ventas.',
+    watch_es:'El Promotor puede sentirse micromanageado; dale espacio en la construcción de relaciones.'},
   {profiles:["Promoter","Collaborator"],label:"Client retention duo",color:"#0F766E",cbg:"#F0FDFA",
    desc:"Clients stay for years with this pairing. Promoter wins them over; Collaborator keeps them loyal through consistency and genuine care. Exceptional for CX-heavy accounts.",
-   watch:"Neither profile will easily have the hard pricing or performance conversation — a Strategist or Specialist needs to be nearby."},
+   watch:"Neither profile will easily have the hard pricing or performance conversation — a Strategist or Specialist needs to be nearby.",
+    label_es:'Dúo de retención de clientes',
+    desc_es:'Los clientes permanecen años con esta combinación. El Promotor los conquista; el Colaborador los fideliza con consistencia y cuidado genuino. Excepcional para cuentas con alto componente de CX.',
+    watch_es:'Ninguno tendrá fácilmente la conversación difícil de precio o desempeño — necesitan un Estratega o Especialista cerca.'},
   {profiles:["Strategist","Operator"],label:"Promise keeper",color:"#1B4FD8",cbg:"#EEF2FF",
    desc:"Strategist sets direction and drives results; Operator executes reliably and prevents things from falling through the cracks. One thinks, the other delivers — a classic high-performance pairing.",
-   watch:"Strategist must resist overriding Operator's process; Operator must adapt when Strategist pivots fast."},
+   watch:"Strategist must resist overriding Operator's process; Operator must adapt when Strategist pivots fast.",
+    label_es:'Cumplidor de promesas',
+    desc_es:'El Estratega establece la dirección y empuja los resultados; el Operador ejecuta con confiabilidad y evita que las cosas se pierdan. Uno piensa, el otro entrega.',
+    watch_es:'El Estratega debe evitar anular el proceso del Operador; el Operador debe adaptarse cuando el Estratega pivota rápido.'},
   {profiles:["Maverick","Specialist"],label:"Innovation with guardrails",color:"#7C3AED",cbg:"#F5F3FF",
    desc:"Maverick generates unconventional ideas and breaks into new territory; Specialist validates, documents, and prevents costly errors. This tension is productive — the Maverick moves fast, the Specialist protects quality.",
-   watch:"Explicit role clarity is essential. Specialist must not slow Maverick past the point of momentum."},
+   watch:"Explicit role clarity is essential. Specialist must not slow Maverick past the point of momentum.",
+    label_es:'Innovación con límites',
+    desc_es:'El Innovador genera ideas no convencionales; el Especialista valida, documenta y previene errores costosos. Esta tensión es productiva.',
+    watch_es:'La claridad de roles es esencial. El Especialista no debe frenar al Innovador más allá del punto de momentum.'},
   {profiles:["Promoter","Operator","Specialist"],label:"Full commercial cycle",color:"#B45309",cbg:"#FFFBEB",
    desc:"Promoter opens and wins the account. Operator executes the service reliably. Specialist handles documentation, claims, and compliance with precision. Each owns a clear lane with no overlap.",
-   watch:"Ensure regular 3-way communication — these profiles can operate in silos without it."},
+   watch:"Ensure regular 3-way communication — these profiles can operate in silos without it.",
+    label_es:'Ciclo comercial completo',
+    desc_es:'El Promotor abre y gana la cuenta. El Operador ejecuta el servicio. El Especialista maneja documentación, reclamos y cumplimiento. Cada uno tiene un carril claro.',
+    watch_es:'Asegura comunicación regular entre los tres — estos perfiles pueden operar en silos sin ella.'},
   {profiles:["Collaborator","Operator"],label:"Retention foundation",color:"#065F46",cbg:"#ECFDF5",
    desc:"Both profiles are steady, reliable, and client-focused. This team will retain accounts at exceptional rates and deliver consistently without drama. Ideal for mature account management.",
-   watch:"Neither is naturally a driver — they need a Strategist or Promoter to push commercial growth."},
+   watch:"Neither is naturally a driver — they need a Strategist or Promoter to push commercial growth.",
+    label_es:'Base de retención',
+    desc_es:'Ambos son estables, confiables y centrados en el cliente. Este equipo retendrá cuentas a tasas excepcionales y entregará consistentemente sin drama.',
+    watch_es:'Ninguno es naturalmente un conductor — necesitan un Estratega o Promotor que impulse el crecimiento comercial.'},
   {profiles:["Strategist","Explorer","Collaborator"],label:"Balanced leadership trio",color:"#4B5563",cbg:"#F9FAFB",
    desc:"Strategist sets direction and holds accountability. Explorer bridges across teams and adapts to changing context. Collaborator keeps the team cohesive and ensures no one is left behind. Strong regional leadership combination.",
-   watch:"Explorer must develop a clear specialty to avoid being spread too thin between the other two."},
+   watch:"Explorer must develop a clear specialty to avoid being spread too thin between the other two.",
+    label_es:'Trío de liderazgo equilibrado',
+    desc_es:'El Estratega establece la dirección. El Explorador conecta entre equipos y se adapta. El Colaborador mantiene la cohesión. Combinación sólida de liderazgo regional.',
+    watch_es:'El Explorador debe desarrollar una especialidad clara para no dispersarse entre los otros dos.'},
 ];
 
 const WATCH_COMBOS = [
   {profiles:["Maverick","Operator"],label:"Speed vs. process",color:"#9F1239",cbg:"#FFF1F2",
    desc:"Maverick wants to move fast and bend rules; Operator wants process and predictability. Both are needed, but they will frustrate each other without explicit agreements on when each mode applies.",
-   watch:"Define which situations call for each approach. A shared project charter can reduce friction significantly."},
+   watch:"Define which situations call for each approach. A shared project charter can reduce friction significantly.",
+    label_es:'Velocidad vs. proceso',
+    desc_es:'El Innovador quiere moverse rápido; el Operador quiere proceso y previsibilidad. Ambos son necesarios, pero se frustrarán sin acuerdos explícitos.',
+    watch_es:'Define qué situaciones requieren cada modo. Un marco compartido puede reducir la fricción significativamente.'},
   {profiles:["Strategist","Maverick"],label:"Control clash",color:"#9F1239",cbg:"#FFF1F2",
    desc:"Both are highly independent and confident in their own judgment. Both want to drive. Without clear lane definition, they will compete rather than complement each other.",
-   watch:"One must own strategy, the other execution or market development. Role ambiguity is the enemy."},
+   watch:"One must own strategy, the other execution or market development. Role ambiguity is the enemy.",
+    label_es:'Choque de control',
+    desc_es:'Ambos son altamente independientes y confiados en su propio juicio. Sin claridad de carriles, competirán en lugar de complementarse.',
+    watch_es:'Uno debe ser dueño de la estrategia, el otro de la ejecución. La ambigüedad de roles es el enemigo.'},
   {profiles:["Collaborator","Collaborator"],label:"Avoidance loop",color:"#9F1239",cbg:"#FFF1F2",
    desc:"Two Collaborators will create a warm, pleasant environment — and may never have the hard commercial conversations. Client satisfaction will be high; commercial growth may stall.",
-   watch:"Pair with a Strategist or Promoter who will push for growth without being seen as the 'bad guy'."},
+   watch:"Pair with a Strategist or Promoter who will push for growth without being seen as the 'bad guy'.",
+    label_es:'Bucle de evitación',
+    desc_es:'Dos Colaboradores crearán un ambiente cálido — y pueden nunca tener las conversaciones comerciales difíciles. La satisfacción del cliente será alta; el crecimiento puede estancarse.',
+    watch_es:'Empareja con un Estratega o Promotor que impulse el crecimiento sin ser el villano.'},
   {profiles:["Specialist","Specialist"],label:"Analysis paralysis",color:"#9F1239",cbg:"#FFF1F2",
    desc:"Deep expertise and high quality standards, but decisions may take too long and innovation may stall. This pairing is excellent for compliance and accuracy — less so for commercial growth.",
-   watch:"Needs a Promoter or Maverick to inject energy and push decisions forward."},
+   watch:"Needs a Promoter or Maverick to inject energy and push decisions forward.",
+    label_es:'Parálisis por análisis',
+    desc_es:'Experiencia profunda y altos estándares de calidad, pero las decisiones pueden tardar demasiado y la innovación puede estancarse.',
+    watch_es:'Necesita un Promotor o Innovador que inyecte energía y empuje las decisiones hacia adelante.'},
 ];
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -606,7 +857,8 @@ function buildGrids(){
   ['g1','g2'].forEach((id,qi)=>{
     const sel=qi===0?s1:s2,el=document.getElementById(id);
     el.innerHTML='';
-    W.forEach(([lbl],i)=>{
+    W.forEach(([en,es,weights],i)=>{
+    const lbl = LANG==='es' ? es : en;
       const d=document.createElement('div');
       d.className='wi'+(sel.has(i)?' on':'');
       d.innerHTML=`<div class="wbox"></div><span class="wl">${lbl}</span>`;
@@ -626,13 +878,13 @@ function updP(qi){
   document.getElementById(qi===0?'p1t':'p2t').textContent=n+' selected';
   const ok=n>=5;
   document.getElementById(qi===0?'bQ1':'bQ2').disabled=!ok;
-  document.getElementById(qi===0?'h1':'h2').textContent=ok?n+' words selected — ready to continue':'Select at least 5 words to continue';
+  document.getElementById(qi===0?'h1':'h2').textContent=ok?n+' words selected — ready to continue':t('Select at least 5 words to continue','Selecciona al menos 5 palabras para continuar');
 }
 
 // ─── SCORING ─────────────────────────────────────────────────────────────────
 function scoreSet(sel){
   const raw={A:0,B:0,C:0,D:0,E:0};
-  sel.forEach(i=>Object.entries(W[i][1]).forEach(([k,v])=>raw[k]=(raw[k]||0)+v));
+  sel.forEach(i=>Object.entries(W[i][2]||W[i][1]).forEach(([k,v])=>raw[k]=(raw[k]||0)+v));
   return raw;
 }
 function norm(raw,n){
@@ -745,7 +997,7 @@ async function finish(){
     const s=lw.includes('powerful')||lw.includes('exceptional')||lw.includes('highly compatible')||lw.includes('essential')?'hi':
              lw.includes('tension')||lw.includes('friction')||lw.includes('conflict')||lw.includes('clash')||lw.includes('frustrat')?'lo':'md';
     return`<tr${op===key?' class="yr"':''}>
-      <td><strong>${op}</strong>${op===key?' <em style="font-weight:400;font-size:11px">(you)</em>':''}</td>
+      <td><strong>${pname(op)}</strong>${op===key?' <em style="font-weight:400;font-size:11px">'+t('(you)','(tú)')+'</em>':''}</td>
       <td><span class="syn syn-${s}">${s==='hi'?'Strong':s==='lo'?'Friction':'Good'}</span></td>
       <td>${txt}</td></tr>`;
   }).join('');
@@ -753,20 +1005,20 @@ async function finish(){
   document.getElementById('rHTML').innerHTML=`
     <div class="r-top">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap">
-        <div class="p-badge" style="background:${prof.bg};color:${prof.color};margin-bottom:0">${key}</div>
+        <div class="p-badge" style="background:${prof.bg};color:${prof.color};margin-bottom:0">${pname(key)}</div>
         ${secondaryKey?'<div style="font-size:11px;color:var(--text3);padding:3px 9px;border-radius:99px;border:1px solid var(--border)">'+secondaryKey+'-leaning</div>':''}
       </div>
       <div class="r-name">${uData.name||'Your profile'}</div>
       <div class="r-sub" style="color:#A1A1AA">${[uData.level,uData.role,uData.station,uData.exp].filter(Boolean).join(' · ')}</div>
-      <div class="r-tagline">${prof.tag}</div>
-      <div class="r-desc">${prof.desc}</div>
+      <div class="r-tagline">${LANG==='es'?(prof.es_tag||prof.tag):prof.tag}</div>
+      <div class="r-desc">${LANG==='es'?(prof.es_desc||prof.desc):prof.desc}</div>
     </div>
     <div class="two-col">
-      <div class="sec"><div class="sec-lbl" style="color:#A1A1AA">Strengths</div><div class="tag-list">${prof.strengths.map(s=>`<div class="tag tag-g" style="background:#F0FDF4;color:#15803D">${s}</div>`).join('')}</div></div>
-      <div class="sec"><div class="sec-lbl" style="color:#A1A1AA">Watch out for</div><div class="tag-list">${prof.cautions.map(c=>`<div class="tag tag-a" style="background:#FFFBEB;color:#92400E">${c}</div>`).join('')}</div></div>
+      <div class="sec"><div class="sec-lbl" style="color:#A1A1AA">${t('Strengths','Fortalezas')}</div><div class="tag-list">${(LANG==='es'?prof.es_strengths||prof.strengths:prof.strengths).map(s=>`<div class="tag tag-g" style="background:#F0FDF4;color:#15803D">${s}</div>`).join('')}</div></div>
+      <div class="sec"><div class="sec-lbl" style="color:#A1A1AA">${t('Watch out for','Ten cuidado con')}</div><div class="tag-list">${(LANG==='es'?prof.es_cautions||prof.cautions:prof.cautions).map(c=>`<div class="tag tag-a" style="background:#FFFBEB;color:#92400E">${c}</div>`).join('')}</div></div>
     </div>
     <div class="sec">
-      <div class="sec-lbl" style="color:#A1A1AA">Behavioral dimensions</div>
+      <div class="sec-lbl" style="color:#A1A1AA">${t('Behavioral dimensions','Dimensiones de comportamiento')}</div>
       ${dims.map(d=>`
         <div style="margin-bottom:18px">
           <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
@@ -785,12 +1037,12 @@ async function finish(){
     </div>
     ${scNote}
     <div class="sec">
-      <div class="sec-lbl" style="color:#A1A1AA">Role fit</div>
+      <div class="sec-lbl" style="color:#A1A1AA">${t('Role fit','Ajuste por función')}</div>
       <div class="role-grid">${roleHTML}</div>
       <div class="role-note">● Strong fit &nbsp;◑ Moderate fit &nbsp;○ Stretch &nbsp;·&nbsp; A lower fit for your current function doesn't mean you can't excel in it — it means other functions might feel more natural. Use as a conversation starter, not a verdict.</div>
     </div>
     <div class="sec">
-      <div class="sec-lbl" style="color:#A1A1AA">How you interact with each profile</div>
+      <div class="sec-lbl" style="color:#A1A1AA">${t('How you interact with each profile','Cómo interactúas con cada perfil')}</div>
       <div class="mscroll"><table class="mtbl"><tr><th>Profile</th><th>Dynamic</th><th>What to expect</th></tr>${matRows}</table></div>
     </div>`;
 
@@ -832,7 +1084,7 @@ async function loadTeam(region){
             <div class="tn">${r.name}</div>
             <div class="tm">${[r.level,r.role,r.station,r.team?'Team: '+r.team:''].filter(Boolean).join(' · ')}</div>
           </div>
-          <div class="tb" style="background:${prof.bg};color:${prof.color}">${displayPk}</div>
+          <div class="tb" style="background:${prof.bg};color:${prof.color}">${pname(displayPk)}</div>
           <button class="dl-btn" title="Download profile" onclick="event.stopPropagation();downloadProfile(window._teamData[${rIdx}])">↓</button>
           <button class="del-btn" title="Remove result" onclick="event.stopPropagation();deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
         </div>
@@ -872,7 +1124,7 @@ function buildGuide(){
   // Profile tabs
   const tabs=document.getElementById('profileTabs');
   const detail=document.getElementById('profileDetail');
-  tabs.innerHTML=PORDER.map((k,i)=>`<div class="tab${i===0?' on':''}" onclick="showProfile('${k}',this)">${k}</div>`).join('');
+  tabs.innerHTML=PORDER.map((k,i)=>`<div class="tab${i===0?' on':''}" onclick="showProfile('${k}',this)">${pname(k)}</div>`).join('');
   showProfile(PORDER[0],tabs.querySelector('.tab'));
 
   // Good combos
@@ -887,31 +1139,34 @@ function showProfile(key,el){
   document.getElementById('profileDetail').innerHTML=`
     <div class="sec">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem">
-        <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${key}</div>
+        <div class="p-badge" style="background:${prof.bg};color:${prof.color}">${pname(key)}</div>
         <div style="font-size:13px;color:var(--text2)">${prof.tag}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div>
-          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Brings to the team</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.65">${prof.brings}</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">${t('Brings to the team','Aportación al equipo')}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65">${LANG==='es'?(prof.es_desc?prof.es_desc.split('.')[0]+'.':prof.brings):prof.brings}</div>
         </div>
         <div>
-          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Needs from the team</div>
-          <div style="font-size:13px;color:var(--text2);line-height:1.65">${prof.needs}</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">${t('Needs from the team','Necesidades del equipo')}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65">${LANG==='es'?(prof.playbook?prof.playbook.needs[0]:prof.needs):prof.needs}</div>
         </div>
       </div>
     </div>`;
 }
 
 function comboCard(c){
-  const badges=c.profiles.map(p=>`<span style="font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:${P[p].bg};color:${P[p].color}">${p}</span>`).join('<span style="color:var(--text3);font-size:13px">+</span>');
+  const badges=c.profiles.map(p=>`<span style="font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:${P[p].bg};color:${P[p].color}">${pname(p)}</span>`).join('<span style="color:var(--text3);font-size:13px">+</span>');
+  const clabel=LANG==='es'?(c.label_es||c.label):c.label;
+  const cdesc =LANG==='es'?(c.desc_es||c.desc):c.desc;
+  const cwatch=LANG==='es'?(c.watch_es||c.watch):c.watch;
   return`<div class="combo">
     <div class="combo-top">
       <div class="combo-names">${badges}</div>
-      <span class="combo-tag" style="background:${c.cbg};color:${c.color}">${c.label}</span>
+      <span class="combo-tag" style="background:${c.cbg};color:${c.color}">${clabel}</span>
     </div>
-    <div class="combo-desc">${c.desc}</div>
-    <div class="combo-watch">⚠ ${c.watch}</div>
+    <div class="combo-desc">${cdesc}</div>
+    <div class="combo-watch">⚠ ${cwatch}</div>
   </div>`;
 }
 
@@ -929,11 +1184,11 @@ function downloadProfile(r) {
   };
 
   const dims = [
-    {k:'A',label:'Dominance',   low:'Collaborative',    high:'Independent',          color:'#1B4FD8'},
-    {k:'B',label:'Extraversion',low:'Reserved',         high:'Sociable',              color:'#0F766E'},
-    {k:'C',label:'Patience',    low:'Driving / urgent', high:'Steady / patient',      color:'#B45309'},
-    {k:'D',label:'Formality',   low:'Flexible',         high:'Precise / structured',  color:'#7C3AED'},
-    {k:'E',label:'Objectivity', low:'Subjective',       high:'Data-driven / factual', color:'#065F46'},
+    {k:'A',label:t('Dominance','Dominancia'),   low:t('Collaborative','Colaborativo'),    high:t('Independent','Independiente'),          color:'#1B4FD8'},
+    {k:'B',label:t('Extraversion','Extraversión'),low:t('Reserved','Reservado'),         high:t('Sociable','Sociable'),              color:'#0F766E'},
+    {k:'C',label:t('Patience','Paciencia'),    low:t('Driving / urgent','Urgente'),  high:t('Steady / patient','Constante / paciente'),      color:'#B45309'},
+    {k:'D',label:t('Formality','Formalidad'),   low:t('Flexible','Flexible'),         high:t('Precise / structured','Preciso / estructurado'),  color:'#7C3AED'},
+    {k:'E',label:t('Objectivity','Objetividad'), low:t('Subjective','Subjetivo'),       high:t('Data-driven / factual','Basado en datos'), color:'#065F46'},
   ];
 
   const dimHTML = dims.map(function(d) {
@@ -955,7 +1210,9 @@ function downloadProfile(r) {
     '</div>';
   }).join('');
 
-  const RLABELS = {Sales:'Sales',CustomerExperience:'Customer Exp.',Capacity:'Capacity',Finance:'Finance',Operations:'Operations',HumanResources:'HR',ProjectManager:'Project Mgr',Procurement:'Procurement'};
+  const RLABELS_EN = {Sales:'Sales',CustomerExperience:'Customer Exp.',Capacity:'Capacity',Finance:'Finance',Operations:'Operations',HumanResources:'HR',ProjectManager:'Project Mgr',Procurement:'Procurement'};
+  const RLABELS_ES = {Sales:'Ventas',CustomerExperience:'Exp. Cliente',Capacity:'Capacidad',Finance:'Finanzas',Operations:'Operaciones',HumanResources:'RRHH',ProjectManager:'Gest. Proyectos',Procurement:'Compras'};
+  const RLABELS = LANG==='es' ? RLABELS_ES : RLABELS_EN;
   const roleHTML = Object.entries(RLABELS).map(function(entry) {
     const rk = entry[0], rl = entry[1];
     const fit = prof.roles[rk] || 1;
@@ -976,7 +1233,7 @@ function downloadProfile(r) {
     const s = (lw.includes('powerful')||lw.includes('exceptional')||lw.includes('highly compatible')||lw.includes('essential')) ? 'hi' :
                (lw.includes('tension')||lw.includes('friction')||lw.includes('conflict')||lw.includes('clash')||lw.includes('frustrat')) ? 'lo' : 'md';
     const sc = s==='hi' ? '#F0FDF4;color:#15803D' : s==='lo' ? '#FFF1F2;color:#9F1239' : '#FFFBEB;color:#92400E';
-    const sl = s==='hi' ? 'Strong' : s==='lo' ? 'Friction' : 'Good';
+    const sl = s==='hi' ? t('Strong','Fuerte') : s==='lo' ? t('Friction','Fricción') : t('Good','Bueno');
     const isYou = op === pk;
     const rowBg = isYou ? 'background:#EEF2FF;' : '';
     const rowColor = isYou ? '#2D5BE3' : '#52525B';
@@ -1002,15 +1259,15 @@ function downloadProfile(r) {
     '@media print{body{background:#fff}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}' +
     '</style></head><body>' +
     '<div class="card">' +
-      '<div style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:' + prof.bg + ';color:' + prof.color + ';margin-bottom:.75rem">' + pk + '</div>' +
+      '<div style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:' + prof.bg + ';color:' + prof.color + ';margin-bottom:.75rem">' + pname(pk) + '</div>' +
       '<div style="font-size:24px;font-weight:600;margin-bottom:.2rem">' + r.name + '</div>' +
       '<div style="font-size:13px;color:#A1A1AA;margin-bottom:.9rem">' + meta + '</div>' +
-      '<div style="font-size:15px;font-weight:500;color:#52525B;margin-bottom:.65rem">' + prof.tag + '</div>' +
-      '<div style="font-size:14px;color:#52525B;line-height:1.75;border-top:.5px solid #E2E2DE;padding-top:.9rem">' + prof.desc + '</div>' +
+      '<div style="font-size:15px;font-weight:500;color:#52525B;margin-bottom:.65rem">' + (LANG==="es"?(prof.es_tag||prof.tag):prof.tag) + '</div>' +
+      '<div style="font-size:14px;color:#52525B;line-height:1.75;border-top:.5px solid #E2E2DE;padding-top:.9rem">' + (LANG==="es"?(prof.es_desc||prof.desc):prof.desc) + '</div>' +
     '</div>' +
     '<div class="two-col">' +
-      '<div class="card"><h3>Strengths</h3>' + prof.strengths.map(function(s){ return '<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#F0FDF4;color:#15803D">' + s + '</div>'; }).join('') + '</div>' +
-      '<div class="card"><h3>Watch out for</h3>' + prof.cautions.map(function(c){ return '<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#FFFBEB;color:#92400E">' + c + '</div>'; }).join('') + '</div>' +
+      '<div class="card"><h3>'+(LANG==="es"?'Fortalezas':'Strengths')+'</h3>' + (LANG==="es"?(prof.es_strengths||prof.strengths):prof.strengths).map(function(s){ return '<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#F0FDF4;color:#15803D">' + s + '</div>'; }).join('') + '</div>' +
+      '<div class="card"><h3>'+(LANG==="es"?'Ten cuidado con':'Watch out for')+'</h3>' + (LANG==="es"?(prof.es_cautions||prof.cautions):prof.cautions).map(function(c){ return '<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#FFFBEB;color:#92400E">' + c + '</div>'; }).join('') + '</div>' +
     '</div>' +
     '<div class="card"><h3>Behavioral dimensions</h3>' + dimHTML + '</div>' +
     '<div class="card"><h3>Role fit</h3>' +
@@ -1018,7 +1275,7 @@ function downloadProfile(r) {
       '<div style="font-size:10.5px;color:#A1A1AA;margin-top:.75rem;line-height:1.55">&#9679; Strong fit &#9680; Moderate fit &#9675; Stretch &nbsp;&middot;&nbsp; A lower fit does not mean they cannot excel &mdash; use as a conversation starter, not a verdict.</div>' +
     '</div>' +
     '<div class="card"><h3>How they interact with each profile</h3>' +
-      '<table class="mtbl"><tr><th>Profile</th><th>Dynamic</th><th>What to expect</th></tr>' + matRows + '</table>' +
+      '<table class="mtbl"><tr><th>'+t('Profile','Perfil')+'</th><th>'+t('Dynamic','Dinámica')+'</th><th>'+t('What to expect','Qué esperar')+'</th></tr>' + matRows + '</table>' +
     '</div>' +
     '<div style="font-size:11px;color:#A1A1AA;text-align:center;margin-top:1rem;line-height:1.6">' +'Logiztik Alliance &middot; Behavioral Assessment &middot; ' + date + '<br>' +'<span style="font-size:10px">Internal use only. Not a clinical evaluation. Results are not used for hiring, promotion, or any employment decision. Data processed for team development purposes only and not shared outside Logiztik Alliance Group.</span>' +'</div>' +
     '<script>window.onload=function(){window.print();}<\/script>' +
@@ -1361,28 +1618,28 @@ function runDensityWarnings(list) {
                     p==='Promoter'?'Operator / Specialist':
                     p==='Collaborator'?'Strategist / Maverick':
                     p==='Operator'?'Maverick / Promoter':'balance';
-      warnings.push('⚠ High ' + p + ' density (' + counts[p] + '/' + total + ') — ensure ' + lacking + ' coverage');
+      warnings.push('⚠ High ' + p + ' '+t('density','densidad')+' (' + counts[p] + '/' + total + ') — '+t('ensure','asegura')+' ' + lacking + ' '+t('coverage','cobertura'));
     }
   });
 
   // Rule 2: No natural driver (no Strategist or Maverick)
   if(counts.Strategist === 0 && counts.Maverick === 0 && total >= 3){
-    warnings.push('⚠ No natural driver present — growth and direction-setting may stall');
+    warnings.push(t('⚠ No natural driver present — growth and direction-setting may stall','⚠ No hay un conductor natural presente — el crecimiento y la dirección pueden estancarse'));
   }
 
   // Rule 3: Two or more Strategists
   if(counts.Strategist >= 2){
-    warnings.push('⚠ ' + counts.Strategist + ' Strategists in the same team — define ownership lanes explicitly to avoid control tension');
+    warnings.push('⚠ ' + counts.Strategist + ' '+t('Strategists in the same team — define ownership lanes explicitly to avoid control tension','Estrategas en el mismo equipo — define los carriles de responsabilidad explícitamente para evitar tensión'));
   }
 
   // Rule 4: No Operator or Specialist in ops-heavy group
   if(counts.Operator === 0 && counts.Specialist === 0 && total >= 3){
-    warnings.push('⚠ No Operator or Specialist present — execution discipline and quality control may need reinforcement');
+    warnings.push(t('⚠ No Operator or Specialist present — execution discipline and quality control may need reinforcement','⚠ No hay Operador ni Especialista presente — la disciplina de ejecución y el control de calidad pueden necesitar refuerzo'));
   }
 
   // Rule 5: No Collaborator or Promoter (relationship gap)
   if(counts.Collaborator === 0 && counts.Promoter === 0 && total >= 3){
-    warnings.push('⚠ No natural relationship builder — client retention and team cohesion may be at risk');
+    warnings.push(t('⚠ No natural relationship builder — client retention and team cohesion may be at risk','⚠ No hay un constructor de relaciones natural — la retención de clientes y la cohesión del equipo pueden estar en riesgo'));
   }
 
   if(warnings.length === 0){
@@ -1416,14 +1673,14 @@ function buildPairingNudges() {
 
       var synColor = synergy==='strong'?'#15803D':synergy==='friction'?'#9F1239':'#92400E';
       var synBg    = synergy==='strong'?'#F0FDF4':synergy==='friction'?'#FFF1F2':'#FFFBEB';
-      var synLabel = synergy==='strong'?'Strong pairing':synergy==='friction'?'Manage carefully':'Good pairing';
+      var synLabel = synergy==='strong'?t('Strong pairing','Combinación fuerte'):synergy==='friction'?t('Manage carefully','Gestionar con cuidado'):t('Good pairing','Buena combinación');
 
       // What to clarify
       var clarify = synergy==='friction'
-        ? 'Define lanes and decision rights explicitly before they work together.'
+        ? t('Define lanes and decision rights explicitly before they work together.','Define roles y derechos de decisión explícitamente antes de que trabajen juntos.')
         : synergy==='strong'
-        ? 'Leverage this pairing — assign them to high-stakes joint work.'
-        : 'Aligned overall — monitor for blind spots they share.';
+        ? t('Leverage this pairing — assign them to high-stakes joint work.','Aprovecha esta combinación — asígnalos a trabajo conjunto de alto impacto.')
+        : t('Aligned overall — monitor for blind spots they share.','Alineados en general — monitorea los puntos ciegos que comparten.');
 
       html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:8px">' +
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.6rem;flex-wrap:wrap">' +
@@ -1487,6 +1744,8 @@ function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  if(id==='sIntro')updateStaticText();
+  if(id==='sQ1'||id==='sQ2')buildGrids();
   if(id==='sGuide')buildGuide();
   if(id==='sAdmin'){
     // Test connectivity first
