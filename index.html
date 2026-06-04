@@ -1084,8 +1084,11 @@ async function loadTeam(region){
             <div class="tn">${r.name}</div>
             <div class="tm">${[r.level,r.role,r.station,r.team?'Team: '+r.team:''].filter(Boolean).join(' · ')}</div>
           </div>
-          <div class="tb" style="background:${prof.bg};color:${prof.color}">${pname(displayPk)}</div>
-          <button class="dl-btn" title="Download profile" onclick="event.stopPropagation();downloadProfile(window._teamData[${rIdx}])">↓</button>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+            <div class="tb" style="background:${prof.bg};color:${prof.color}">${pname(displayPk)}</div>
+            ${(r.secondary_profile||'').trim()?`<div style="font-size:10px;color:var(--text3);text-align:right"><em>${LANG==='es'?'tend. ':''} ${pname((r.secondary_profile||'').trim())}</em></div>`:''}
+          </div>
+          <button class="dl-btn"  title="Download profile" onclick="event.stopPropagation();downloadProfile(window._teamData[${rIdx}])">↓</button>
           <button class="del-btn" title="Remove result" onclick="event.stopPropagation();deleteResult('${r.name.replace(/'/g,"\\'")}','${(r.station||'').replace(/'/g,"\\'")}')">×</button>
         </div>
         <div class="playbook-drawer" id="pb_${id}" style="display:none;padding:.9rem 1.1rem;border-top:.5px solid var(--border);background:var(--bg)">
@@ -1259,7 +1262,10 @@ function downloadProfile(r) {
     '@media print{body{background:#fff}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}' +
     '</style></head><body>' +
     '<div class="card">' +
-      '<div style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:' + prof.bg + ';color:' + prof.color + ';margin-bottom:.75rem">' + pname(pk) + '</div>' +
+      '<div style="margin-bottom:.75rem">' +
+      '<div style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:' + prof.bg + ';color:' + prof.color + ';margin-bottom:' + (secondaryKey?'4px':'0') + '">' + pname(pk) + '</div>' +
+      (secondaryKey ? '<div style="font-size:11px;color:#A1A1AA;padding-left:2px"><em>' + (LANG==='es'?'tendencia ':' ') + pname(secondaryKey) + '</em></div>' : '') +
+    '</div>' +
       '<div style="font-size:24px;font-weight:600;margin-bottom:.2rem">' + r.name + '</div>' +
       '<div style="font-size:13px;color:#A1A1AA;margin-bottom:.9rem">' + meta + '</div>' +
       '<div style="font-size:15px;font-weight:500;color:#52525B;margin-bottom:.65rem">' + (LANG==="es"?(prof.es_tag||prof.tag):prof.tag) + '</div>' +
