@@ -1172,7 +1172,10 @@ async function loadMyObjectives(){
 // ═══════════════════════════════════════════════════════════════════════════════
 // OBJECTIVE SETUP
 // ═══════════════════════════════════════════════════════════════════════════════
+// OBJECTIVE SETUP — EDIT, ADD, DELETE
+// ═══════════════════════════════════════════════════════════════════════════════
 let setupMode='shared';
+let editingObjId=null; // null = adding new, string = editing existing
 
 function renderSetupPeople(){
   const container=document.getElementById('mgr-setup-people');
@@ -1195,8 +1198,33 @@ function selectSetupEmployee(empName){
   if(emp){ const el=document.getElementById('setup-person-'+emp.id); if(el) el.classList.add('selected'); }
   document.getElementById('setup-ind-name').textContent=empName;
   document.getElementById('setup-ind-add-btn').style.display='block';
+  closeObjForm();
   renderSetupInd(empName);
 }
+
+// ── Build an objective row with Edit + Delete buttons ─────────────────────────
+function buildObjRow(obj, isShared, locked){
+  const row=document.createElement('div');
+  row.className='obj-row';
+  row.id='obj-row-'+obj.obj_id;
+  const typeChip=`<span class="type-chip tc-${isShared?'shared':obj.type}">${isShared?'shared':obj.type}</span>`;
+  const lockNote=locked?`<span style="font-size:10px;color:var(--amber);margin-left:6px">locked after publish</span>`:'';
+  const editBtn=locked?'':`<button onclick="openEditForm('${obj.obj_id}','${isShared?'shared':'individual'}')" style="background:none;border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;white-space:nowrap">Edit</button>`;
+  const delBtn=locked?'':`<button onclick="deleteObj('${obj.obj_id}','${isShared?'shared':'individual'}')" style="background:none;border:1px solid #FECACA;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--coral);font-family:inherit;margin-left:4px">×</button>`;
+  row.innerHTML=`
+    <div class="obj-body">
+      <div class="obj-name">${obj.name}</div>
+      <div class="obj-meta">${typeChip}<span>${obj.metric}</span>${lockNote}</div>
+      <div class="obj-target">Target: ${obj.target}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <span class="obj-weight">${obj.weight}%</span>
+      ${editBtn}${delBtn}
+    </div>`;
+  return row;
+}
+
+function isPublished(empName){ return !!localApproval[empName+'_'+perfQ]; }
 
 function renderSetupShared(){
   const container=document.getElementById('setup-shared-list');
@@ -1205,21 +1233,20 @@ function renderSetupShared(){
   const commercialObjs=DEFAULT_SHARED_OBJS.filter(o=>o.teams&&o.teams.includes('commercial'));
   const cxObjs=DEFAULT_SHARED_OBJS.filter(o=>o.teams&&o.teams.includes('cx'));
   if(DEFAULT_SHARED_OBJS.length===0){ container.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0">No shared objectives yet.</div>'; return; }
+  const locked=false; // shared objs: lock only if ALL members in that group are published — simplified: never lock shared editing
   if(commercialObjs.length){
-    container.innerHTML+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:8px 0 4px">Commercial team</div>`;
-    commercialObjs.forEach(obj=>{
-      const row=document.createElement('div');row.className='obj-row';
-      row.innerHTML=`<div class="obj-body"><div class="obj-name">${obj.name}</div><div class="obj-meta"><span class="type-chip tc-shared">shared</span><span>${obj.metric}</span></div><div class="obj-target">Target: ${obj.target}</div></div><span class="obj-weight">${obj.weight}%</span>`;
-      container.appendChild(row);
-    });
+    const hdr=document.createElement('div');
+    hdr.style.cssText='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:8px 0 4px;display:flex;align-items:center;justify-content:space-between';
+    hdr.innerHTML='<span>Commercial team</span><span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">Changes apply to all commercial team members</span>';
+    container.appendChild(hdr);
+    commercialObjs.forEach(obj=>container.appendChild(buildObjRow(obj,true,locked)));
   }
   if(cxObjs.length){
-    container.innerHTML+=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#993556;margin:12px 0 4px">Customer experience team</div>`;
-    cxObjs.forEach(obj=>{
-      const row=document.createElement('div');row.className='obj-row';
-      row.innerHTML=`<div class="obj-body"><div class="obj-name">${obj.name}</div><div class="obj-meta"><span class="type-chip tc-cx">cx</span><span>${obj.metric}</span></div><div class="obj-target">Target: ${obj.target}</div></div><span class="obj-weight">${obj.weight}%</span>`;
-      container.appendChild(row);
-    });
+    const hdr=document.createElement('div');
+    hdr.style.cssText='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#993556;margin:12px 0 4px;display:flex;align-items:center;justify-content:space-between';
+    hdr.innerHTML='<span>Customer experience team</span><span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">Changes apply to all CX team members</span>';
+    container.appendChild(hdr);
+    cxObjs.forEach(obj=>container.appendChild(buildObjRow(obj,true,locked)));
   }
 }
 
@@ -1230,22 +1257,34 @@ function renderSetupInd(empName){
   const empTeam=emp?emp.team:'cx';
   const relevantShared=DEFAULT_SHARED_OBJS.filter(o=>!o.teams||o.teams.includes(empTeam));
   const objs=DEFAULT_IND_OBJS[empName]||[];
-  if(objs.length===0){ container.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0">No individual objectives yet. Add from the + button below.</div>'; return; }
-  container.innerHTML='';
-  objs.forEach(obj=>{
-    const row=document.createElement('div');
-    row.className='obj-row';
-    row.innerHTML=`<div class="obj-body"><div class="obj-name">${obj.name}</div><div class="obj-meta"><span class="type-chip tc-${obj.type}">${obj.type}</span> <span>${obj.metric}</span></div><div class="obj-target">Target: ${obj.target}</div></div><span class="obj-weight">${obj.weight}%</span>`;
-    container.appendChild(row);
-  });
+  const locked=isPublished(empName);
+  if(objs.length===0){ container.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0">No individual objectives yet. Add from the + button below.</div>'; }
+  else {
+    container.innerHTML='';
+    objs.forEach(obj=>container.appendChild(buildObjRow(obj,false,locked)));
+  }
   const sharedTotal=relevantShared.reduce((s,o)=>s+o.weight,0);
   const indTotal=objs.reduce((s,o)=>s+o.weight,0);
   const grand=sharedTotal+indTotal;
-  container.innerHTML+=`<div class="wt-total ${grand===100?'wt-ok':'wt-warn'}">Combined weight (shared + individual): ${grand}%${grand!==100?' — adjust weights to reach 100%':''}</div>`;
+  const wt=document.createElement('div');
+  wt.className='wt-total '+(grand===100?'wt-ok':'wt-warn');
+  wt.textContent='Combined weight (shared + individual): '+grand+'%'+(grand!==100?' — adjust weights to reach 100%':'');
+  container.appendChild(wt);
+  // Show/hide add button based on lock state
+  const addBtn=document.getElementById('setup-ind-add-btn');
+  if(addBtn) addBtn.style.display=locked?'none':'block';
+  if(locked){
+    const note=document.createElement('div');
+    note.style.cssText='font-size:11px;color:var(--amber);margin-top:8px';
+    note.textContent='Objectives locked — already published to this employee. Unpublish to edit.';
+    container.appendChild(note);
+  }
 }
 
+// ── Open form for ADD or EDIT ─────────────────────────────────────────────────
 function openObjForm(mode){
   setupMode=mode;
+  editingObjId=null;
   document.getElementById('obj-form-title').textContent=mode==='shared'?'Add shared objective':'Add individual objective';
   document.getElementById('of-name').value='';
   document.getElementById('of-metric').value='';
@@ -1255,7 +1294,30 @@ function openObjForm(mode){
   document.getElementById('obj-form-wrap').style.display='block';
   document.getElementById('of-name').focus();
 }
-function closeObjForm(){ document.getElementById('obj-form-wrap').style.display='none'; }
+
+function openEditForm(objId, mode){
+  setupMode=mode;
+  editingObjId=objId;
+  // Find the obj in shared or individual list
+  let obj=DEFAULT_SHARED_OBJS.find(o=>o.obj_id===objId);
+  if(!obj&&currentPerfEmployee) obj=(DEFAULT_IND_OBJS[currentPerfEmployee]||[]).find(o=>o.obj_id===objId);
+  if(!obj) return;
+  document.getElementById('obj-form-title').textContent='Edit objective';
+  document.getElementById('of-name').value=obj.name;
+  document.getElementById('of-metric').value=obj.metric;
+  document.getElementById('of-weight').value=obj.weight;
+  document.getElementById('of-target').value=obj.target;
+  document.getElementById('of-type').value=obj.type;
+  document.getElementById('obj-form-wrap').style.display='block';
+  document.getElementById('of-name').focus();
+  // Scroll to form
+  document.getElementById('obj-form-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function closeObjForm(){
+  document.getElementById('obj-form-wrap').style.display='none';
+  editingObjId=null;
+}
 
 function saveObjForm(){
   const name=document.getElementById('of-name').value.trim();
@@ -1264,24 +1326,70 @@ function saveObjForm(){
   const type=document.getElementById('of-type').value;
   const target=document.getElementById('of-target').value.trim();
   if(!name||!weight){ alert('Name and weight are required.'); return; }
-  const obj={obj_id:'custom_'+Date.now(),name,metric,target,weight,type,shared:setupMode==='shared'?'true':'false',employee_id:currentPerfEmployee||'',employee_name:currentPerfEmployee||'',quarter:perfQ,year:perfYear,created_by:'manager',created_at:new Date().toISOString()};
-  if(setupMode==='shared'){
-    DEFAULT_SHARED_OBJS.push(obj);
+
+  if(editingObjId){
+    // UPDATE existing
+    let obj=DEFAULT_SHARED_OBJS.find(o=>o.obj_id===editingObjId);
+    if(obj){
+      Object.assign(obj,{name,metric,target,weight,type});
+      perfPost('upsertObjective',obj);
+      closeObjForm();
+      renderSetupShared();
+      return;
+    }
+    if(currentPerfEmployee){
+      const arr=DEFAULT_IND_OBJS[currentPerfEmployee]||[];
+      const idx=arr.findIndex(o=>o.obj_id===editingObjId);
+      if(idx>=0){
+        Object.assign(arr[idx],{name,metric,target,weight,type});
+        perfPost('upsertObjective',arr[idx]);
+        closeObjForm();
+        renderSetupInd(currentPerfEmployee);
+        return;
+      }
+    }
+  } else {
+    // ADD new
+    const obj={obj_id:'custom_'+Date.now(),name,metric,target,weight,type,shared:setupMode==='shared'?'true':'false',employee_id:currentPerfEmployee||'',employee_name:currentPerfEmployee||'',quarter:perfQ,year:perfYear,created_by:'manager',created_at:new Date().toISOString()};
+    if(setupMode==='shared'){
+      // Inherit teams from type
+      obj.teams=type==='cx'?['cx']:['commercial'];
+      DEFAULT_SHARED_OBJS.push(obj);
+      perfPost('upsertObjective',obj);
+      closeObjForm();
+      renderSetupShared();
+    } else if(currentPerfEmployee){
+      if(!DEFAULT_IND_OBJS[currentPerfEmployee]) DEFAULT_IND_OBJS[currentPerfEmployee]=[];
+      DEFAULT_IND_OBJS[currentPerfEmployee].push(obj);
+      perfPost('upsertObjective',obj);
+      closeObjForm();
+      renderSetupInd(currentPerfEmployee);
+    }
+  }
+}
+
+function deleteObj(objId, mode){
+  if(!confirm('Delete this objective? This cannot be undone.')) return;
+  if(mode==='shared'){
+    const idx=DEFAULT_SHARED_OBJS.findIndex(o=>o.obj_id===objId);
+    if(idx>=0) DEFAULT_SHARED_OBJS.splice(idx,1);
+    perfPost('deleteObjective',{obj_id:objId});
     renderSetupShared();
   } else if(currentPerfEmployee){
-    if(!DEFAULT_IND_OBJS[currentPerfEmployee]) DEFAULT_IND_OBJS[currentPerfEmployee]=[];
-    DEFAULT_IND_OBJS[currentPerfEmployee].push(obj);
+    const arr=DEFAULT_IND_OBJS[currentPerfEmployee]||[];
+    const idx=arr.findIndex(o=>o.obj_id===objId);
+    if(idx>=0) arr.splice(idx,1);
+    perfPost('deleteObjective',{obj_id:objId});
     renderSetupInd(currentPerfEmployee);
   }
-  perfPost('upsertObjective',obj);
-  closeObjForm();
 }
 
 function publishObjectives(){
   if(!currentPerfEmployee){ alert('Select an employee first.'); return; }
   localApproval[currentPerfEmployee+'_'+perfQ]=false;
   renderMgrTeamList();
-  alert(`Objectives published for ${currentPerfEmployee}. They can now view them in "My objectives".`);
+  renderSetupInd(currentPerfEmployee);
+  alert('Objectives published for '+currentPerfEmployee+'. They can now view them in "My objectives". Weights are now locked.');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
