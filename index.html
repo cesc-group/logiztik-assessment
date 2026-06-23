@@ -562,7 +562,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
               <div class="field"><label>Objective</label><input type="text" id="of-name" placeholder="e.g. Gross income growth — assigned portfolio"></div>
               <div class="field"><label>How it's measured</label><input type="text" id="of-metric" placeholder="e.g. % growth vs Q2 2025, from Fabio's report"></div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <div class="field"><label>Weight (%)</label><input type="number" id="of-weight" placeholder="20" min="1" max="60"></div>
+                <div class="field"><label>Weight (%)</label><input type="number" id="of-weight" placeholder="20" min="1" max="60"><span id="of-weight-lock-note" style="display:none;font-size:10px;color:var(--amber);margin-top:3px;display:none"> — locked after employee confirmation</span></div>
                 <div class="field"><label>Category</label>
                   <select id="of-type">
                     <option value="shared">Shared — all team</option>
@@ -1357,7 +1357,7 @@ function buildObjRow(obj, isShared, locked){
   row.className='obj-row';
   row.id='obj-row-'+obj.obj_id;
   const typeChip=`<span class="type-chip tc-${isShared?'shared':obj.type}">${isShared?'shared':obj.type}</span>`;
-  const lockNote=locked?`<span style="font-size:10px;color:var(--amber);margin-left:6px">locked after publish</span>`:'';
+  const lockNote=locked?`<span style="font-size:10px;color:var(--amber);margin-left:6px">locked — employee confirmed</span>`:'';
   const editBtn=locked?'':`<button onclick="openEditForm('${obj.obj_id}','${isShared?'shared':'individual'}')" style="background:none;border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;white-space:nowrap">Edit</button>`;
   const delBtn=locked?'':`<button onclick="deleteObj('${obj.obj_id}','${isShared?'shared':'individual'}')" style="background:none;border:1px solid #FECACA;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--coral);font-family:inherit;margin-left:4px">×</button>`;
   row.innerHTML=`
@@ -1373,7 +1373,10 @@ function buildObjRow(obj, isShared, locked){
   return row;
 }
 
-function isPublished(empName){ return !!localApproval[empName+'_'+perfQ]; }
+// Objectives are fully locked once employee has confirmed (acknowledged)
+// Only editable again via code-level change — not through the tool
+function isConfirmedByEmployee(empName){ return !!localApproval[empName+'_'+perfQ]; }
+function isPublished(empName){ return isConfirmedByEmployee(empName); }
 
 function renderSetupShared(){
   const container=document.getElementById('setup-shared-list');
@@ -1406,7 +1409,7 @@ function renderSetupInd(empName){
   const empTeam=emp?emp.team:'cx';
   const relevantShared=DEFAULT_SHARED_OBJS.filter(o=>!o.teams||o.teams.includes(empTeam));
   const objs=DEFAULT_IND_OBJS[empName]||[];
-  const locked=isPublished(empName);
+  const locked=isConfirmedByEmployee(empName);
   if(objs.length===0){ container.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0">No individual objectives yet. Add from the + button below.</div>'; }
   else {
     container.innerHTML='';
@@ -1419,13 +1422,12 @@ function renderSetupInd(empName){
   wt.className='wt-total '+(grand===100?'wt-ok':'wt-warn');
   wt.textContent='Combined weight (shared + individual): '+grand+'%'+(grand!==100?' — adjust weights to reach 100%':'');
   container.appendChild(wt);
-  // Show/hide add button based on lock state
   const addBtn=document.getElementById('setup-ind-add-btn');
   if(addBtn) addBtn.style.display=locked?'none':'block';
   if(locked){
     const note=document.createElement('div');
     note.style.cssText='font-size:11px;color:var(--amber);margin-top:8px';
-    note.textContent='Objectives locked — already published to this employee. Unpublish to edit.';
+    note.textContent='Fully locked — employee has confirmed these objectives for '+perfQ+'. Changes require VP Commercial approval.';
     container.appendChild(note);
   }
 }
@@ -1447,7 +1449,6 @@ function openObjForm(mode){
 function openEditForm(objId, mode){
   setupMode=mode;
   editingObjId=objId;
-  // Find the obj in shared or individual list
   let obj=DEFAULT_SHARED_OBJS.find(o=>o.obj_id===objId);
   if(!obj&&currentPerfEmployee) obj=(DEFAULT_IND_OBJS[currentPerfEmployee]||[]).find(o=>o.obj_id===objId);
   if(!obj) return;
@@ -1457,9 +1458,12 @@ function openEditForm(objId, mode){
   document.getElementById('of-weight').value=obj.weight;
   document.getElementById('of-target').value=obj.target;
   document.getElementById('of-type').value=obj.type;
+  const wf=document.getElementById('of-weight');
+  const wfNote=document.getElementById('of-weight-lock-note');
+  if(wf){ wf.readOnly=false; wf.style.opacity='1'; wf.style.cursor=''; }
+  if(wfNote) wfNote.style.display='none';
   document.getElementById('obj-form-wrap').style.display='block';
   document.getElementById('of-name').focus();
-  // Scroll to form
   document.getElementById('obj-form-wrap').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1546,7 +1550,7 @@ function publishObjectives(){
   localApproval[currentPerfEmployee+'_'+perfQ]=false;
   renderMgrTeamList();
   renderSetupInd(currentPerfEmployee);
-  alert('Objectives published for '+currentPerfEmployee+'. They can now view them in "My objectives". Weights are now locked.');
+  alert('Objectives published for '+currentPerfEmployee+'. They can now view and acknowledge them in "My objectives". You can still edit objectives until they confirm.');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
