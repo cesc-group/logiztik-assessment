@@ -766,12 +766,18 @@ async function perfGet(action, params){
     return JSON.parse(await r.text());
   }catch(e){console.error('perfGet:',e);return null;}
 }
-function perfPost(action, data){
+async function perfPost(action, data){
   try{
-    if(PERF_GS_URL==='PASTE_YOUR_PERFORMANCE_APPS_SCRIPT_URL_HERE') return;
-    const fd=new FormData();fd.append('action',action);fd.append('data',JSON.stringify(data));
-    fetch(PERF_GS_URL,{method:'POST',mode:'no-cors',body:fd});
-  }catch(e){console.error('perfPost:',e);}
+    if(!PERF_GS_URL||PERF_GS_URL.includes('PASTE_YOUR')) return false;
+    const fd=new FormData();
+    fd.append('action',action);
+    fd.append('data',JSON.stringify(data));
+    // Use no-cors for fire-and-forget (scores, notes), cors for objectives where we need confirmation
+    const mode = (action==='upsertObjective'||action==='deleteObjective') ? 'cors' : 'no-cors';
+    const r=await fetch(PERF_GS_URL,{method:'POST',mode,body:fd});
+    if(mode==='cors'&&r.ok){ const txt=await r.text(); try{return JSON.parse(txt);}catch{return {ok:true};}; }
+    return {ok:true};
+  }catch(e){console.error('perfPost:',e);return false;}
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -794,14 +800,14 @@ let localApproval= {}; // key: empId_quarter → bool
 // directly — their shared objectives are CX-specific. Two separate shared sets below.
 
 const DEFAULT_SHARED_OBJS = [
-  // Commercial team shared (JJ, Jonathan)
-  {obj_id:'s1',name:'Gross income growth — assigned portfolio',metric:'% growth vs same quarter prior year (Fabio Roman report)',target:'≥ 8% growth quarter-over-quarter',weight:25,type:'shared',shared:'true',teams:['commercial']},
-  {obj_id:'s2',name:'Portfolio retention rate',metric:'Active accounts at end of quarter vs start of quarter',target:'≥ 95% retention',weight:15,type:'shared',shared:'true',teams:['commercial']},
-  {obj_id:'s3',name:'Zoho CRM pipeline hygiene',metric:'% of T1/T2 accounts with open opportunity updated within 14 days',target:'≥ 80% of T1/T2 accounts updated',weight:10,type:'shared',shared:'true',teams:['commercial']},
-  // CX team shared (Juliana + all CX agents)
-  {obj_id:'cx1',name:'Exception communication response time',metric:'% of shipment exceptions communicated to customer within 2 hours of identification',target:'≥ 90% compliance',weight:25,type:'cx',shared:'true',teams:['cx']},
-  {obj_id:'cx2',name:'Documentation accuracy rate',metric:'% of AWBs and shipping documents completed without rework, correction, or error',target:'≥ 95% accuracy',weight:20,type:'cx',shared:'true',teams:['cx']},
-  {obj_id:'cx3',name:'Station portfolio retention',metric:'Active accounts at end of quarter vs start — shared metric with Commercial Manager',target:'≥ 95% retention',weight:10,type:'shared',shared:'true',teams:['cx']},
+  // ── Shared across ALL commercial team (JJ + Jonathan) ──────────────────────
+  {obj_id:'s1',name:'Gross income growth — Miami Station',metric:'% growth vs same quarter prior year — gross income net of third-party costs',target:'>= 10% growth vs same quarter prior year',weight:20,type:'shared',shared:'true',teams:['commercial']},
+  {obj_id:'s2',name:'Portfolio retention rate',metric:'Active accounts at end of quarter vs start of quarter — calibrated by seasonality before each quarter begins. Seasonal pauses must be documented in the CRM to be excluded from the denominator.',target:'>= 90% retention',weight:10,type:'shared',shared:'true',teams:['commercial']},
+  {obj_id:'s3',name:'Net Promoter Score — Miami Station',metric:'Net promoter score collected from Miami Station clients. Minimum sample of 15 customers per quarter required for the score to be valid. Survey administered by Global Marketing, results reviewed by Commercial VP.',target:'>= 70',weight:10,type:'shared',shared:'true',teams:['commercial']},
+  // ── Shared across ALL CX team (Juliana + all CX agents) ────────────────────
+  {obj_id:'cx1',name:'Exception communication response time',metric:'% of shipment exceptions communicated to customer within 2 hours of identification',target:'>= 90% compliance',weight:25,type:'cx',shared:'true',teams:['cx']},
+  {obj_id:'cx2',name:'Documentation accuracy rate',metric:'% of AWBs and shipping documents completed without rework, correction, or error',target:'>= 95% accuracy',weight:20,type:'cx',shared:'true',teams:['cx']},
+  {obj_id:'cx3',name:'Station portfolio retention',metric:'Active accounts at end of quarter vs start of quarter — calibrated by seasonality before each quarter begins.',target:'>= 90% retention',weight:10,type:'shared',shared:'true',teams:['cx']},
 ];
 
 // ─── INDIVIDUAL OBJECTIVES — per person ──────────────────────────────────────
@@ -810,18 +816,18 @@ const DEFAULT_SHARED_OBJS = [
 
 const DEFAULT_IND_OBJS = {
 
-  // ── COMMERCIAL MANAGER ──────────────────────────────────────────────────────
+  // ── COMMERCIAL MANAGER ──────────────────────────────────────────────
   'Juan Jose Donoso':[
-    {obj_id:'jj1',name:'New account acquisition — T2 or above',metric:'Signed new accounts scored T2+ generating gross income within 60 days of activation (Account Scoring Model)',target:'>= 3 new T2 accounts activated per quarter',weight:20,type:'sales',shared:'false'},
-    {obj_id:'jj2',name:'Ocean freight conversion',metric:'Existing air-only accounts converted to ocean + air during the quarter',target:'>= 2 accounts cross-sold to ocean',weight:15,type:'sales',shared:'false'},
-    {obj_id:'jj3',name:'Pipeline health — active opportunities',metric:'% of T1/T2 accounts with active opportunity in Zoho CRM; stage distribution and conversion rate reviewed in weekly commercial review',target:'100% of T1 accounts with active opportunity logged; T2 >= 80%',weight:10,type:'sales',shared:'false'},
-    {obj_id:'jj4',name:'Escalation rate to VP Commercial — declining trend',metric:'Number of commercial escalations reaching VP Commercial level per quarter',target:'Declining quarter-over-quarter from Q2 baseline',weight:10,type:'individual',shared:'false'},
-    {obj_id:'jj5',name:'Team performance — Client Manager and CXM scores',metric:'Average quarterly review score of Jonathan Ortiz and Juliana Cardenas',target:'Team average >= 3.2',weight:10,type:'individual',shared:'false'},
+    {obj_id:'jj1',name:'Gross income pipeline',metric:'Planning and prediction of the coming quarter results. Each active opportunity in the CRM must have a stage, a next action with a date, and an estimated gross income value logged. Opportunities missing any of these three fields are excluded from the pipeline count.',target:'Active pipeline >= 2.5x the quarterly GI target at mid-quarter checkpoint',weight:20,type:'sales',shared:'false'},
+    {obj_id:'jj2',name:'Expanding Logiztik Group commercial offering',metric:'New commodity type or mode of transportation introduced as main leg with a client that has not previously shipped that commodity or mode with Logiztik Group — must have at least one completed shipment within the quarter to count',target:'>= 1 new perishable commodity beyond flowers, or >= 2 clients activated on ocean as main or secondary leg',weight:10,type:'sales',shared:'false'},
+    {obj_id:'jj3',name:'Service line penetration',metric:'Number of active and separately invoiced service lines per account (Air, Handling, Inventory, FTL, LTL, Repacking, etc.) — tracked and verified quarterly results',target:'Air + 2 additional service lines per account, or >= 2 service lines for accounts without air. Measured across T1 and T2 portfolio.',weight:10,type:'sales',shared:'false'},
+    {obj_id:'jj4',name:'CX team performance — agent average score',metric:'Average quarterly review score across all CX Agents in the team',target:'Team average >= 3',weight:10,type:'individual',shared:'false'},
+    {obj_id:'jj5',name:'Claims resolution SLA compliance',metric:'% of Miami claims resolved within approved SLA threshold — coordinated with Claims Area. T1 claims take priority and must be resolved first.',target:'100% of T1 claims resolved within SLA; >= 85% of T2 claims resolved within SLA',weight:10,type:'individual',shared:'false'},
   ],
 
   // ── SENIOR CLIENT MANAGER ────────────────────────────────────────────────────
   'Jonathan Ortiz':[
-    {obj_id:'jon1',name:'Portfolio gross income growth',metric:'Gross income growth in assigned T1/T2 portfolio vs same quarter prior year (Fabio Roman report)',target:'>= 10% growth year-over-year',weight:25,type:'sales',shared:'false'},
+    {obj_id:'jon1',name:'Portfolio gross income growth',metric:'Gross income growth in assigned T1/T2 portfolio vs same quarter prior year — gross income net of third-party costs',target:'>= 10% growth vs same quarter prior year',weight:25,type:'sales',shared:'false'},
     {obj_id:'jon2',name:'T1 account retention — zero unplanned losses',metric:'T1 accounts lost without documented early warning and recovery attempt in Zoho CRM',target:'Zero unplanned T1 losses per quarter',weight:20,type:'sales',shared:'false'},
     {obj_id:'jon3',name:'QBR completion rate',metric:'% of assigned T1 accounts with completed QBR within the quarter — documented in Zoho CRM',target:'100% of T1 accounts reviewed on schedule',weight:10,type:'sales',shared:'false'},
     {obj_id:'jon4',name:'Service line penetration',metric:'Number of active service lines per account (air, cooler, repacking, customs, distribution) tracked in Zoho',target:'Average >= 1.5 service lines per T1 account; at least 2 accounts expanded during quarter',weight:10,type:'sales',shared:'false'},
@@ -1146,27 +1152,86 @@ async function loadMyObjectives(){
   const name=document.getElementById('perf-lookup-name').value;
   const quarter=document.getElementById('perf-lookup-quarter').value;
   if(!name){alert('Please select your name from the list.'); return;}
-  const emp=TEAM_MEMBERS.find(e=>e.name===name);
-  const empTeam=emp?emp.team:'cx';
-  const relevantShared=DEFAULT_SHARED_OBJS.filter(o=>!o.teams||o.teams.includes(empTeam));
-  const allObjs=[...relevantShared,...(DEFAULT_IND_OBJS[name]||[])];
+
   const header=document.getElementById('perf-my-header');
   const content=document.getElementById('perf-my-objectives');
   header.innerHTML=`<div style="font-size:16px;font-weight:600">${name}</div><div style="font-size:12px;color:var(--text3);margin-top:2px">${quarter} ${perfYear}</div>`;
-  if(allObjs.length===0){
-    content.innerHTML=`<div class="t-empty" style="padding:2rem">No objectives found for this name. Ask your manager to set up objectives first.</div>`;
-  } else {
-    const score=computeScore(name);
-    const scoreDisplay=score?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:12px;background:var(--bg);border-radius:var(--r)"><div class="perf-score-badge ${score?scoreMeta(score).badgeCls:'psbx'}" style="width:44px;height:44px;font-size:16px">${score?score.toFixed(1):'—'}</div><div><div style="font-size:14px;font-weight:600">${score?scoreMeta(score).label():'Awaiting scores from your manager'}</div><div style="font-size:11px;color:var(--text3)">Weighted average · ${quarter} ${perfYear}</div></div></div>`:'';
-    content.innerHTML=scoreDisplay+allObjs.map(obj=>{
-      const key=name+'_'+quarter+'_'+obj.obj_id;
-      const s=localScores[key];
-      const scorePart=s?`<span class="perf-score-badge ${scoreMeta(s).badgeCls}" style="width:28px;height:28px;font-size:13px">${s}</span>`:`<span style="font-size:11px;color:var(--text3)">Pending</span>`;
-      return `<div class="obj-row"><div class="obj-body"><div class="obj-name">${obj.name}</div><div class="obj-meta"><span class="type-chip tc-${obj.type}">${obj.type}</span><span>${obj.metric}</span></div><div class="obj-target">Target: ${obj.target}</div><div class="weight-bar-wrap"><div class="weight-bar-fill" style="width:${obj.weight*2}%"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="obj-weight">${obj.weight}%</span>${scorePart}</div></div>`;
-    }).join('');
-  }
+  content.innerHTML='<div class="loading">Loading your objectives…</div>';
   document.getElementById('perf-lookup-box').style.display='none';
   document.getElementById('perf-my-content').style.display='block';
+
+  // Step 1 — try to load from sheet (manager-edited objectives take priority)
+  const emp=TEAM_MEMBERS.find(e=>e.name===name);
+  const empTeam=emp?emp.team:'cx';
+  let sheetObjs=null;
+  try{
+    const raw=await perfGet('getObjectives',{employee:name,quarter,year:perfYear});
+    if(Array.isArray(raw)&&raw.length>0) sheetObjs=raw;
+  }catch(e){ console.warn('Could not load objectives from sheet:', e); }
+
+  // Step 2 — build final objective list
+  // Sheet objs override defaults when present; otherwise fall back to hardcoded
+  let allObjs;
+  if(sheetObjs){
+    // Sheet returns both shared (shared='true') and individual for this employee
+    allObjs=sheetObjs.map(o=>({
+      obj_id:   String(o.obj_id),
+      name:     String(o.name),
+      metric:   String(o.metric),
+      target:   String(o.target),
+      weight:   parseInt(o.weight)||0,
+      type:     String(o.type||'cx'),
+      shared:   String(o.shared),
+    }));
+  } else {
+    const relevantShared=DEFAULT_SHARED_OBJS.filter(o=>!o.teams||o.teams.includes(empTeam));
+    allObjs=[...relevantShared,...(DEFAULT_IND_OBJS[name]||[])];
+  }
+
+  // Step 3 — also load scores from sheet to show alongside objectives
+  let sheetScores=null;
+  try{
+    const rawScores=await perfGet('getReviews',{employee:name,quarter,year:perfYear});
+    if(Array.isArray(rawScores)&&rawScores.length>0){
+      sheetScores={};
+      rawScores.forEach(r=>{ sheetScores[String(r.obj_id)]=parseInt(r.score)||null; });
+    }
+  }catch(e){ console.warn('Could not load scores from sheet:', e); }
+
+  // Step 4 — render
+  if(allObjs.length===0){
+    content.innerHTML='<div class="t-empty" style="padding:2rem">No objectives found. Ask your manager to set up and publish your objectives first.</div>';
+    return;
+  }
+
+  // Compute weighted score from sheet scores (preferred) or local scores
+  function getScore(objId){
+    if(sheetScores&&sheetScores[objId]!=null) return sheetScores[objId];
+    return localScores[name+'_'+quarter+'_'+objId]||null;
+  }
+  const scored=allObjs.filter(o=>getScore(o.obj_id)!=null);
+  let weightedScore=null;
+  if(scored.length>0){
+    const totalW=allObjs.reduce((s,o)=>s+o.weight,0)||100;
+    const ws=allObjs.reduce((s,o)=>{const sc=getScore(o.obj_id);return s+(sc?sc*o.weight:0);},0);
+    weightedScore=ws/totalW;
+  }
+
+  const sourceNote=sheetObjs
+    ? '<div style="font-size:11px;color:var(--green);margin-bottom:8px">✓ Objectives loaded from your manager’s latest setup</div>'
+    : '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Default objectives — your manager has not yet published a custom set for this quarter</div>';
+
+  const scoreDisplay=weightedScore!=null
+    ?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:12px;background:var(--bg);border-radius:var(--r)"><div class="perf-score-badge ${scoreMeta(weightedScore).badgeCls}" style="width:44px;height:44px;font-size:16px">${weightedScore.toFixed(1)}</div><div><div style="font-size:14px;font-weight:600">${scoreMeta(weightedScore).label()}</div><div style="font-size:11px;color:var(--text3)">Weighted average · ${quarter} ${perfYear}</div></div></div>`
+    :'';
+
+  content.innerHTML=sourceNote+scoreDisplay+allObjs.map(obj=>{
+    const s=getScore(obj.obj_id);
+    const scorePart=s
+      ?`<span class="perf-score-badge ${scoreMeta(s).badgeCls}" style="width:28px;height:28px;font-size:13px">${s}</span>`
+      :`<span style="font-size:11px;color:var(--text3)">Pending</span>`;
+    return `<div class="obj-row"><div class="obj-body"><div class="obj-name">${obj.name}</div><div class="obj-meta"><span class="type-chip tc-${obj.type}">${obj.type}</span><span>${obj.metric}</span></div><div class="obj-target">Target: ${obj.target}</div><div class="weight-bar-wrap"><div class="weight-bar-fill" style="width:${Math.min(obj.weight*2,100)}%"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="obj-weight">${obj.weight}%</span>${scorePart}</div></div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1332,7 +1397,7 @@ function saveObjForm(){
     let obj=DEFAULT_SHARED_OBJS.find(o=>o.obj_id===editingObjId);
     if(obj){
       Object.assign(obj,{name,metric,target,weight,type});
-      perfPost('upsertObjective',obj);
+      perfPost('upsertObjective',obj).then(()=>showSaveToast('Objective saved'));
       closeObjForm();
       renderSetupShared();
       return;
@@ -1342,7 +1407,7 @@ function saveObjForm(){
       const idx=arr.findIndex(o=>o.obj_id===editingObjId);
       if(idx>=0){
         Object.assign(arr[idx],{name,metric,target,weight,type});
-        perfPost('upsertObjective',arr[idx]);
+        perfPost('upsertObjective',arr[idx]).then(()=>showSaveToast('Objective saved'));
         closeObjForm();
         renderSetupInd(currentPerfEmployee);
         return;
@@ -1352,20 +1417,28 @@ function saveObjForm(){
     // ADD new
     const obj={obj_id:'custom_'+Date.now(),name,metric,target,weight,type,shared:setupMode==='shared'?'true':'false',employee_id:currentPerfEmployee||'',employee_name:currentPerfEmployee||'',quarter:perfQ,year:perfYear,created_by:'manager',created_at:new Date().toISOString()};
     if(setupMode==='shared'){
-      // Inherit teams from type
       obj.teams=type==='cx'?['cx']:['commercial'];
       DEFAULT_SHARED_OBJS.push(obj);
-      perfPost('upsertObjective',obj);
+      perfPost('upsertObjective',obj).then(()=>showSaveToast('Objective saved'));
       closeObjForm();
       renderSetupShared();
     } else if(currentPerfEmployee){
       if(!DEFAULT_IND_OBJS[currentPerfEmployee]) DEFAULT_IND_OBJS[currentPerfEmployee]=[];
       DEFAULT_IND_OBJS[currentPerfEmployee].push(obj);
-      perfPost('upsertObjective',obj);
+      perfPost('upsertObjective',obj).then(()=>showSaveToast('Objective saved'));
       closeObjForm();
       renderSetupInd(currentPerfEmployee);
     }
   }
+}
+
+function showSaveToast(msg){
+  let t=document.getElementById('save-toast');
+  if(!t){ t=document.createElement('div'); t.id='save-toast';
+    t.style.cssText='position:fixed;bottom:24px;right:24px;background:#18181B;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;z-index:9999;transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._to); t._to=setTimeout(()=>t.style.opacity='0',2500);
 }
 
 function deleteObj(objId, mode){
