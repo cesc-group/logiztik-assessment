@@ -439,8 +439,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div id="perf-my-content" style="display:none">
         <div id="perf-my-header" style="margin-bottom:1rem"></div>
         <div id="perf-my-objectives"></div>
-        <div style="margin-top:1rem;display:flex;gap:8px">
-          <button class="btn-sm" onclick="document.getElementById('perf-my-content').style.display='none';document.getElementById('perf-lookup-box').style.display='block'">← Back</button>
+
+        <!-- Acknowledgment block — shown after objectives load -->
+        <div id="perf-ack-block" style="display:none;margin-top:16px">
+          <div id="perf-ack-confirmed" style="display:none;background:var(--green-bg);border:1px solid #BBF7D0;border-radius:var(--r-sm);padding:10px 14px;font-size:13px;color:var(--green)">
+            ✓ You have acknowledged these objectives.
+          </div>
+          <div id="perf-ack-form" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px">
+            <div style="font-size:13px;font-weight:500;margin-bottom:8px">Acknowledge your objectives</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">By acknowledging, you confirm that you have read and understood your objectives for this quarter. Your manager will be notified.</div>
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--text2);margin-bottom:12px">
+              <input type="checkbox" id="perf-ack-check" onchange="toggleAckBtn()" style="margin-top:2px;width:15px;height:15px;flex-shrink:0;cursor:pointer">
+              <span>I have read and understood my objectives for <span id="perf-ack-quarter-label" style="font-weight:600"></span>.</span>
+            </label>
+            <button id="perf-ack-btn" class="btn-sm primary" onclick="submitAcknowledgment()" disabled style="opacity:.4;cursor:not-allowed">Confirm acknowledgment</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn-sm" onclick="document.getElementById('perf-my-content').style.display='none';document.getElementById('perf-lookup-box').style.display='block';document.getElementById('perf-ack-block').style.display='none'">← Back</button>
         </div>
       </div>
     </div>
@@ -1232,6 +1249,73 @@ async function loadMyObjectives(){
       :`<span style="font-size:11px;color:var(--text3)">Pending</span>`;
     return `<div class="obj-row"><div class="obj-body"><div class="obj-name">${obj.name}</div><div class="obj-meta"><span class="type-chip tc-${obj.type}">${obj.type}</span><span>${obj.metric}</span></div><div class="obj-target">Target: ${obj.target}</div><div class="weight-bar-wrap"><div class="weight-bar-fill" style="width:${Math.min(obj.weight*2,100)}%"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="obj-weight">${obj.weight}%</span>${scorePart}</div></div>`;
   }).join('');
+
+  // Step 4 — show acknowledgment block and check if already acknowledged
+  window._ackContext = {name, quarter};
+  const ackBlock = document.getElementById('perf-ack-block');
+  const ackForm  = document.getElementById('perf-ack-form');
+  const ackDone  = document.getElementById('perf-ack-confirmed');
+  const ackQL    = document.getElementById('perf-ack-quarter-label');
+  if(ackQL) ackQL.textContent = quarter + ' ' + perfYear;
+  if(ackBlock) ackBlock.style.display = 'block';
+
+  // Check sheet for existing acknowledgment note
+  let alreadyAcked = localApproval[name+'_'+quarter] === true;
+  if(!alreadyAcked){
+    try{
+      const notes = await perfGet('getNotes',{employee:name,quarter,year:perfYear});
+      if(Array.isArray(notes) && notes.some(n=>String(n.note_type)==='acknowledgment')){
+        alreadyAcked = true;
+        localApproval[name+'_'+quarter] = true;
+      }
+    }catch(e){ console.warn('Could not check acknowledgment:', e); }
+  }
+  if(alreadyAcked){
+    if(ackForm) ackForm.style.display='none';
+    if(ackDone) ackDone.style.display='block';
+  } else {
+    if(ackForm) ackForm.style.display='block';
+    if(ackDone) ackDone.style.display='none';
+    const cb = document.getElementById('perf-ack-check');
+    if(cb) cb.checked = false;
+    toggleAckBtn();
+  }
+}
+
+function toggleAckBtn(){
+  const cb  = document.getElementById('perf-ack-check');
+  const btn = document.getElementById('perf-ack-btn');
+  if(!btn) return;
+  const ok = cb && cb.checked;
+  btn.disabled = !ok;
+  btn.style.opacity = ok ? '1' : '.4';
+  btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
+}
+
+async function submitAcknowledgment(){
+  const ctx = window._ackContext;
+  if(!ctx) return;
+  const btn = document.getElementById('perf-ack-btn');
+  if(btn){ btn.textContent='Saving…'; btn.disabled=true; }
+
+  const note = {
+    note_id:       ctx.name+'_'+ctx.quarter+'_'+perfYear+'_ack',
+    employee_name: ctx.name,
+    quarter:       ctx.quarter,
+    year:          perfYear,
+    note_type:     'acknowledgment',
+    body:          'Objectives acknowledged by employee on '+new Date().toISOString(),
+    created_by:    ctx.name,
+    created_at:    new Date().toISOString()
+  };
+  await perfPost('upsertNote', note);
+  localApproval[ctx.name+'_'+ctx.quarter] = true;
+
+  const ackForm = document.getElementById('perf-ack-form');
+  const ackDone = document.getElementById('perf-ack-confirmed');
+  if(ackForm) ackForm.style.display='none';
+  if(ackDone) ackDone.style.display='block';
+  showSaveToast('Objectives acknowledged \u2714');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
