@@ -638,17 +638,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
 
     <div id="cv-loading" style="text-align:center;padding:3rem;color:var(--text3)">Loading team data…</div>
-    <div id="cv-content" style="display:none">
 
-      <!-- Station filter pills -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
-        <span style="font-size:12px;color:var(--text3);font-weight:500">View:</span>
-        <button class="q-chip on" id="cvf-all"    onclick="setCVFilter('all',this)">All stations</button>
-        <button class="q-chip"    id="cvf-us"     onclick="setCVFilter('United States',this)">United States</button>
-        <button class="q-chip"    id="cvf-ec"     onclick="setCVFilter('Ecuador',this)">Ecuador</button>
-        <button class="q-chip"    id="cvf-co"     onclick="setCVFilter('Colombia',this)">Colombia</button>
-        <button class="q-chip"    id="cvf-nl"     onclick="setCVFilter('Netherlands',this)">Netherlands</button>
-      </div>
+    <!-- Station filter pills — always visible -->
+    <div id="cv-filters" style="display:none;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--text3);font-weight:500">View:</span>
+      <button class="q-chip on" id="cvf-all"    onclick="setCVFilter('all',this)">All stations</button>
+      <button class="q-chip"    id="cvf-us"     onclick="setCVFilter('United States',this)">United States</button>
+      <button class="q-chip"    id="cvf-ec"     onclick="setCVFilter('Ecuador',this)">Ecuador</button>
+      <button class="q-chip"    id="cvf-co"     onclick="setCVFilter('Colombia',this)">Colombia</button>
+      <button class="q-chip"    id="cvf-nl"     onclick="setCVFilter('Netherlands',this)">Netherlands</button>
+    </div>
+
+    <div id="cv-content" style="display:none">
 
       <!-- Summary stats row -->
       <div id="cv-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem"></div>
@@ -679,7 +680,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
 
     </div>
-    <div id="cv-empty" style="display:none;text-align:center;padding:3rem;color:var(--text3);font-size:14px">No assessment data found for this station yet.</div>
+    <div id="cv-empty" style="display:none;text-align:center;padding:2rem;color:var(--text3);font-size:14px">
+      <div style="font-size:32px;margin-bottom:12px">📭</div>
+      <div style="font-weight:500;margin-bottom:6px">No assessment data for this station yet</div>
+      <div style="font-size:12px">Once team members complete the assessment and select this station, their profiles will appear here.</div>
+    </div>
   </div>
 
 </div><!-- /wrap -->
@@ -714,6 +719,7 @@ let cvDistChart = null;
 
 async function loadCompanyView(){
   document.getElementById('cv-loading').style.display='block';
+  document.getElementById('cv-filters').style.display='none';
   document.getElementById('cv-content').style.display='none';
   document.getElementById('cv-empty').style.display='none';
   try{
@@ -736,6 +742,7 @@ function renderCompanyView(){
     : cvAllData.filter(p=>(p.station||'')=== cvFilter);
 
   document.getElementById('cv-loading').style.display='none';
+  document.getElementById('cv-filters').style.display='flex';
 
   if(people.length===0){
     document.getElementById('cv-content').style.display='none';
