@@ -266,16 +266,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="topbar">
     <div class="brand">Logiztik Alliance <span>· People & Performance</span></div>
     <nav class="nav">
-      <a onclick="go('sPerf')"   id="navPerf">Performance</a>
-      <a onclick="go('sIntro')" id="navAssessment">Assessment</a>
-      <a onclick="go('sGuide')"  id="navGuide">Profile guide</a>
-      <a onclick="gateAdmin()"   id="navAdmin">Admin</a>
+      <a onclick="go('sIntro')"   id="navAssessment">Assessment</a>
+      <a onclick="go('sGuide')"   id="navGuide">Profile guide</a>
+      <a onclick="go('sCompany')" id="navCompany">Company view</a>
+      <a onclick="go('sPerf')"    id="navPerf">Objectives</a>
+      <a onclick="gateAdmin()"    id="navAdmin">Admin</a>
       <button id="langBtn" onclick="toggleLang()" style="padding:5px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2)">ES</button>
     </nav>
   </div>
 
   <!-- ═══ INTRO ═══ -->
-  <div id="sIntro" class="screen">
+  <div id="sIntro" class="screen active">
     <div class="hero">
       <h1 id="heroTitle">Behavioral Assessment</h1>
       <p id="heroSubtitle">A practical team operating tool. Understand how you naturally work, how you fit with your teammates, and how your manager can get the best from you.</p>
@@ -394,9 +395,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 
   <!-- ═══ PERFORMANCE ═══ -->
-  <div id="sPerf" class="screen active">
+  <div id="sPerf" class="screen">
     <div class="perf-hero">
-      <h1 id="perf-title">Performance Review</h1>
+      <h1 id="perf-title">Objectives</h1>
       <p id="perf-sub">Quarterly objectives · Monthly check-ins · Data-driven coaching conversations</p>
     </div>
 
@@ -437,7 +438,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
       </div>
       <div id="perf-my-content" style="display:none">
-        <div id="perf-my-header" style="margin-bottom:1rem"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:.5px solid var(--border)">
+          <button class="btn-sm" onclick="resetMyView()" style="display:flex;align-items:center;gap:5px;flex-shrink:0">← Select another name</button>
+          <div id="perf-my-header" style="flex:1"></div>
+        </div>
         <div id="perf-my-objectives"></div>
 
         <!-- Acknowledgment block — shown after objectives load -->
@@ -456,8 +460,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
           </div>
         </div>
 
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn-sm" onclick="document.getElementById('perf-my-content').style.display='none';document.getElementById('perf-lookup-box').style.display='block';document.getElementById('perf-ack-block').style.display='none'">← Back</button>
+        <div style="margin-top:16px;padding-top:12px;border-top:.5px solid var(--border)">
+          <button class="btn-sm" onclick="resetMyView()">← Back to name selection</button>
         </div>
       </div>
     </div>
@@ -626,8 +630,292 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
   </div>
 
+  <!-- ═══ COMPANY VIEW ═══ -->
+  <div id="sCompany" class="screen">
+    <div class="perf-hero" style="padding-bottom:1rem">
+      <h1 id="cv-title">Company behavioral view</h1>
+      <p id="cv-sub">Team profiles across all stations · Logiztik Group</p>
+    </div>
+
+    <div id="cv-loading" style="text-align:center;padding:3rem;color:var(--text3)">Loading team data…</div>
+    <div id="cv-content" style="display:none">
+
+      <!-- Station filter pills -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--text3);font-weight:500">View:</span>
+        <button class="q-chip on" id="cvf-all"    onclick="setCVFilter('all',this)">All stations</button>
+        <button class="q-chip"    id="cvf-us"     onclick="setCVFilter('United States',this)">United States</button>
+        <button class="q-chip"    id="cvf-ec"     onclick="setCVFilter('Ecuador',this)">Ecuador</button>
+        <button class="q-chip"    id="cvf-co"     onclick="setCVFilter('Colombia',this)">Colombia</button>
+        <button class="q-chip"    id="cvf-nl"     onclick="setCVFilter('Netherlands',this)">Netherlands</button>
+      </div>
+
+      <!-- Summary stats row -->
+      <div id="cv-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem"></div>
+
+      <!-- Radar — all or per station -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title" id="cv-radar-title">Behavioral dimensions — company average</div>
+        <div style="position:relative;width:100%;height:320px">
+          <canvas id="cv-radar" role="img" aria-label="Radar chart of behavioral dimensions across the organization"></canvas>
+        </div>
+        <div id="cv-radar-legend" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">Each axis scored 0–100. Company or station average across all assessment respondents.</div>
+      </div>
+
+      <!-- Profile distribution -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title" id="cv-dist-title">Profile distribution</div>
+        <div id="cv-dist-wrap" style="position:relative;width:100%">
+          <canvas id="cv-dist" role="img" aria-label="Stacked horizontal bar chart showing profile distribution by station"></canvas>
+        </div>
+        <div id="cv-dist-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px"></div>
+      </div>
+
+      <!-- Profile cards grid -->
+      <div class="card">
+        <div class="card-title" id="cv-cards-title">Team roster by profile</div>
+        <div id="cv-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+      </div>
+
+    </div>
+    <div id="cv-empty" style="display:none;text-align:center;padding:3rem;color:var(--text3);font-size:14px">No assessment data found for this station yet.</div>
+  </div>
+
 </div><!-- /wrap -->
 
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPANY VIEW
+// ═══════════════════════════════════════════════════════════════════════════════
+const CV_PROFILE_COLORS = {
+  Strategist:  {main:'#1B4FD8',bg:'#EEF2FF',text:'#1B4FD8'},
+  Promoter:    {main:'#0F766E',bg:'#F0FDFA',text:'#0F766E'},
+  Collaborator:{main:'#B45309',bg:'#FFFBEB',text:'#B45309'},
+  Operator:    {main:'#1E40AF',bg:'#EFF6FF',text:'#1E40AF'},
+  Specialist:  {main:'#065F46',bg:'#ECFDF5',text:'#065F46'},
+  Maverick:    {main:'#7C3AED',bg:'#F5F3FF',text:'#7C3AED'},
+  Explorer:    {main:'#4B5563',bg:'#F9FAFB',text:'#4B5563'},
+};
+const CV_STATION_COLORS = {
+  'United States': {main:'#1B4FD8', bg:'#EEF2FF'},
+  'Ecuador':       {main:'#0F766E', bg:'#F0FDFA'},
+  'Colombia':      {main:'#B45309', bg:'#FFFBEB'},
+  'Netherlands':   {main:'#7C3AED', bg:'#F5F3FF'},
+};
+const CV_STATION_ORDER = ['United States','Ecuador','Colombia','Netherlands'];
+const DIM_LABELS = ['Dominance','Extraversion','Patience','Formality','Objectivity'];
+const DIM_KEYS   = ['dim_a','dim_b','dim_c','dim_d','dim_e'];
+
+let cvAllData   = [];
+let cvFilter    = 'all';
+let cvRadarChart= null;
+let cvDistChart = null;
+
+async function loadCompanyView(){
+  document.getElementById('cv-loading').style.display='block';
+  document.getElementById('cv-content').style.display='none';
+  document.getElementById('cv-empty').style.display='none';
+  try{
+    const raw = await storeGet('All');
+    cvAllData  = Array.isArray(raw) ? raw.filter(r=>r.name&&String(r.name).trim()!=='') : [];
+  }catch(e){ console.error('Company view load failed:',e); cvAllData=[]; }
+  renderCompanyView();
+}
+
+function setCVFilter(filter, el){
+  cvFilter=filter;
+  document.querySelectorAll('[id^="cvf-"]').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderCompanyView();
+}
+
+function renderCompanyView(){
+  const people = cvFilter==='all'
+    ? cvAllData
+    : cvAllData.filter(p=>(p.station||'')=== cvFilter);
+
+  document.getElementById('cv-loading').style.display='none';
+
+  if(people.length===0){
+    document.getElementById('cv-content').style.display='none';
+    document.getElementById('cv-empty').style.display='block';
+    return;
+  }
+  document.getElementById('cv-content').style.display='block';
+  document.getElementById('cv-empty').style.display='none';
+
+  renderCVStats(people);
+  renderCVRadar(people);
+  renderCVDist(people);
+  renderCVCards(people);
+}
+
+function renderCVStats(people){
+  const el=document.getElementById('cv-stats');
+  const stations=[...new Set(people.map(p=>p.station||'Unknown'))].filter(Boolean);
+  const profiles=[...new Set(people.map(p=>(p.profile_key||'').trim()))].filter(Boolean);
+  const topProfile = PORDER.find(p=>profiles.sort((a,b)=>
+    people.filter(x=>(x.profile_key||'').trim()===b).length -
+    people.filter(x=>(x.profile_key||'').trim()===a).length
+  )[0]===p) || profiles[0]||'—';
+
+  const stats=[
+    {label:'Total assessed',value:people.length},
+    {label:'Stations',value:cvFilter==='all'?stations.length:'1'},
+    {label:'Profiles present',value:profiles.length+' / 7'},
+    {label:'Most common profile',value:topProfile},
+  ];
+  el.innerHTML=stats.map(s=>`
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px">${s.label}</div>
+      <div style="font-size:18px;font-weight:600;color:var(--text)">${s.value}</div>
+    </div>`).join('');
+}
+
+function renderCVRadar(people){
+  const stationsInData = cvFilter==='all'
+    ? CV_STATION_ORDER.filter(s=>people.some(p=>p.station===s))
+    : [cvFilter];
+
+  function avg(arr, key){ const n=arr.length||1; return Math.round(arr.reduce((s,p)=>s+parseFloat(p[key]||50),0)/n); }
+
+  let datasets;
+  if(cvFilter==='all' && stationsInData.length>1){
+    datasets = stationsInData.map(s=>{
+      const sp=people.filter(p=>p.station===s);
+      const c=CV_STATION_COLORS[s]||{main:'#888780'};
+      return {
+        label: s+' ('+sp.length+')',
+        data: DIM_KEYS.map(k=>avg(sp,k)),
+        backgroundColor: c.main+'22',
+        borderColor: c.main,
+        borderWidth:2.5,
+        pointBackgroundColor: c.main,
+        pointRadius:5, pointBorderColor:'#fff', pointBorderWidth:2,
+      };
+    });
+    document.getElementById('cv-radar-title').textContent='Behavioral dimensions — by station';
+  } else {
+    const c=cvFilter!=='all'?(CV_STATION_COLORS[cvFilter]||{main:'#1B4FD8'}):{main:'#1B4FD8'};
+    datasets=[{
+      label:(cvFilter==='all'?'All stations':cvFilter)+' ('+people.length+')',
+      data: DIM_KEYS.map(k=>avg(people,k)),
+      backgroundColor: c.main+'28',
+      borderColor: c.main,
+      borderWidth:2.5,
+      pointBackgroundColor: c.main,
+      pointRadius:5, pointBorderColor:'#fff', pointBorderWidth:2,
+    }];
+    document.getElementById('cv-radar-title').textContent=
+      'Behavioral dimensions — '+(cvFilter==='all'?'company average':cvFilter);
+  }
+
+  if(cvRadarChart){ cvRadarChart.destroy(); cvRadarChart=null; }
+  cvRadarChart=new Chart(document.getElementById('cv-radar'),{
+    type:'radar',
+    data:{ labels:DIM_LABELS, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ r:{
+        min:30, max:80,
+        ticks:{ stepSize:10, color:'#888780', font:{size:10}, backdropColor:'transparent' },
+        grid:{ color:'rgba(0,0,0,0.08)' },
+        pointLabels:{ color:'#52514e', font:{size:13, weight:'500'} },
+        angleLines:{ color:'rgba(0,0,0,0.08)' }
+      }}
+    }
+  });
+
+  const leg=document.getElementById('cv-radar-legend');
+  leg.innerHTML=datasets.map(d=>`
+    <span style="display:flex;align-items:center;gap:6px">
+      <span style="width:12px;height:12px;border-radius:50%;background:${d.borderColor};flex-shrink:0"></span>
+      <span style="color:var(--text2)">${d.label}</span>
+    </span>`).join('');
+}
+
+function renderCVDist(people){
+  const stationsInData = cvFilter==='all'
+    ? CV_STATION_ORDER.filter(s=>people.some(p=>p.station===s))
+    : [cvFilter];
+
+  const datasets=PORDER.map(prof=>{
+    const c=CV_PROFILE_COLORS[prof]||{main:'#888780'};
+    return {
+      label:prof,
+      data: stationsInData.map(s=>people.filter(p=>p.station===s&&(p.profile_key||'').trim()===prof).length),
+      backgroundColor: c.main+'cc',
+      borderColor: c.main,
+      borderWidth:1,
+      borderRadius:3,
+      borderSkipped:false,
+    };
+  }).filter(d=>d.data.some(v=>v>0));
+
+  const h=Math.max(120, stationsInData.length*56+60);
+  const wrap=document.getElementById('cv-dist-wrap');
+  wrap.style.height=h+'px';
+
+  if(cvDistChart){ cvDistChart.destroy(); cvDistChart=null; }
+  cvDistChart=new Chart(document.getElementById('cv-dist'),{
+    type:'bar',
+    data:{ labels: stationsInData.map(s=>s==='United States'?'US (Miami)':s), datasets },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{ label:ctx=>`${ctx.dataset.label}: ${ctx.raw} person${ctx.raw!==1?'s':''}` }}
+      },
+      scales:{
+        x:{ stacked:true, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{color:'#888780',font:{size:11},stepSize:1} },
+        y:{ stacked:true, grid:{display:false}, ticks:{color:'#52514e',font:{size:12}} }
+      }
+    }
+  });
+
+  document.getElementById('cv-dist-title').textContent=
+    cvFilter==='all'?'Profile distribution — all stations':'Profile distribution — '+cvFilter;
+
+  const leg=document.getElementById('cv-dist-legend');
+  leg.innerHTML=datasets.map(d=>`
+    <span style="display:flex;align-items:center;gap:5px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${d.borderColor};flex-shrink:0"></span>
+      <span style="color:var(--text2)">${d.label}</span>
+    </span>`).join('');
+}
+
+function renderCVCards(people){
+  const grid=document.getElementById('cv-cards-grid');
+  const grouped={};
+  PORDER.forEach(p=>grouped[p]=[]);
+  people.forEach(p=>{
+    const pk=(p.profile_key||'').trim();
+    if(grouped[pk]) grouped[pk].push(p);
+  });
+  grid.innerHTML='';
+  PORDER.forEach(prof=>{
+    const members=grouped[prof];
+    if(!members||members.length===0) return;
+    const c=CV_PROFILE_COLORS[prof]||{main:'#888780',bg:'#F9FAFB',text:'#888780'};
+    const card=document.createElement('div');
+    card.style.cssText=`background:${c.bg};border:1px solid ${c.main}33;border-radius:var(--r);padding:12px 14px`;
+    const stationCounts={};
+    members.forEach(m=>{ const s=m.station||'Unknown'; stationCounts[s]=(stationCounts[s]||0)+1; });
+    const stationChips=Object.entries(stationCounts).map(([s,n])=>
+      `<span style="font-size:10px;padding:1px 6px;border-radius:99px;background:${c.main}22;color:${c.text};margin-right:4px">${s==='United States'?'US':s.substring(0,3).toUpperCase()} ×${n}</span>`
+    ).join('');
+    card.innerHTML=`
+      <div style="font-size:12px;font-weight:600;color:${c.text};margin-bottom:6px">${prof}</div>
+      <div style="font-size:22px;font-weight:700;color:${c.main};margin-bottom:6px">${members.length}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${Math.round(members.length/people.length*100)}% of team</div>
+      <div>${stationChips}</div>`;
+    grid.appendChild(card);
+  });
+}
+// ─────────────────────────────────────────────────────────────────────────────
+</script>
 <script>
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONFIGURATION — paste your Apps Script URLs here
@@ -786,14 +1074,14 @@ async function perfGet(action, params){
 async function perfPost(action, data){
   try{
     if(!PERF_GS_URL||PERF_GS_URL.includes('PASTE_YOUR')) return false;
-    const fd=new FormData();
-    fd.append('action',action);
-    fd.append('data',JSON.stringify(data));
-    // Use no-cors for fire-and-forget (scores, notes), cors for objectives where we need confirmation
-    const mode = (action==='upsertObjective'||action==='deleteObjective') ? 'cors' : 'no-cors';
-    const r=await fetch(PERF_GS_URL,{method:'POST',mode,body:fd});
-    if(mode==='cors'&&r.ok){ const txt=await r.text(); try{return JSON.parse(txt);}catch{return {ok:true};}; }
-    return {ok:true};
+    // Google Apps Script: POST JSON body, follow redirects, no-cors for fire-and-forget
+    // For objectives we need confirmation so we use a GET-tunneled write to avoid CORS preflight
+    // Tunnel write as GET with payload encoded — Apps Script handles both
+    const payload = encodeURIComponent(JSON.stringify(data));
+    const url = PERF_GS_URL+'?action='+action+'&data='+payload+'&t='+Date.now();
+    const r = await fetch(url,{method:'GET',redirect:'follow'});
+    if(r.ok){ try{return JSON.parse(await r.text());}catch{return {ok:true};} }
+    return false;
   }catch(e){console.error('perfPost:',e);return false;}
 }
 
@@ -1165,6 +1453,14 @@ function saveReview(){
 // ═══════════════════════════════════════════════════════════════════════════════
 // EMPLOYEE VIEW — MY OBJECTIVES
 // ═══════════════════════════════════════════════════════════════════════════════
+function resetMyView(){
+  document.getElementById('perf-my-content').style.display='none';
+  document.getElementById('perf-lookup-box').style.display='block';
+  document.getElementById('perf-ack-block').style.display='none';
+  document.getElementById('perf-lookup-name').value='';
+  window._ackContext=null;
+}
+
 async function loadMyObjectives(){
   const name=document.getElementById('perf-lookup-name').value;
   const quarter=document.getElementById('perf-lookup-quarter').value;
@@ -1701,7 +1997,7 @@ function downloadProfile(r){
   const dims=[{k:'A',label:'Dominance',low:'Collaborative',high:'Independent',color:'#1B4FD8'},{k:'B',label:'Extraversion',low:'Reserved',high:'Sociable',color:'#0F766E'},{k:'C',label:'Patience',low:'Driving / urgent',high:'Steady / patient',color:'#B45309'},{k:'D',label:'Formality',low:'Flexible',high:'Precise / structured',color:'#7C3AED'},{k:'E',label:'Objectivity',low:'Subjective',high:'Data-driven / factual',color:'#065F46'}];
   const dimHTML=dims.map(d=>{const val=Math.round(a[d.k]||50),o=val<40?d.low:val>60?d.high:'Balanced';return`<div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:500">${d.label}</span><span style="font-size:11px;color:#A1A1AA;font-style:italic">${o}</span></div><div style="position:relative;height:6px;border-radius:99px;background:#E2E2DE"><div style="position:absolute;left:0;top:0;height:100%;border-radius:99px;opacity:.25;width:${val}%;background:${d.color}"></div><div style="position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:${d.color};border:3px solid #fff;left:${val}%"></div></div><div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:10px;color:#A1A1AA">${d.low}</span><span style="font-size:10px;color:#A1A1AA">${d.high}</span></div></div>`;}).join('');
   const meta=[r.level,r.role,r.station,r.exp].filter(Boolean).join(' · ');
-  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+r.name+' — Profile</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#F7F7F5;color:#18181B;padding:2rem;-webkit-print-color-adjust:exact}.card{background:#fff;border:1px solid #E2E2DE;border-radius:10px;padding:1.5rem;margin-bottom:1rem}h3{font-size:11px;font-weight:600;color:#A1A1AA;text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}</style></head><body><div class="card"><div style="background:'+prof.bg+';color:'+prof.color+';display:inline-flex;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;margin-bottom:.75rem">'+pname(pk)+'</div><div style="font-size:22px;font-weight:600">'+r.name+'</div><div style="font-size:13px;color:#A1A1AA;margin-bottom:.75rem">'+meta+'</div><div style="font-size:15px;font-weight:500;color:#52525B;margin-bottom:.5rem">'+prof.tag+'</div><div style="font-size:14px;color:#52525B;line-height:1.75;border-top:.5px solid #E2E2DE;padding-top:.9rem">'+prof.desc+'</div></div><div class="two-col"><div class="card"><h3>Strengths</h3>'+prof.strengths.map(s=>'<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#F0FDF4;color:#15803D">'+s+'</div>').join('')+'</div><div class="card"><h3>Watch out for</h3>'+prof.cautions.map(c=>'<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#FFFBEB;color:#92400E">'+c+'</div>').join('')+'</div></div><div class="card"><h3>Behavioral dimensions</h3>'+dimHTML+'</div><div style="font-size:11px;color:#A1A1AA;text-align:center;margin-top:1rem">Logiztik Alliance · Behavioral Assessment · '+new Date().toLocaleDateString()+'<br><span style="font-size:10px">Internal use only. Not a clinical evaluation.</span></div><script>window.onload=function(){window.print();}<\/script></body></html>';
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+r.name+' — Profile</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#F7F7F5;color:#18181B;padding:2rem;-webkit-print-color-adjust:exact}.card{background:#fff;border:1px solid #E2E2DE;border-radius:10px;padding:1.5rem;margin-bottom:1rem}h3{font-size:11px;font-weight:600;color:#A1A1AA;text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}</style></head><body><div class="card"><div style="background:'+prof.bg+';color:'+prof.color+';display:inline-flex;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;margin-bottom:.75rem">'+pname(pk)+'</div><div style="font-size:22px;font-weight:600">'+r.name+'</div><div style="font-size:13px;color:#A1A1AA;margin-bottom:.75rem">'+meta+'</div><div style="font-size:15px;font-weight:500;color:#52525B;margin-bottom:.5rem">'+prof.tag+'</div><div style="font-size:14px;color:#52525B;line-height:1.75;border-top:.5px solid #E2E2DE;padding-top:.9rem">'+prof.desc+'</div></div><div class="two-col"><div class="card"><h3>Strengths</h3>'+prof.strengths.map(s=>'<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#F0FDF4;color:#15803D">'+s+'</div>').join('')+'</div><div class="card"><h3>Watch out for</h3>'+prof.cautions.map(c=>'<div style="font-size:13px;padding:6px 10px;border-radius:5px;margin-bottom:5px;background:#FFFBEB;color:#92400E">'+c+'</div>').join('')+'</div></div><div class="card"><h3>Behavioral dimensions</h3>'+dimHTML+'</div><div style="font-size:11px;color:#A1A1AA;text-align:center;margin-top:1rem">Logiztik Alliance · Behavioral Assessment · '+new Date().toLocaleDateString()+'<br><span style="font-size:10px">Internal use only. Not a clinical evaluation.</span></div></body></html>';
   const blob=new Blob([html],{type:'text/html'});const url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),15000);
 }
 
@@ -1764,11 +2060,19 @@ function go(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
-  const navMap={sIntro:'navAssessment',sQ1:'navAssessment',sQ2:'navAssessment',sResults:'navAssessment',sGuide:'navGuide',sPerf:'navPerf',sAdmin:'navAdmin'};
+  const navMap={sIntro:'navAssessment',sQ1:'navAssessment',sQ2:'navAssessment',sResults:'navAssessment',sGuide:'navGuide',sPerf:'navPerf',sAdmin:'navAdmin',sCompany:'navCompany'};
   const navEl=document.getElementById(navMap[id]);if(navEl)navEl.classList.add('active');
   if(id==='sQ1'||id==='sQ2')buildGrids();
   if(id==='sGuide')buildGuide();
   if(id==='sAdmin'){loadTeam('All');}
+  if(id==='sCompany'){
+    if(typeof Chart==='undefined'){
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+      s.onload=loadCompanyView;
+      document.head.appendChild(s);
+    } else { loadCompanyView(); }
+  }
 }
 function startA(){
   uData={name:document.getElementById('fName').value.trim()||'Anonymous',station:document.getElementById('fStation').value||'',level:document.getElementById('fLevel').value||'',role:document.getElementById('fRole').value||'',exp:document.getElementById('fExp').value||'',team:document.getElementById('fTeam').value.trim()||''};
@@ -1790,6 +2094,7 @@ function applyLang(){
   document.getElementById('perf-sub').textContent=t('Quarterly objectives · Monthly check-ins · Data-driven coaching conversations','Objetivos trimestrales · Seguimiento mensual · Conversaciones basadas en datos');
   document.getElementById('stab-my').textContent=t('My objectives','Mis objetivos');
   document.getElementById('stab-mgr').textContent=t('Manager view','Vista de jefe');
+  document.getElementById('navPerf').textContent=t('Objectives','Objetivos');
   if(document.getElementById('sGuide').classList.contains('active'))buildGuide();
 }
 
@@ -1816,8 +2121,8 @@ function applyLang(){
 })();
 
 buildGrids();
-// Set Performance as active nav on load
-(function(){ const el=document.getElementById('navPerf'); if(el) el.classList.add('active'); })();
+// Set Assessment as active nav on load
+(function(){ const el=document.getElementById('navAssessment'); if(el) el.classList.add('active'); })();
 </script>
 </body>
 </html>
