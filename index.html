@@ -724,7 +724,20 @@ async function loadCompanyView(){
   document.getElementById('cv-empty').style.display='none';
   try{
     const raw = await storeGet('All');
-    cvAllData  = Array.isArray(raw) ? raw.filter(r=>r.name&&String(r.name).trim()!=='') : [];
+    const clean = Array.isArray(raw) ? raw.filter(r=>{
+      const name = String(r.name||'').trim();
+      if(!name || name.toLowerCase()==='anonymous') return false;
+      if(!(r.profile_key||'').trim()) return false;
+      return true;
+    }) : [];
+    // Deduplicate by name — keep the most recent entry
+    const seen = {};
+    clean.forEach(r=>{
+      const key = String(r.name||'').trim().toLowerCase();
+      if(!seen[key] || String(r.taken_at||'') > String(seen[key].taken_at||''))
+        seen[key] = r;
+    });
+    cvAllData = Object.values(seen);
   }catch(e){ console.error('Company view load failed:',e); cvAllData=[]; }
   renderCompanyView();
 }
@@ -760,18 +773,16 @@ function renderCompanyView(){
 
 function renderCVStats(people){
   const el=document.getElementById('cv-stats');
-  const stations=[...new Set(people.map(p=>p.station||'Unknown'))].filter(Boolean);
-  const profiles=[...new Set(people.map(p=>(p.profile_key||'').trim()))].filter(Boolean);
-  const topProfile = PORDER.find(p=>profiles.sort((a,b)=>
-    people.filter(x=>(x.profile_key||'').trim()===b).length -
-    people.filter(x=>(x.profile_key||'').trim()===a).length
-  )[0]===p) || profiles[0]||'—';
-
+  const stations=[...new Set(people.map(p=>String(p.station||'').trim()).filter(Boolean))];
+  const profileKeys=people.map(p=>(p.profile_key||'').trim()).filter(Boolean);
+  const profileCounts={};
+  profileKeys.forEach(p=>profileCounts[p]=(profileCounts[p]||0)+1);
+  const topProfile=Object.entries(profileCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
   const stats=[
     {label:'Total assessed',value:people.length},
     {label:'Stations',value:cvFilter==='all'?stations.length:'1'},
-    {label:'Profiles present',value:profiles.length+' / 7'},
-    {label:'Most common profile',value:topProfile},
+    {label:'Profiles present',value:Object.keys(profileCounts).length+' / 7'},
+    {label:'Most common',value:topProfile},
   ];
   el.innerHTML=stats.map(s=>`
     <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
@@ -909,15 +920,21 @@ function renderCVCards(people){
     const card=document.createElement('div');
     card.style.cssText=`background:${c.bg};border:1px solid ${c.main}33;border-radius:var(--r);padding:12px 14px`;
     const stationCounts={};
-    members.forEach(m=>{ const s=m.station||'Unknown'; stationCounts[s]=(stationCounts[s]||0)+1; });
-    const stationChips=Object.entries(stationCounts).map(([s,n])=>
-      `<span style="font-size:10px;padding:1px 6px;border-radius:99px;background:${c.main}22;color:${c.text};margin-right:4px">${s==='United States'?'US':s.substring(0,3).toUpperCase()} ×${n}</span>`
-    ).join('');
+    members.forEach(m=>{
+      const s=String(m.station||'').trim()||'Unknown';
+      stationCounts[s]=(stationCounts[s]||0)+1;
+    });
+    const stationChips=Object.entries(stationCounts)
+      .filter(([s])=>s!=='Unknown')
+      .map(([s,n])=>{
+        const short=s==='United States'?'US':s==='Netherlands'?'NL':s.substring(0,3).toUpperCase();
+        return `<span style="font-size:10px;padding:1px 6px;border-radius:99px;background:${c.main}22;color:${c.text};margin-right:4px;margin-bottom:3px;display:inline-block">${short} ×${n}</span>`;
+      }).join('');
     card.innerHTML=`
       <div style="font-size:12px;font-weight:600;color:${c.text};margin-bottom:6px">${prof}</div>
       <div style="font-size:22px;font-weight:700;color:${c.main};margin-bottom:6px">${members.length}</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${Math.round(members.length/people.length*100)}% of team</div>
-      <div>${stationChips}</div>`;
+      <div style="line-height:1.8">${stationChips||'<span style="font-size:10px;color:var(--text3)">No station assigned</span>'}</div>`;
     grid.appendChild(card);
   });
 }
